@@ -1,0 +1,19 @@
+{
+  "_README": "Cross-function desync case study: LP vault, safe/unsafe twin.",
+  "LpVault.sol": {
+    "class": "cross_function_desync",
+    "property": "reserve == totalShares",
+    "verdict": "BUG_FOUND",
+    "bug_site": "removeLiquidity exposes reserve>totalShares; mint() re-enters and mints unbacked shares",
+    "provenance": "case_study",
+    "solc": "0.8.20"
+  },
+  "LpVaultSafe.sol": {
+    "class": "cross_function_desync",
+    "property": "exposed || reserve == totalShares",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "case_study",
+    "solc": "0.8.20"
+  }
+}

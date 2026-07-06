@@ -1,0 +1,42 @@
+{
+  "Escrow.sol": {
+    "property": "balance == totalOwed",
+    "ground_truth": "BUG_FOUND"
+  },
+  "EscrowSafe.sol": {
+    "property": "balance == totalOwed",
+    "ground_truth": "VERIFIED"
+  },
+  "LendingPool.sol": {
+    "property": "cash == totalDeposits",
+    "ground_truth": "BUG_FOUND"
+  },
+  "LendingPoolSafe.sol": {
+    "property": "cash == totalDeposits",
+    "ground_truth": "VERIFIED"
+  },
+  "SaleVault.sol": {
+    "property": "raised == totalContributed",
+    "ground_truth": "BUG_FOUND"
+  },
+  "SaleVaultSafe.sol": {
+    "property": "raised == totalContributed",
+    "ground_truth": "VERIFIED"
+  },
+  "StakeVault.sol": {
+    "property": "reserve == totalStaked",
+    "ground_truth": "BUG_FOUND"
+  },
+  "StakeVaultSafe.sol": {
+    "property": "reserve == totalStaked",
+    "ground_truth": "VERIFIED"
+  },
+  "VestingVault.sol": {
+    "property": "vault == totalLocked",
+    "ground_truth": "BUG_FOUND"
+  },
+  "VestingVaultSafe.sol": {
+    "property": "vault == totalLocked",
+    "ground_truth": "VERIFIED"
+  }
+}

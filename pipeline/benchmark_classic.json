@@ -1,0 +1,83 @@
+{
+  "_README": "RQ1 50-contract benchmark. Built from metadata/contracts.csv; property extracted from each contract's invariant() return. class=aegis taxonomy; verdict=BUG_FOUND(unsafe)/VERIFIED(safe).",
+  "ClassicReentrancy_U01.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "BUG_FOUND",
+    "bug_site": "withdraw via onCallback reenters withdraw",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_S01.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_U02.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "BUG_FOUND",
+    "bug_site": "withdraw via onCallback reenters withdraw",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_S02.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_U03.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "BUG_FOUND",
+    "bug_site": "withdraw via onCallback reenters withdraw",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_S03.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_U04.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "BUG_FOUND",
+    "bug_site": "withdraw via onCallback reenters withdraw",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_S04.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_U05.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "BUG_FOUND",
+    "bug_site": "withdraw via onCallback reenters withdraw",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_S05.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  }
+}

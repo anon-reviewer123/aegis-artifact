@@ -1,0 +1,11 @@
+contract,ground_truth,status,initially_fails
+Escrow.sol,BUG_FOUND,BUG_FOUND,False
+EscrowSafe.sol,VERIFIED,UNKNOWN,True
+LendingPool.sol,BUG_FOUND,BUG_FOUND,False
+LendingPoolSafe.sol,VERIFIED,VERIFIED,False
+SaleVault.sol,BUG_FOUND,BUG_FOUND,False
+SaleVaultSafe.sol,VERIFIED,VERIFIED,False
+StakeVault.sol,BUG_FOUND,BUG_FOUND,False
+StakeVaultSafe.sol,VERIFIED,VERIFIED,False
+VestingVault.sol,BUG_FOUND,BUG_FOUND,False
+VestingVaultSafe.sol,VERIFIED,VERIFIED,False

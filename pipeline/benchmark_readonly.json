@@ -1,0 +1,67 @@
+{
+  "_README": "RQ1 50-contract benchmark. Built from metadata/contracts.csv; property extracted from each contract's invariant() return. class=aegis taxonomy; verdict=BUG_FOUND(unsafe)/VERIFIED(safe).",
+  "ReadOnlyReentrancy_U01.sol": {
+    "class": "read_only_reentrancy",
+    "property": "reserve == supply",
+    "verdict": "BUG_FOUND",
+    "bug_site": "callback reads price while reserve and supply desynchronized",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_S01.sol": {
+    "class": "read_only_reentrancy",
+    "property": "exposed || reserve == supply",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_U02.sol": {
+    "class": "read_only_reentrancy",
+    "property": "reserve == supply",
+    "verdict": "BUG_FOUND",
+    "bug_site": "callback reads price while reserve and supply desynchronized",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_S02.sol": {
+    "class": "read_only_reentrancy",
+    "property": "exposed || reserve == supply",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_U03.sol": {
+    "class": "read_only_reentrancy",
+    "property": "reserve == supply",
+    "verdict": "BUG_FOUND",
+    "bug_site": "callback reads price while reserve and supply desynchronized",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_S03.sol": {
+    "class": "read_only_reentrancy",
+    "property": "exposed || reserve == supply",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_U04.sol": {
+    "class": "read_only_reentrancy",
+    "property": "reserve == supply",
+    "verdict": "BUG_FOUND",
+    "bug_site": "callback reads price while reserve and supply desynchronized",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_S04.sol": {
+    "class": "read_only_reentrancy",
+    "property": "exposed || reserve == supply",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  }
+}

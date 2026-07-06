@@ -1,0 +1,19 @@
+'/usr/local/bin/solc --version' running
+'/usr/local/bin/solc contracts/corpus/LpVaultSafe.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --base-path ~/Downloads/aegis_dist --include-path ~/Downloads/aegis_dist --allow-paths .,/tmp/lpvault_slither_case/cwd/contracts/corpus' running
+INFO:Detectors:
+Reentrancy in LpVaultSafe.removeLiquidity(uint256,address) (contracts/corpus/LpVaultSafe.sol#19-27):
+	External calls:
+	- ILpHook(hook).onRemove(amount) (contracts/corpus/LpVaultSafe.sol#24)
+	State variables written after the call(s):
+	- exposed = false (contracts/corpus/LpVaultSafe.sol#26)
+	- reserve -= amount (contracts/corpus/LpVaultSafe.sol#25)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2
+INFO:Detectors:
+Version constraint ^0.8.20 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+	- VerbatimInvalidDeduplication
+	- FullInlinerNonExpressionSplitArgumentEvaluationOrder
+	- MissingSideEffectsOnSelectorAccess.
+It is used by:
+	- ^0.8.20 (contracts/corpus/LpVaultSafe.sol#2)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity
+INFO:Slither:contracts/corpus/LpVaultSafe.sol analyzed (2 contracts with 100 detectors), 2 result(s) found

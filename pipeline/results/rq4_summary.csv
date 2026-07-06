@@ -1,0 +1,6 @@
+strategy,recovered,correct,total_calls,total_reuse,mean_time_sec
+none,0,0,20,0,148.88
+whole-regen,0,0,160,0,1242.83
+raw,0,0,160,0,1221.36
+cegar,0,0,160,0,1238.93
+cegar-reuse,0,0,104,56,967.53

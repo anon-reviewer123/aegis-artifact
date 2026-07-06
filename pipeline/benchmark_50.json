@@ -1,0 +1,416 @@
+{
+  "_README": "RQ1 50-contract benchmark. Built from metadata/contracts.csv; property extracted from each contract's invariant() return. class=aegis taxonomy; verdict=BUG_FOUND(unsafe)/VERIFIED(safe).",
+  "ClassicReentrancy_U01.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "BUG_FOUND",
+    "bug_site": "withdraw via onCallback reenters withdraw",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_S01.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_U02.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "BUG_FOUND",
+    "bug_site": "withdraw via onCallback reenters withdraw",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_S02.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_U03.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "BUG_FOUND",
+    "bug_site": "withdraw via onCallback reenters withdraw",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_S03.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_U04.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "BUG_FOUND",
+    "bug_site": "withdraw via onCallback reenters withdraw",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_S04.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_U05.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "BUG_FOUND",
+    "bug_site": "withdraw via onCallback reenters withdraw",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ClassicReentrancy_S05.sol": {
+    "class": "classic_reentrancy",
+    "property": "address(this).balance >= totalDeposits",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "CrossFunctionDesync_U01.sol": {
+    "class": "cross_function_desync",
+    "property": "aum == trackedValue",
+    "verdict": "BUG_FOUND",
+    "bug_site": "mintShares during callback observes temporary surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "CrossFunctionDesync_S01.sol": {
+    "class": "cross_function_desync",
+    "property": "exposed || aum == trackedValue",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "CrossFunctionDesync_U02.sol": {
+    "class": "cross_function_desync",
+    "property": "aum == trackedValue",
+    "verdict": "BUG_FOUND",
+    "bug_site": "mintShares during callback observes temporary surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "CrossFunctionDesync_S02.sol": {
+    "class": "cross_function_desync",
+    "property": "exposed || aum == trackedValue",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "CrossFunctionDesync_U03.sol": {
+    "class": "cross_function_desync",
+    "property": "aum == trackedValue",
+    "verdict": "BUG_FOUND",
+    "bug_site": "mintShares during callback observes temporary surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "CrossFunctionDesync_S03.sol": {
+    "class": "cross_function_desync",
+    "property": "exposed || aum == trackedValue",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "CrossFunctionDesync_U04.sol": {
+    "class": "cross_function_desync",
+    "property": "aum == trackedValue",
+    "verdict": "BUG_FOUND",
+    "bug_site": "mintShares during callback observes temporary surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "CrossFunctionDesync_S04.sol": {
+    "class": "cross_function_desync",
+    "property": "exposed || aum == trackedValue",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "CrossFunctionDesync_U05.sol": {
+    "class": "cross_function_desync",
+    "property": "aum == trackedValue",
+    "verdict": "BUG_FOUND",
+    "bug_site": "mintShares during callback observes temporary surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "CrossFunctionDesync_S05.sol": {
+    "class": "cross_function_desync",
+    "property": "exposed || aum == trackedValue",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_U01.sol": {
+    "class": "read_only_reentrancy",
+    "property": "reserve == supply",
+    "verdict": "BUG_FOUND",
+    "bug_site": "callback reads price while reserve and supply desynchronized",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_S01.sol": {
+    "class": "read_only_reentrancy",
+    "property": "exposed || reserve == supply",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_U02.sol": {
+    "class": "read_only_reentrancy",
+    "property": "reserve == supply",
+    "verdict": "BUG_FOUND",
+    "bug_site": "callback reads price while reserve and supply desynchronized",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_S02.sol": {
+    "class": "read_only_reentrancy",
+    "property": "exposed || reserve == supply",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_U03.sol": {
+    "class": "read_only_reentrancy",
+    "property": "reserve == supply",
+    "verdict": "BUG_FOUND",
+    "bug_site": "callback reads price while reserve and supply desynchronized",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_S03.sol": {
+    "class": "read_only_reentrancy",
+    "property": "exposed || reserve == supply",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_U04.sol": {
+    "class": "read_only_reentrancy",
+    "property": "reserve == supply",
+    "verdict": "BUG_FOUND",
+    "bug_site": "callback reads price while reserve and supply desynchronized",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ReadOnlyReentrancy_S04.sol": {
+    "class": "read_only_reentrancy",
+    "property": "exposed || reserve == supply",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "TokenHookAccounting_U01.sol": {
+    "class": "token_hook_accounting",
+    "property": "credits == liabilities",
+    "verdict": "BUG_FOUND",
+    "bug_site": "tokensReceived hook reenters claim before credit updated",
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_rq5_note": "per-account desync; scalar invariant cannot capture (expected limitation)"
+  },
+  "TokenHookAccounting_S01.sol": {
+    "class": "token_hook_accounting",
+    "property": "credits == liabilities",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_rq5_note": "per-account desync; scalar invariant cannot capture (expected limitation)"
+  },
+  "TokenHookAccounting_U02.sol": {
+    "class": "token_hook_accounting",
+    "property": "credits == liabilities",
+    "verdict": "BUG_FOUND",
+    "bug_site": "tokensReceived hook reenters claim before credit updated",
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_rq5_note": "per-account desync; scalar invariant cannot capture (expected limitation)"
+  },
+  "TokenHookAccounting_S02.sol": {
+    "class": "token_hook_accounting",
+    "property": "credits == liabilities",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_rq5_note": "per-account desync; scalar invariant cannot capture (expected limitation)"
+  },
+  "TokenHookAccounting_U03.sol": {
+    "class": "token_hook_accounting",
+    "property": "credits == liabilities",
+    "verdict": "BUG_FOUND",
+    "bug_site": "tokensReceived hook reenters claim before credit updated",
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_rq5_note": "per-account desync; scalar invariant cannot capture (expected limitation)"
+  },
+  "TokenHookAccounting_S03.sol": {
+    "class": "token_hook_accounting",
+    "property": "credits == liabilities",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_rq5_note": "per-account desync; scalar invariant cannot capture (expected limitation)"
+  },
+  "TokenHookAccounting_U04.sol": {
+    "class": "token_hook_accounting",
+    "property": "credits == liabilities",
+    "verdict": "BUG_FOUND",
+    "bug_site": "tokensReceived hook reenters claim before credit updated",
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_rq5_note": "per-account desync; scalar invariant cannot capture (expected limitation)"
+  },
+  "TokenHookAccounting_S04.sol": {
+    "class": "token_hook_accounting",
+    "property": "credits == liabilities",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_rq5_note": "per-account desync; scalar invariant cannot capture (expected limitation)"
+  },
+  "FlashLoanCallback_U01.sol": {
+    "class": "flash_loan_callback",
+    "property": "cash + loans == totalAssets",
+    "verdict": "BUG_FOUND",
+    "bug_site": "deposit during flash-loan callback observes cash-only surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "FlashLoanCallback_S01.sol": {
+    "class": "flash_loan_callback",
+    "property": "inFlash || cash + loans == totalAssets",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "FlashLoanCallback_U02.sol": {
+    "class": "flash_loan_callback",
+    "property": "cash + loans == totalAssets",
+    "verdict": "BUG_FOUND",
+    "bug_site": "deposit during flash-loan callback observes cash-only surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "FlashLoanCallback_S02.sol": {
+    "class": "flash_loan_callback",
+    "property": "inFlash || cash + loans == totalAssets",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "FlashLoanCallback_U03.sol": {
+    "class": "flash_loan_callback",
+    "property": "cash + loans == totalAssets",
+    "verdict": "BUG_FOUND",
+    "bug_site": "deposit during flash-loan callback observes cash-only surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "FlashLoanCallback_S03.sol": {
+    "class": "flash_loan_callback",
+    "property": "inFlash || cash + loans == totalAssets",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "ForcedRevertGriefing_U01.sol": {
+    "class": "griefing_liveness",
+    "property": "finalized",
+    "verdict": "BUG_FOUND",
+    "bug_site": "one receiver callback revert bricks settlement",
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_note": "liveness target; accounting templates may not fit (expected-hard class)"
+  },
+  "ForcedRevertGriefing_S01.sol": {
+    "class": "griefing_liveness",
+    "property": "finalized",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_note": "liveness target; accounting templates may not fit (expected-hard class)"
+  },
+  "ForcedRevertGriefing_U02.sol": {
+    "class": "griefing_liveness",
+    "property": "finalized",
+    "verdict": "BUG_FOUND",
+    "bug_site": "one receiver callback revert bricks settlement",
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_note": "liveness target; accounting templates may not fit (expected-hard class)"
+  },
+  "ForcedRevertGriefing_S02.sol": {
+    "class": "griefing_liveness",
+    "property": "finalized",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_note": "liveness target; accounting templates may not fit (expected-hard class)"
+  },
+  "UnexpectedEOACallback_U01.sol": {
+    "class": "classic_reentrancy",
+    "property": "rewardDebt + paid >= paid",
+    "verdict": "BUG_FOUND",
+    "bug_site": "refund assumes EOA and attacker contract reenters claim",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "UnexpectedEOACallback_S01.sol": {
+    "class": "classic_reentrancy",
+    "property": "finalized",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20",
+    "_note": "liveness target; accounting templates may not fit (expected-hard class)"
+  },
+  "PhaseOrderingDesync_U01.sol": {
+    "class": "griefing_liveness",
+    "property": "phase != 0 || debit == credit",
+    "verdict": "BUG_FOUND",
+    "bug_site": "callback observes phase after debit before credit",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "PhaseOrderingDesync_S01.sol": {
+    "class": "griefing_liveness",
+    "property": "phase != 0 || debit == credit",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  }
+}

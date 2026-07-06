@@ -1,0 +1,96 @@
+{
+  "contract": "CrossFunctionBuggy.sol",
+  "llm": "stub",
+  "status": "BUG_FOUND",
+  "expected": "BUG_FOUND",
+  "match": true,
+  "backend": "smtchecker",
+  "repair_rounds": 3,
+  "total_repairs": 2,
+  "first_try_verified": false,
+  "llm_first_plan_sound_as_proposed": false,
+  "obligations": [
+    {
+      "obligation": "OBL_pre",
+      "module": "phases",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    },
+    {
+      "obligation": "OBL_cb_deposit",
+      "module": "closure",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    },
+    {
+      "obligation": "OBL_cb_transfer",
+      "module": "closure",
+      "status": "failed",
+      "detail": "SMTChecker found an assertion violation"
+    },
+    {
+      "obligation": "OBL_post",
+      "module": "phases",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    }
+  ],
+  "seconds": 45.7,
+  "llm_generated_mcvp": {
+    "contract": "CrossFunctionBuggy",
+    "closure": {
+      "site_function": "withdraw",
+      "site_call": ".onAssetReceived",
+      "functions": [
+        "deposit",
+        "withdraw"
+      ],
+      "justification": "public functions sharing exposed accounting state"
+    },
+    "protocol": {
+      "during_phase": "withdraw.exposed",
+      "allowed_callbacks": [
+        "deposit"
+      ],
+      "nesting_bound": {
+        "withdraw": 1
+      }
+    },
+    "phases": {
+      "function": "withdraw",
+      "pre": {
+        "name": "pre",
+        "from_marker": "function_entry",
+        "to_marker": "before_external_call"
+      },
+      "exposed": {
+        "name": "exposed",
+        "from_marker": "external_call",
+        "to_marker": "call_return"
+      },
+      "post": {
+        "name": "post",
+        "from_marker": "after_external_call",
+        "to_marker": "function_exit"
+      },
+      "linearization_point": "share burn in pre-phase"
+    },
+    "ghost_state": [
+      {
+        "name": "inFlight",
+        "sol_type": "uint256",
+        "meaning": "assets committed to withdrawal but not yet settled",
+        "backed_by_storage": true
+      }
+    ],
+    "exposure_invariant": {
+      "formula": "totalAssets == totalShares + inFlight",
+      "stable_formula": "totalAssets == totalShares"
+    },
+    "composition": {
+      "target_property": "totalAssets == totalShares",
+      "rule": "If pre establishes I_exp, every admissible callback preserves I_exp, the protocol over-approximates concrete callbacks, and post restores I_stable, then the target property holds under adversarial callbacks."
+    }
+  },
+  "ag_spec_rendered": "Assume-Guarantee specification for CrossFunctionBuggy\n  target property phi : totalAssets == totalShares\n\n  [A_cb]  ASSUMPTION (assumption)\n          During withdraw's exposed phase, re-entrant control is confined to the callback closure ['deposit', 'withdraw']; every such callback is admitted by the protocol, with bounded nesting.\n          formal: admissible_callbacks=['deposit', 'withdraw'], nesting={'withdraw': 1}\n          discharged by: ['OBL_closure_soundness']\n\n  [G_pre] GUARANTEE\n          If the stable invariant holds on entry, the pre-phase establishes the exposure invariant before the external call.\n          formal: {totalAssets == totalShares} pre-phase {totalAssets == totalShares + inFlight}\n          discharged by: ['OBL_pre']\n\n  [G_exp] GUARANTEE\n          Every callback admitted by A_cb preserves the exposure invariant while the contract is externally exposed.\n          formal: forall f in A_cb. {totalAssets == totalShares + inFlight} f {totalAssets == totalShares + inFlight}\n          discharged by: ['OBL_cb_deposit']\n\n  [G_post] GUARANTEE\n          When the external call returns, the post-phase restores the stable invariant and fully settles the in-flight ghost state.\n          formal: {totalAssets == totalShares + inFlight} post-phase {totalAssets == totalShares /\\ inFlight==0}\n          discharged by: ['OBL_post']\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => totalAssets == totalShares\n      where callbacks are confined to admissible_callbacks=['deposit', 'withdraw'], nesting={'withdraw': 1}"
+}
