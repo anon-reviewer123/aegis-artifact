@@ -1,120 +1,345 @@
-# RQ1 Execution Guide — Aegis vs. baselines (run on YOUR machine)
 
-You already have Aegis + solc + Eldarica working. This guide adds the three
-baseline tools and runs the full RQ1 comparison. Everything emits the SAME JSON
-schema, so `make_rq1_tables.py` produces Table 1 + Table 2 as drop-in LaTeX.
+# AEGIS: RQ1 Experimental Evaluation Guide
 
-All commands assume you are inside `aegis_dist/`.
+## 1. Overview
+
+This document describes the experimental procedure for evaluating AEGIS against established smart-contract security analysis tools.
+
+The evaluation compares four approaches:
+
+1. AEGIS — LLM-assisted assume-guarantee verification.
+2. SMTChecker-direct — direct formal analysis without MCVP synthesis.
+3. Slither — static analysis-based vulnerability detection.
+4. Mythril — symbolic execution-based vulnerability detection.
+
+All evaluation tools produce results in a common JSON format, enabling consistent aggregation and comparison.
+
+The `make_rq1_tables.py` utility generates LaTeX tables summarizing the experimental results.
+
+All commands are executed from the `aegis_dist/` directory.
 
 ---
 
-## 0. One-time: confirm your existing toolchain
+## 2. Environment and Toolchain
+
+### 2.1 Solidity Compiler
+
+AEGIS uses the Solidity compiler (`solc`) with SMTChecker support.
+
+Verify the installed compiler:
 
 ```bash
-solc --version                       # must show your 0.8.x with SMTChecker
-echo "key set? ${OPENAI_API_KEY:+yes}"
-echo "model: ${AEGIS_OPENAI_MODEL:-<unset>}"
+solc --version
+```
+
+The benchmark configuration described in this guide uses Solidity 0.8.26.
+
+### 2.2 LLM Configuration
+
+For LLM-assisted specification synthesis, configure the required API credentials and model identifier.
+
+```bash
+export OPENAI_API_KEY="<OPENAI_API_KEY>"
+export AEGIS_OPENAI_MODEL="gpt-4o"
+```
+
+Verify the configuration without displaying the API key:
+
+```bash
+echo "API key configured: ${OPENAI_API_KEY:+yes}"
+echo "Model: ${AEGIS_OPENAI_MODEL:-<unset>}"
+```
+
+API credentials should be managed through environment variables or an appropriate secrets-management mechanism and must not be committed to the repository.
+
+### 2.3 Formal Verification Backend
+
+AEGIS uses Solidity SMTChecker and a Horn-clause solver for formal verification.
+
+The Eldarica executable must be accessible through the system PATH.
+
+Example configuration:
+
+```bash
+export PATH="$HOME/Downloads/eldarica:$PATH"
 ```
 
 ---
 
-## 1. Install the three baseline tools
+## 3. Baseline Tool Installation
 
-These are isolated CLI tools; install in a venv or with pipx so they don't
-collide with Aegis's deps. **Slither and Mythril each need solc**, which you
-already manage with solc-select — they reuse it.
+### 3.1 Slither
 
-### 1a. Slither (static detector)
+Slither performs static analysis of Solidity smart contracts.
+
+Install:
+
 ```bash
-pip install slither-analyzer        # or: pipx install slither-analyzer
+pip install slither-analyzer
+```
+
+Alternatively:
+
+```bash
+pipx install slither-analyzer
+```
+
+Verify:
+
+```bash
 slither --version
 ```
 
-### 1b. Mythril (symbolic-execution detector)
+### 3.2 Mythril
+
+Mythril performs symbolic execution and vulnerability analysis of Ethereum smart contracts.
+
+Install:
+
 ```bash
-pip install mythril                 # or: pipx install mythril
+pip install mythril
+```
+
+Alternatively:
+
+```bash
+pipx install mythril
+```
+
+Verify:
+
+```bash
 myth version
 ```
-> Mythril is heavier (symbolic execution). If `pip install mythril` fights your
-> environment, use a separate venv:
-> ```bash
-> python3 -m venv ~/.venv-myth && source ~/.venv-myth/bin/activate
-> pip install mythril && myth version && deactivate
-> ```
-> Then point `baseline_detectors.py` at it by running that script from inside
-> the venv, or put `~/.venv-myth/bin` on PATH for the Mythril step only.
 
-### 1c. SMTChecker-direct — NOTHING to install
-It reuses your existing solc. No new tool.
-
----
-
-## 2. Sanity check (cheap, no API spend) — confirm plumbing
+For dependency isolation, Mythril may be installed in a dedicated Python virtual environment:
 
 ```bash
-# stub LLM = no API tokens; just checks the harness + backend wiring
-python3 collect_aegis.py --labels benchmark.json --llm stub --out /tmp/aegis_stub.json
-python3 baseline_smtchecker.py --labels benchmark.json --out /tmp/smt.json
+python3 -m venv ~/.venv-myth
+source ~/.venv-myth/bin/activate
+pip install mythril
+myth version
+deactivate
 ```
-Both should print one line per labeled contract and write JSON. If solc is
-healthy you'll see real VERIFIED/BUG_FOUND/UNKNOWN already from the stub.
+
+The Mythril executable must be accessible when executing the corresponding baseline.
+
+### 3.3 SMTChecker-Direct
+
+The SMTChecker-direct baseline uses the installed Solidity compiler and does not require an additional tool installation.
+
+This baseline evaluates contracts using direct SMTChecker-based verification without AEGIS's synthesized Modular Callback Verification Plan.
 
 ---
 
-## 3. Run all four tools over the benchmark
+## 4. Pipeline Validation
+
+Before running the full evaluation, the execution pipeline can be checked using deterministic template-based synthesis.
+
+### 4.1 AEGIS Template-Based Execution
 
 ```bash
-# (a) Aegis — the real run (uses your OpenAI key). ~60-90s/contract.
-python3 collect_aegis.py --labels benchmark.json --llm openai --k 4 \
-        --out results/aegis_rq1.json
-
-# (b) SMTChecker-direct (your backend, monolithic, no MCVP)
-python3 baseline_smtchecker.py --labels benchmark.json \
-        --out results/baseline_smtchecker.json
-
-# (c) Slither
-python3 baseline_detectors.py --tool slither --labels benchmark.json \
-        --out results/baseline_slither.json
-
-# (d) Mythril  (run from the venv if you used one)
-python3 baseline_detectors.py --tool mythril --labels benchmark.json \
-        --out results/baseline_mythril.json
+python3 collect_aegis.py \
+  --labels benchmark.json \
+  --llm stub \
+  --out /tmp/aegis_stub.json
 ```
 
-> Each baseline needs the right solc per contract. If a contract pins a
-> different version, `solc-select use <ver>` before its run, or run the tools
-> per-version-group. For the current corpus everything is 0.8.26.
+The `stub` configuration uses predefined synthesis templates and does not require LLM API access.
 
----
-
-## 4. Generate Table 1 + Table 2
+### 4.2 SMTChecker-Direct Execution
 
 ```bash
-python3 make_rq1_tables.py --labels benchmark.json \
-        --results-dir results --out-dir results
+python3 baseline_smtchecker.py \
+  --labels benchmark.json \
+  --out /tmp/smt.json
 ```
-Outputs:
-- `results/table1_main.tex`     — main comparison (Verified/Bug/Spurious/Unknown/Localized)
-- `results/table2_perclass.tex` — per-class breakdown (#correct / #class)
 
-Paste both into the paper. They compile standalone (need `booktabs`).
+These executions provide an initial check of contract loading, verification-backend integration, and structured result generation.
 
----
-
-## 5. Paste results back to me
-
-After step 3, paste the four `results/*.json` files (or just the console
-summaries). I'll: (a) sanity-check the numbers, (b) tell you if any baseline
-needs a fairer configuration, and (c) if Aegis's margin is thin, improve the
-synth prompt / k / repair budget and give you the re-run command.
+Successful execution of these checks does not independently establish the outcome of the full LLM-assisted evaluation.
 
 ---
 
-## Growing the benchmark to ~20/class (the real lift)
+## 5. RQ1 Experimental Execution
 
-`benchmark.json` currently has your 14 existing contracts. Gaps:
-`read_only_reentrancy` (0), `flash_loan_callback` (0), `griefing_liveness` (1).
-See `GROW_BENCHMARK.md` for download commands (ReentrancyStudy-Data, SmartReco
-ROR set, SCRUBD) and the synthetic minimal models I provide for the empty
-classes. Each new contract = one `.sol` in `contracts/corpus/` + one row in
-`benchmark.json`. Aegis auto-synthesizes the `.harness.sol` if absent.
+### 5.1 AEGIS
+
+Run AEGIS with LLM-assisted specification synthesis:
+
+```bash
+python3 collect_aegis.py \
+  --labels benchmark.json \
+  --llm openai \
+  --k 4 \
+  --out results/aegis_rq1.json
+```
+
+This configuration uses OpenAI-based candidate specification synthesis followed by the AEGIS validation and verification pipeline.
+
+### 5.2 SMTChecker-Direct
+
+```bash
+python3 baseline_smtchecker.py \
+  --labels benchmark.json \
+  --out results/baseline_smtchecker.json
+```
+
+This baseline uses direct SMTChecker analysis without an MCVP.
+
+### 5.3 Slither
+
+```bash
+python3 baseline_detectors.py \
+  --tool slither \
+  --labels benchmark.json \
+  --out results/baseline_slither.json
+```
+
+### 5.4 Mythril
+
+```bash
+python3 baseline_detectors.py \
+  --tool mythril \
+  --labels benchmark.json \
+  --out results/baseline_mythril.json
+```
+
+### 5.5 Compiler Compatibility
+
+Each evaluated contract must be analyzed using a compatible Solidity compiler version.
+
+Where contracts require different compiler versions, the environment can be configured using `solc-select`:
+
+```bash
+solc-select use <VERSION>
+```
+
+Compiler versions and relevant tool configurations should be recorded alongside the experimental results.
+
+---
+
+## 6. Results Aggregation
+
+The evaluation framework uses a common JSON result schema across the compared tools.
+
+Generate the LaTeX evaluation tables using:
+
+```bash
+python3 make_rq1_tables.py \
+  --labels benchmark.json \
+  --results-dir results \
+  --out-dir results
+```
+
+### 6.1 Main Comparison
+
+Output:
+
+`results/table1_main.tex`
+
+This table summarizes the primary evaluation outcomes, including:
+
+- Verified classifications.
+- Detected vulnerabilities.
+- Spurious findings.
+- Unknown outcomes.
+- Localization information.
+
+### 6.2 Per-Class Evaluation
+
+Output:
+
+`results/table2_perclass.tex`
+
+This table summarizes results for individual vulnerability categories, including the number of correct classifications relative to the number of evaluated contracts.
+
+The generated LaTeX tables use the `booktabs` package.
+
+### 6.3 Result Interpretation
+
+The experimental analysis should account for differences between static detection, symbolic execution, and formal verification.
+
+The interpretation of `VERIFIED`, `BUG_FOUND`, and `UNKNOWN` depends on the semantics of the corresponding tool.
+
+Where tools expose different result categories or levels of evidence, the mapping into the common evaluation schema should be documented.
+
+Comparative performance claims should be derived from recorded executions and verified output artifacts.
+
+---
+
+## 7. Benchmark Composition and Extension
+
+The evaluation framework supports expansion of the benchmark across additional smart-contract vulnerability classes.
+
+The benchmark configuration is maintained in:
+
+`benchmark.json`
+
+Supporting Solidity contracts are organized under:
+
+`contracts/corpus/`
+
+Additional benchmark acquisition and preparation procedures are described in:
+
+`GROW_BENCHMARK.md`
+
+### 7.1 Vulnerability Categories
+
+Relevant evaluation categories include:
+
+- Read-only reentrancy.
+- Flash-loan callback interactions.
+- Griefing and liveness vulnerabilities.
+- Cross-function reentrancy.
+- Other callback-sensitive smart-contract security properties.
+
+### 7.2 Benchmark Integration
+
+To incorporate an additional contract:
+
+1. Add the Solidity source file to `contracts/corpus/`.
+2. Add its corresponding entry to `benchmark.json`.
+3. Specify the appropriate vulnerability classification and expected outcome.
+4. Verify compatibility with the selected Solidity compiler.
+5. Execute the analysis and record the resulting artifacts.
+
+AEGIS supports generation of verification harnesses when a compatible `.harness.sol` file is not already available.
+
+### 7.3 Dataset Provenance
+
+Benchmark sources should be documented with sufficient information to establish their origin and intended evaluation role.
+
+Where applicable, dataset documentation should distinguish:
+
+- Real-world deployed contracts.
+- Vulnerable and patched contract variants.
+- Adapted benchmark examples.
+- Synthetic minimal models.
+- Contracts with independently established ground-truth classifications.
+
+Synthetic and adapted cases should not be represented as original deployed contracts.
+
+---
+
+## 8. Experimental Reproducibility
+
+A reproducible RQ1 evaluation should preserve:
+
+- Benchmark input files and ground-truth labels.
+- Tool and compiler versions.
+- Model identifiers and synthesis parameters.
+- Verification-backend configuration.
+- Per-contract results.
+- Aggregate evaluation outputs.
+- Generated LaTeX tables.
+
+The structured outputs allow the comparison tables to be regenerated from the recorded experimental data.
+
+## 9. Evaluation Scope
+
+The experiment assesses the behavior of AEGIS and the selected baselines on the configured benchmark.
+
+Verification effectiveness, detection coverage, false positives, inconclusive outcomes, and computational requirements should be interpreted relative to the evaluated contracts and each tool's supported analysis semantics.
+
+The evaluation framework distinguishes the implementation of an experimental procedure from empirical evidence obtained through its execution. Conclusions should be supported by the corresponding recorded results.
