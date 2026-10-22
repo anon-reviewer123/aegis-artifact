@@ -1,0 +1,115 @@
+status: failed
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmp7j58nvzk/OneStep.sol:82:9:
+   |
+82 |         bool success;
+   |         ^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp7j58nvzk/OneStep.sol:17:5:
+   |
+17 |     bool public success = true;   // success flag of an excised call
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp7j58nvzk/OneStep.sol:148:41:
+    |
+148 |     function __h_withdrawableDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp7j58nvzk/OneStep.sol:14:5:
+   |
+14 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp7j58nvzk/OneStep.sol:196:41:
+    |
+196 |     function __h_accumulativeDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp7j58nvzk/OneStep.sol:14:5:
+   |
+14 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp7j58nvzk/OneStep.sol:18:27:
+   |
+18 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp7j58nvzk/OneStep.sol:18:41:
+   |
+18 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp7j58nvzk/OneStep.sol:18:69:
+   |
+18 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp7j58nvzk/OneStep.sol:18:83:
+   |
+18 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp7j58nvzk/OneStep.sol:75:29:
+   |
+75 |     function claimDividends(uint256 amount) public {
+   |                             ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp7j58nvzk/OneStep.sol:238:24:
+    |
+238 |     function __preBody(uint256 amount) internal {
+    |                        ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp7j58nvzk/OneStep.sol:246:25:
+    |
+246 |     function __postBody(uint256 amount) internal {
+    |                         ^^^^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmp7j58nvzk/OneStep.sol:259:13:
+    |
+259 |             assert(false);       
+    |             ^^^^^^^^^^^^^
+Note: Counterexample:
+   = 0
+  _balances[account] = 1590
+  _balances[who] = 1590
+  _owner = 10
+  _sum__balances = 0
+  _totalSupply = 0
+  account = 10
+  amount = 0
+  deposits[msg.sender] = 30006
+  deposits[who] = 30006
+  exposed = true
+  inFlight = 0
+  lastClaimTimes[msg.sender] = 13505
+  lastClaimTimes[who] = 13505
+  lastWrapped[who] = 29533
+  snapPre = 0
+  success = false
+  this = 11
+  weekInSeconds = 0
+  who = 10
+  withdrawableDividend = 0
+  withdrawnDividends[_owner] = 0
+  withdrawnDividends[msg.sender] = 0
+  withdrawnDividends[who] = 0
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

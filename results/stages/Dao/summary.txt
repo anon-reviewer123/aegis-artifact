@@ -1,0 +1,8 @@
+
+======================================================================
+Dao
+harness  : compiles  (48 lines)
+Iexp     : _sum_balances == address(this).balance + inFlight
+OBL_pre                     : compiles  (51 lines)
+OBL_cb_deposit              : compiles  (49 lines)
+OBL_post                    : compiles  (55 lines)

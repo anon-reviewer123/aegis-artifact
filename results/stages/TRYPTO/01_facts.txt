@@ -1,0 +1,47 @@
+analyzer : ast
+target   : marketing_balance + growth_balance <= address(this).balance
+
+  DEAD                             address
+  _allowances                      mapping(address => mapping(address => uint256))
+  _balances                        mapping(address => uint256)
+  _decimals                        uint8
+  _isExcludedFromFee               mapping(address => bool)
+  _maxTxAmount                     uint256
+  _maxWalletSize                   uint256
+  _name                            string
+  _previoustaxFee                  uint256
+  _swapTokensAtAmount              uint256
+  _symbol                          string
+  _tFeeTotal                       uint256
+  _taxFee                          uint256
+  _taxFeeOnBuy                     uint256
+  _taxFeeOnSell                    uint256
+  botRekt                          bool
+  bots                             mapping(address => bool)
+  cooldown                         mapping(address => uint256)
+  growth_balance                   uint256
+  growth_share                     uint256
+  inSwap                           bool
+  initialSupply                    uint256
+  is_auth                          mapping(address => bool)
+  launchBlock                      uint256
+  liq_share                        uint256
+  locked                           bool
+  marketing_balance                uint256
+  marketing_share                  uint256
+  owner                            address
+  router                           contract IUniswapV2Router02
+  router_address                   address
+  swapEnabled                      bool
+  tradingOpen                      bool
+  uniswapV2Pair                    address
+  uniswapV2Router                  contract IUniswapV2Router02
+
+sites:
+  take_marketing.call#0 before=[] after=['marketing_balance']
+  take_growth.call#0 before=[] after=['growth_balance']
+  swapTokensForEth.addLiquidityETH#0 before=[] after=[]
+  get_weth_price_impact.getPair#0 before=[] after=[]
+  create_weth_pair.createPair#0 before=[] after=[]
+
+closure : ['take_marketing', 'transfer', 'transferFrom']

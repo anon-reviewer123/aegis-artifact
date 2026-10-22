@@ -1,0 +1,11 @@
+
+======================================================================
+TraderSpirits
+harness  : compiles  (231 lines)
+Iexp     : publicMinted == publicMintLimit + inFlight
+OBL_pre                     : compiles  (115 lines)
+OBL_cb_airDropToken         : compiles  (115 lines)
+OBL_cb_giftMint             : compiles  (115 lines)
+OBL_cb_mintByOwner          : compiles  (117 lines)
+OBL_post                    : compiles  (122 lines)
+OBL_stable_implies_target   : compiles  (153 lines)

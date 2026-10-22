@@ -1,0 +1,51 @@
+{
+ "contract": "VulnerableContract",
+ "closure": {
+  "site_function": "withdraw",
+  "site_call": ".call",
+  "functions": [
+   "deposit",
+   "withdraw"
+  ],
+  "justification": "public functions sharing exposed accounting state"
+ },
+ "protocol": {
+  "during_phase": "withdraw.exposed",
+  "allowed_callbacks": [
+   "deposit"
+  ],
+  "nesting_bound": {
+   "withdraw": 1
+  }
+ },
+ "phases": {
+  "function": "withdraw",
+  "pre": {
+   "name": "pre",
+   "from_marker": "function_entry",
+   "to_marker": "before_external_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "external_call",
+   "to_marker": "call_return"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_external_call",
+   "to_marker": "function_exit"
+  },
+  "linearization_point": "effect commit in pre-phase"
+ },
+ "ghost_state": [],
+ "exposure_invariant": {
+  "formula": "_sum_balances == _ethBal",
+  "stable_formula": "_sum_balances == _ethBal",
+  "kind": "additive",
+  "derived_from_pre": true
+ },
+ "composition": {
+  "target_property": "_sum_balances == _ethBal",
+  "rule": "If pre establishes I_exp, every admissible callback preserves I_exp, the protocol over-approximates concrete callbacks, and post restores I_stable, then the target property holds under adversarial callbacks."
+ }
+}

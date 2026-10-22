@@ -1,0 +1,63 @@
+{
+ "contract": "BadBunnyNFTS",
+ "closure": {
+  "site_function": "teamPayout",
+  "site_call": ".transfer",
+  "functions": [
+   "<fallback>",
+   "claimMintRewards",
+   "mint"
+  ],
+  "justification": "These functions either directly or indirectly affect _balanceDistributor and _ethBal, which are exposed during the risky call."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "<fallback>",
+   "claimMintRewards",
+   "mint"
+  ],
+  "nesting_bound": {
+   "<fallback>": 1,
+   "claimMintRewards": 1,
+   "mint": 1
+  }
+ },
+ "phases": {
+  "function": "teamPayout",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_transfer"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_transfer",
+   "to_marker": "after_transfer"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_transfer",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_transfer"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "The amount of assets in-flight during the callback window",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_ethBal == _balanceDistributor + inFlight",
+  "stable_formula": "_ethBal == _balanceDistributor",
+  "kind": "additive",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "_balanceDistributor <= _ethBal",
+  "rule": "The exposure invariant ensures that the balance distributor does not exceed the eth balance during the callback window."
+ }
+}

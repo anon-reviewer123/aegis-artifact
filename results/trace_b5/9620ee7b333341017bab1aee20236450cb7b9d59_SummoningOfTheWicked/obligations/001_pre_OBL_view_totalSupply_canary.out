@@ -1,0 +1,51 @@
+status: failed
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpsqte2va_/Obligation.sol:30:97:
+   |
+30 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, uint256 __x4, address __x5, bool __x6, uint256 __x7) public {
+   |                                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpsqte2va_/Obligation.sol:30:111:
+   |
+30 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, uint256 __x4, address __x5, bool __x6, uint256 __x7) public {
+   |                                                                                                               ^^^^^^^^^
+
+Warning: Unused local variable.
+  --> /tmp/tmpsqte2va_/Obligation.sol:77:9:
+   |
+77 |         string memory _seal = "";
+   |         ^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+  --> /tmp/tmpsqte2va_/Obligation.sol:88:9:
+   |
+88 |         string memory _seal = "";
+   |         ^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmpsqte2va_/Obligation.sol:174:17:
+    |
+174 |                 uint256 r_entry   = totalSupply();       // view AT ENTRY (sigma_0)
+    |                 ^^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmpsqte2va_/Obligation.sol:176:17:
+    |
+176 |                 uint256 r_exposed = totalSupply();           // view DURING the window
+    |                 ^^^^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmpsqte2va_/Obligation.sol:178:17:
+    |
+178 |                 uint256 r_stable  = totalSupply();       // view AFTER settlement
+    |                 ^^^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation happens here.
+   --> /tmp/tmpsqte2va_/Obligation.sol:179:17:
+    |
+179 |                 assert(false);                               // quiescent iff it matches one of them
+    |                 ^^^^^^^^^^^^^
+

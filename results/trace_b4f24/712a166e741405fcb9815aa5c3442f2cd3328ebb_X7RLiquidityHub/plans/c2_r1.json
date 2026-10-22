@@ -1,0 +1,64 @@
+{
+ "contract": "X7RLiquidityHub",
+ "closure": {
+  "site_function": "sendTreasuryBalance",
+  "site_call": ".call",
+  "functions": [
+   "<fallback>",
+   "processFees",
+   "sendDistributeBalance",
+   "sendTreasuryBalance"
+  ],
+  "justification": "All functions that write to '_ethBal' or 'treasuryBalance' and can be reached during reentrancy from the risky call in 'sendTreasuryBalance'."
+ },
+ "protocol": {
+  "during_phase": "sendTreasuryBalance",
+  "allowed_callbacks": [
+   "<fallback>",
+   "processFees",
+   "sendDistributeBalance"
+  ],
+  "nesting_bound": {
+   "<fallback>": 1,
+   "processFees": 1,
+   "sendDistributeBalance": 1
+  }
+ },
+ "phases": {
+  "function": "sendTreasuryBalance",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before .call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before .call",
+   "to_marker": "after .call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after .call",
+   "to_marker": "exit"
+  },
+  "linearization_point": "after .call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "ETH temporarily sent out during sendTreasuryBalance exposure window",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "distributeBalance + treasuryBalance + liquidityBalance + inFlight <= _ethBal",
+  "stable_formula": "distributeBalance + treasuryBalance + liquidityBalance <= _ethBal",
+  "kind": "additive",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "distributeBalance + treasuryBalance + liquidityBalance <= _ethBal",
+  "rule": "The additive invariant holds across the call window by accounting for in-flight ETH sent through the treasury balance update."
+ }
+}

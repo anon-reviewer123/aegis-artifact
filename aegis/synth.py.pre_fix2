@@ -1,0 +1,670 @@
+"""
+synth.py - Module 4: LLM-guided MCVP synthesis with diverse k-sampling.
+
+Backends:
+  stub      : deterministic, no network. Produces diverse candidate plans
+              (some with closure/invariant defects) so the validator,
+              localizer, and fixpoint repair are all exercised.
+  anthropic : real Anthropic API; samples k completions at temperature 1.0.
+  openai    : real OpenAI API; samples k completions at temperature 1.0.
+
+`repair_module` re-synthesizes ONLY a named module, preserving the rest
+(the dependency-driven fixpoint repair uses this).
+"""
+from __future__ import annotations
+import json
+import re
+import os
+from .mcvp import (MCVP, CallbackClosure, CallbackProtocol, Phase,
+                   PhaseDecomposition, GhostVar, ExposureInvariant, Composition)
+from .static_analysis import ContractFacts, ExposureSite
+
+
+SYSTEM_PROMPT = """You are a smart-contract verification planner. Given static
+analysis facts and a target property, output a Modular Callback Verification
+Plan (MCVP) as STRICT JSON ONLY (no prose, no markdown fences) matching this
+schema exactly:
+
+{
+  "contract": str,
+  "closure": {"site_function": str, "site_call": str,
+              "functions": [str], "justification": str},
+  "protocol": {"during_phase": str, "allowed_callbacks": [str],
+               "nesting_bound": {str: int}},
+  "phases": {"function": str,
+             "pre":     {"name":"pre","from_marker":str,"to_marker":str},
+             "exposed": {"name":"exposed","from_marker":str,"to_marker":str},
+             "post":    {"name":"post","from_marker":str,"to_marker":str},
+             "linearization_point": str},
+  "ghost_state": [{"name":str,"sol_type":str,"meaning":str,
+                   "backed_by_storage":bool}],
+  "exposure_invariant": {"formula": str, "stable_formula": str,
+                         "kind": str},
+  "composition": {"target_property": str, "rule": str}
+}
+
+Rules:
+- The exposure invariant must be WEAKER than the stable invariant and must
+  account for in-flight effects during the callback window -- EXCEPT when
+  write_before_call contains none of the variables the target property reads
+  (a mapping sum _sum_m reads m). Then nothing the target reads has changed
+  when control is handed out: use the stable invariant itself as the exposure
+  invariant, with no ghost.
+- allowed_callbacks MUST list every function in closure.functions except the
+  exposed function itself (the protocol must admit every reachable callback;
+  omitting one is unsound under-approximation).
+- The closure must include EVERY public/external function that touches state
+  exposed at the call site (soundness over efficiency).
+- The exposure invariant must REFERENCE every storage variable that the
+  target_property mentions; do not hide those variables behind ghost variables.
+- At most ONE ghost variable in the invariant may have backed_by_storage=False;
+  more than one unconstrained ghost makes the invariant vacuously satisfiable.
+- For a contract where assets LEAVE during the exposed phase (withdraw flow),
+  the exposure invariant typically reads: totalAssets == totalShares + inFlight.
+  For a contract where shares are credited before assets settle (mint flow), the
+  mirror holds: totalShares == totalAssets + inFlight. CHOOSE THE RIGHT DIRECTION
+  by reading write_before_call and write_after_call in the static facts.
+- The "kind" field selects the INVARIANT TEMPLATE the plan uses. Choose the
+  one matching the contract's callback-safety shape:
+    * "additive"      : accounting pair A == B + ghost during the window.
+                        stable: A == B          exposed: A == B + ghost
+    * "conserve"      : a declared total equals a maintained running sum, e.g.
+                        totalSupply == trackedSum (+ ghost). The tracked sum is
+                        a SCALAR, never a sum over a mapping (use "mapconserve"
+                        for per-account mapping relations).
+                        stable: total == sum    exposed: total == sum + ghost
+    * "multiconserve" : several scalars conserve against one total.
+                        stable: A + B == T      exposed: A + B == T + ghost
+    * "linear"        : a general linear equality with integer coefficients.
+                        stable: 2*A + B == C    exposed: 2*A + B == C + ghost
+    * "bounded"       : drift stays within a band, 0 <= A - B <= ghost. Phrase
+                        the exposure formula as the UPPER bound A <= B + ghost;
+                        the lower bound A >= B is checked automatically.
+                        stable: A == B
+    * "mapconserve"   : a per-account mapping entry against a scalar total.
+                        Write the acting account as `account`, e.g.
+                        stable:  balances[account] <= totalSupply
+                        exposed: balances[account] <= totalSupply + ghost
+    * "monotone"      : an observable value must never drop below its value at
+                        the start of the callback window (read-only reentrancy,
+                        stale price/reserve feeds). The exposure formula is
+                        JUST the monitored expression, e.g. "reserve";
+                        snapshots are handled automatically.
+                        stable: the boundary relation at public boundaries.
+    * "phase"         : a BOOLEAN state-machine relation must hold in the window,
+                        e.g. exposed ==> !finalized. Phrase the exposure formula
+                        as the boolean that must stay true, e.g. "!finalized";
+                        no arithmetic and no ghost in the formula.
+                        stable: rest-state relation (often trivially true).
+- READ-ONLY REENTRANCY / mapping-sum backing: when the exposed storage is a
+  mapping m(addr=>uint) written across the callback, the harness provides a
+  SCALAR ghost named `_sum_m` that tracks sum_k m[k], plus `snapPre` (its value
+  at window entry) and `inFlight` (the amount mid-transfer). Two SEPARATE things:
+  (1) the EXPOSURE INVARIANT you output in "formula" MUST be an EXACT EQUALITY
+      that conserves the sum across the window:
+        stable_formula:  _sum_m == snapPre
+        formula:         _sum_m == snapPre + inFlight
+      Use "==" ONLY. NEVER "<=" or ">=" in the exposure invariant. The ghost
+      inFlight must EXACTLY account for the gap. kind = "conserve".
+  (2) the read-only backing safety relation `_sum_m <= balance` is checked
+      SEPARATELY by the view obligation and is NOT what you put in "formula".
+      Do not copy the `<=` backing relation into the exposure invariant.
+  Express over `_sum_m`, NEVER the bare mapping `m`. For a `_deposits` mapping:
+    stable_formula: _sum__deposits == snapPre
+    formula:        _sum__deposits == snapPre + inFlight
+  Do NOT write `_deposits == ...` and do NOT write `_sum__deposits <= ...`.
+  Paper-style names are accepted as aliases: conservation, bounded-drift,
+  phase-consistency, mapping-conservation, multi-variable-conservation,
+  monotonic-bound, general-linear-equality.
+  Pick the SINGLE best-fitting kind. If unsure, use "additive".
+- Output ONLY the JSON object.
+"""
+
+
+def sample_plans(facts: ContractFacts, site: ExposureSite, target_property: str,
+                 backend: str = "stub", k: int = 4,
+                 ablate: str = "none") -> list[MCVP]:
+    """Return up to k candidate MCVPs (diverse sampling)."""
+    if backend == "anthropic":
+        return _sample_anthropic(facts, site, target_property, k, ablate=ablate)
+    if backend == "openai":
+        return _sample_openai(facts, site, target_property, k, ablate=ablate)
+    return _sample_stub(facts, site, target_property, k)
+
+
+def repair_module(plan: MCVP, module: str, facts: ContractFacts,
+                  site: ExposureSite, target_property: str,
+                  backend: str = "stub", failure_detail: str = "",
+                  ablate: str = "none") -> MCVP:
+    """Re-synthesize ONLY `module`, keeping every other module fixed."""
+    if backend == "anthropic":
+        fresh = _sample_anthropic(facts, site, target_property, k=1,
+                                  failed_modules=[module],
+                                  failure_detail=failure_detail,
+                                  ablate=ablate)[0]
+    elif backend == "openai":
+        fresh = _sample_openai(facts, site, target_property, k=1,
+                               failed_modules=[module],
+                               failure_detail=failure_detail,
+                               ablate=ablate)[0]
+    else:
+        fresh = _repair_stub(plan, module, facts, site, target_property)
+    return _splice(plan, fresh, module)
+
+
+def _splice(base: MCVP, fresh: MCVP, module: str) -> MCVP:
+    if module == "closure":
+        base.closure = fresh.closure
+    elif module == "protocol":
+        base.protocol = fresh.protocol
+    elif module == "phases":
+        base.phases = fresh.phases
+    elif module == "ghost_state":
+        base.ghost_state = fresh.ghost_state
+    elif module == "exposure_invariant":
+        base.exposure_invariant = fresh.exposure_invariant
+    elif module == "composition":
+        base.composition = fresh.composition
+    return base
+
+
+def _facts_to_prompt(facts, site, target_property, failed_modules, variant,
+                     failure_detail: str = "", ablate: str = "none"):
+    # RQ3: --ablate static-facts → omit STATIC FACTS block entirely
+    if ablate == "static-facts":
+        msg = (f"CONTRACT:\n{facts.contract}\n\n"
+               f"TARGET PROPERTY: {target_property}")
+    else:
+        payload = {
+            "contract": facts.contract,
+            "storage_vars": facts.storage_vars,
+            "functions": {
+                n: {"visibility": f.visibility, "writes": sorted(f.writes),
+                    "reads": sorted(f.reads), "external_calls": f.external_calls,
+                    "write_before_call": sorted(f.write_before_call),
+                    "write_after_call": sorted(f.write_after_call)}
+                for n, f in facts.functions.items()
+            },
+            "risky_site": {"function": site.function, "call": site.call,
+                           "reason": site.reason,
+                           "exposed_storage": sorted(site.exposed_storage)},
+            "conservative_closure": sorted(facts.conservative_closure(site)),
+            "target_property": target_property,
+        }
+        msg = "STATIC FACTS:\n" + json.dumps(payload, indent=2)
+    # DETERMINISTIC GHOST-DIRECTION HINT
+    # RQ3: skipped under --ablate static-facts or --ablate ghost-template
+    if ablate not in ("static-facts", "ghost-template"):
+        try:
+            tprop = (target_property.replace("at public boundary", "")
+                     .replace("at boundary", "").strip())
+            mm = re.match(r"\s*(\w+)\s*==\s*(\w+)\s*$", tprop)
+            if mm:
+                A, B = mm.group(1), mm.group(2)
+                ef = facts.functions.get(site.function)
+                wb = set(getattr(ef, "write_before_call", set()) or set())
+                wa = set(getattr(ef, "write_after_call", set()) or set())
+                # facts.path is the file the analyzer actually read. The corpus
+                # guess is kept only as a fallback for facts built by hand in
+                # the tests, and is tried second so it can never shadow the
+                # real source of a deployed contract.
+                _body = ""
+                for _cand in (getattr(facts, "path", "") or "",
+                              f"contracts/corpus/{facts.contract}.sol"):
+                    if _cand and os.path.exists(_cand):
+                        _full = open(_cand).read()
+                        _m = re.search(r"function\s+" + re.escape(site.function)
+                                       + r"\b[^{]*\{(.*?)\n\s*\}", _full, re.S)
+                        if _m:
+                            _body = _m.group(1); break
+                _callname = site.call.lstrip(".").split("(")[0]
+                _pre = _body.split(_callname)[0] if _callname and _callname in _body else _body
+                def _presign(var):
+                    if re.search(r"\b" + re.escape(var) + r"\b\s*\+=", _pre): return 1
+                    if re.search(r"\b" + re.escape(var) + r"\b\s*-=", _pre): return -1
+                    return 0
+                sA, sB = _presign(A), _presign(B)
+                lead = None
+                if sA > sB:
+                    lead = f"{A} == {B} + ghost"
+                elif sB > sA:
+                    lead = f"{B} == {A} + ghost"
+                elif A in wb and B in wa:
+                    lead = f"{B} == {A} + ghost"
+                elif B in wb and A in wa:
+                    lead = f"{A} == {B} + ghost"
+                if lead:
+                    msg += ("\n\nINVARIANT DIRECTION (MANDATORY): the exposure "
+                            f"invariant MUST have the form  {lead}  where 'ghost' is "
+                            "a single ghost variable you declare. Use '==' (never "
+                            "'<=' or '>='). The variable written AFTER the external "
+                            "call leads; put the ghost on the other side.")
+        except Exception:
+            pass
+    # A site that writes nothing after the call leaves nothing torn while
+    # control is out, so the stable invariant already holds throughout the
+    # window. Saying so stops the model inventing a ghost the contract has no
+    # use for, whose OBL_pre then cannot hold.
+    if site is not None and not getattr(site, "write_after_call", None):
+        msg += ("\n\nNO EXPOSED WINDOW: this site writes no contract storage "
+                "after the external call, so no state is left inconsistent "
+                "while control is outside. Set the exposure invariant equal to "
+                "the stable invariant and declare NO ghost variable.")
+    if variant % 2 == 1:
+        msg += ("\n\nFirst reason step-by-step about which functions can "
+                "re-enter and what must hold during exposure, then output JSON.")
+    if failed_modules:
+        msg += ("\n\nREPAIR MODE: keep all modules except these, which failed "
+                "and must be revised: " + ", ".join(failed_modules))
+        if failure_detail:
+            msg += (f"\n\nWHY THE PREVIOUS SPEC FAILED (fix this):\n{failure_detail}")
+    return msg
+
+
+def _parse_plan_text(text: str) -> MCVP | None:
+    text = (text or "").strip()
+    if text.startswith("```"):
+        text = text.split("```")[1]
+        if text.startswith("json"):
+            text = text[4:]
+    try:
+        return MCVP.from_json(text)
+    except Exception:
+        return None
+
+
+def _sample_anthropic(facts, site, target_property, k, failed_modules=None, failure_detail: str = "", ablate: str = "none"):
+    import anthropic
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    model = os.environ.get("AEGIS_MODEL", "claude-opus-4-7")
+    plans = []
+    for i in range(k):
+        user = _facts_to_prompt(facts, site, target_property, failed_modules, i, failure_detail, ablate=ablate)
+        resp = client.messages.create(
+            model=model, max_tokens=2000, temperature=1.0,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user}],
+        )
+        text = "".join(b.text for b in resp.content
+                       if getattr(b, "type", "") == "text")
+        p = _parse_plan_text(text)
+        if p:
+            plans.append(p)
+    return plans or [_sample_stub(facts, site, target_property, 1)[0]]
+
+
+
+class _CachedReply:
+    """Stands in for an API response, carrying only what callers read."""
+
+    class _Msg:
+        def __init__(self, content):
+            self.content = content
+
+    class _Choice:
+        def __init__(self, content):
+            self.message = _CachedReply._Msg(content)
+
+    def __init__(self, content):
+        self.choices = [_CachedReply._Choice(content)]
+
+
+def _cache_path(key: str) -> str:
+    import os as _os
+    root = _os.environ.get("AEGIS_LLM_CACHE_DIR",
+                           _os.path.join(_os.path.dirname(
+                               _os.path.dirname(_os.path.abspath(__file__))),
+                               "results", "llm_cache"))
+    _os.makedirs(root, exist_ok=True)
+    return _os.path.join(root, key + ".json")
+
+
+def _cache_key(model, system_prompt, user, temp) -> str:
+    import hashlib
+    h = hashlib.sha256()
+    for part in (model, system_prompt, user, f"{temp}"):
+        h.update(part.encode("utf-8", "replace"))
+        h.update(b"\0")
+    return h.hexdigest()[:32]
+
+
+def _robust_create(client, model, system_prompt, user, temp):
+    """Call chat.completions.create robustly across model families.
+
+    Replies are cached on disk under results/llm_cache, keyed by the exact
+    model, prompts and temperature, so re-running the same contracts costs
+    nothing after the first time. A different prompt -- any change to the
+    facts, the target or the failed modules being repaired -- is a different
+    key, so a cached reply is never reused for a different question. Set
+    AEGIS_LLM_CACHE=off to bypass it, which is what a variance run wants.
+    """
+    import json as _json
+    import os as _os
+    use_cache = _os.environ.get("AEGIS_LLM_CACHE", "on").lower() != "off"
+    key = _cache_key(model, system_prompt, user, temp)
+    if use_cache:
+        path = _cache_path(key)
+        if _os.path.exists(path):
+            try:
+                return _CachedReply(_json.load(open(path))["content"])
+            except Exception:
+                pass
+    reply = _robust_create_uncached(client, model, system_prompt, user, temp)
+    if use_cache:
+        try:
+            with open(_cache_path(key), "w") as fh:
+                _json.dump({"model": model, "temperature": temp,
+                            "content": reply.choices[0].message.content}, fh)
+        except Exception:
+            pass
+    return reply
+
+
+def _robust_create_uncached(client, model, system_prompt, user, temp):
+    """Call chat.completions.create robustly across model families.
+    Newer models (gpt-5.x, o-series) may reject temperature != 1 or the
+    response_format/temperature params entirely, and some use
+    max_completion_tokens. We try the rich call, then degrade gracefully."""
+    base = dict(model=model,
+                messages=[{"role": "system", "content": system_prompt},
+                          {"role": "user", "content": user}])
+    attempts = [
+        dict(temperature=temp, response_format={"type": "json_object"}),
+        dict(response_format={"type": "json_object"}),   # drop temperature
+        dict(temperature=temp),                          # drop response_format
+        dict(),                                          # plain
+    ]
+    last = None
+    for extra in attempts:
+        try:
+            return client.chat.completions.create(**base, **extra)
+        except Exception as e:
+            last = e
+            msg = str(e).lower()
+            # only keep degrading on parameter-type errors; re-raise others
+            if not any(t in msg for t in ("temperature", "response_format",
+                                          "unsupported", "max_tokens",
+                                          "max_completion_tokens", "param")):
+                raise
+    raise last
+
+
+def _sample_openai(facts, site, target_property, k, failed_modules=None, failure_detail: str = "", ablate: str = "none"):
+    """Sample k candidate MCVPs from the OpenAI API."""
+    from openai import OpenAI
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    model = os.environ.get("AEGIS_OPENAI_MODEL", "gpt-4o")
+    plans = []
+    for i in range(k):
+        user = _facts_to_prompt(facts, site, target_property, failed_modules, i, failure_detail, ablate=ablate)
+        _temp = 0.2 if i == 0 else 0.9
+        resp = _robust_create(client, model, SYSTEM_PROMPT, user, _temp)
+        p = _parse_plan_text(resp.choices[0].message.content)
+        if p:
+            plans.append(p)
+    return plans or [_sample_stub(facts, site, target_property, 1)[0]]
+
+
+def _base_plan(facts, site, target_property, closure_fns, allowed, inv_formula,
+               stable_formula=None, ghost_name="inFlight"):
+    return MCVP(
+        contract=facts.contract,
+        closure=CallbackClosure(
+            site_function=site.function, site_call=site.call,
+            functions=closure_fns,
+            justification="public functions sharing exposed accounting state"),
+        protocol=CallbackProtocol(
+            during_phase=f"{site.function}.exposed",
+            allowed_callbacks=allowed, nesting_bound={site.function: 1}),
+        phases=PhaseDecomposition(
+            function=site.function,
+            pre=Phase("pre", "function_entry", "before_external_call"),
+            exposed=Phase("exposed", "external_call", "call_return"),
+            post=Phase("post", "after_external_call", "function_exit"),
+            linearization_point="effect commit in pre-phase"),
+        ghost_state=[GhostVar(
+            ghost_name, "uint256",
+            "quantity committed but not yet settled across the callback window",
+            backed_by_storage=(ghost_name in facts.storage_vars))],
+        exposure_invariant=ExposureInvariant(
+            formula=inv_formula,
+            stable_formula=stable_formula or target_property,
+            kind="additive"),
+        composition=Composition(target_property=target_property),
+    )
+
+
+_REL = re.compile(r"\s*(==|<=|>=|<|>)\s*")
+
+
+def _net_pre_deltas(pre_body: str, moved: str) -> dict:
+    """{variable: net multiple of the in-flight amount the pre-phase adds}.
+
+    Only `v += X` and `v -= X` where X is the amount handed over (or the
+    driver's `amount`) are counted, so the result is a small integer per
+    variable: -1 for ether that has left, +1 for an amount taken in, 0 when a
+    credit and a debit cancel.
+    """
+    deltas: dict = {}
+    for m in re.finditer(r"(?<![\w.])([A-Za-z_]\w*)\s*(\+=|-=)\s*([^;]+);",
+                         pre_body):
+        var, op, expr = m.group(1), m.group(2), m.group(3).strip()
+        if moved and expr != moved and expr != "amount":
+            continue
+        deltas[var] = deltas.get(var, 0) + (1 if op == "+=" else -1)
+    return deltas
+
+
+def exposure_invariant_from_pre(target: str, deltas: dict, ghost="inFlight"):
+    """The stable relation adjusted for what the pre-phase moved, or None.
+
+    A side the pre-phase reduced by the in-flight amount is short by exactly
+    that amount while control is away, so the ghost is added back to it. A
+    side it increased carries the amount already, so the ghost is added to the
+    other side. When the two cancel, the stable relation still holds and is
+    returned unchanged. Guessing this placement is what refuted OBL_pre:
+    TRYPTO's ether had left the contract, and the ghost was added to the
+    accounting side instead of the balance side.
+    """
+    parts = _REL.split(target.strip(), maxsplit=1)
+    if len(parts) != 3:
+        return None
+    lhs, op, rhs = (p.strip() for p in parts)
+
+    def side_delta(side):
+        total = 0
+        for v, d in deltas.items():
+            # a write to mapping m moves the sum the invariant names, _sum_m
+            if re.search(rf"(?<![\w.]){re.escape(v)}(?![\w])", side) or \
+                    re.search(rf"(?<![\w.])_sum_{re.escape(v)}(?![\w])", side):
+                total += d
+        return total
+
+    dl, dr = side_delta(lhs), side_delta(rhs)
+    if dl == dr:
+        # both sides move by the same amount, so the relation between them is
+        # untouched and the stable invariant still holds at the call
+        return target
+    if {dl, dr} - {-1, 0, 1}:
+        return None
+    if dl == -1:
+        lhs = f"{lhs} + {ghost}"
+    elif dl == 1:
+        rhs = f"{rhs} + {ghost}"
+    if dr == -1:
+        rhs = f"{rhs} + {ghost}"
+    elif dr == 1:
+        lhs = f"{lhs} + {ghost}"
+    return f"{lhs} {op} {rhs}"
+
+
+def _captures(harness_src: str):
+    """(field, expression) for each value the pre-phase captured."""
+    return re.findall(r"//\s*\[capture\]\s+([A-Za-z_]\w*)\s*==\s*(.+?)\s*$",
+                      harness_src, re.M)
+
+
+def net_effect_plan(facts, site, target_property, harness_src=None):
+    """A plan whose exposure invariant is computed from the pre-phase, or None.
+
+    Nothing here is guessed: the quantity handed over comes from the call, the
+    net effect on each side comes from the pre-phase body, and the ghost is
+    placed where that effect says it belongs.
+    """
+    from . import harness_synth
+    try:
+        src = open(facts.path, errors="ignore").read()
+    except Exception:
+        return None
+    # The deltas are read from the harness's own pre-phase when it is
+    # available, not from the source: the harness rewrites `msg.value` to the
+    # driver's `amount`, so a payable credit and the call's debit cancel there
+    # while in the source they look like different quantities. The obligation
+    # checks the harness, so the invariant must describe the harness.
+    pre = None
+    if harness_src:
+        m = re.search(r"function beginExposed\(uint256 amount\) public \{"
+                      r"(.*?)\n    \}", harness_src, re.S)
+        if m:
+            pre = m.group(1)
+    if pre is None:
+        pre = harness_synth._phase_body(src, site, "pre")
+    if not pre or "AEGIS-UNSUPPORTED" in pre:
+        return None
+    moved = harness_synth._moved_value_expr(src, site)
+    pre = "\n".join(l for l in pre.splitlines()
+                    if not re.match(r"\s*(inFlight|exposed|snapPre)\b", l))
+    deltas = _net_pre_deltas(pre, moved)
+    formula = exposure_invariant_from_pre(target_property, deltas)
+    if not formula:
+        return None
+    # Values the pre-phase captured and the post-phase settles with. The
+    # post-phase can only restore the stable invariant while the captured
+    # value still matches the state it was read from, so the exposure
+    # invariant has to carry that -- otherwise OBL_post is refuted from
+    # states where they differ, which is what happened on KatRoyalties. A
+    # callback that does change it then refutes OBL_cb, which is exactly the
+    # race this shape is exposed to.
+    captured = []
+    for field, expr in _captures(harness_src or ""):
+        conjunct = f"{field} == {expr}"
+        if conjunct not in formula:
+            formula = f"{formula} && {conjunct}"
+            captured.append((field, expr))
+    closure = sorted(facts.conservative_closure(site))
+    allowed = [f for f in closure if f != site.function]
+    plan = _base_plan(facts, site, target_property, closure, allowed,
+                      formula, stable_formula=target_property)
+    plan.exposure_invariant.derived_from_pre = True
+    if formula.strip() == target_property.strip():
+        plan.ghost_state = []
+    # A captured field is harness state, assigned by the pre-phase from the
+    # expression named here -- not a free variable, so it is declared backed.
+    # It is appended after the in-flight ghost, which the compiler takes as
+    # the counter the post-phase settles.
+    for field, expr in captured:
+        plan.ghost_state = list(plan.ghost_state or []) + [GhostVar(
+            name=field, sol_type="uint256",
+            meaning=f"value the pre-phase read from {expr}",
+            backed_by_storage=True)]
+    return plan
+
+
+def stable_window_plan(facts, site, target_property):
+    """The plan whose exposure invariant is the target itself, or None.
+
+    When the pre-phase writes none of the target's variables, the state the
+    target reads is the same at the call as on entry, so the target holds
+    throughout the window and needs no ghost. That plan is fully determined by
+    the site -- nothing for a model to guess -- so it is built here and tried
+    before any sampled candidate."""
+    from .validator import pre_touches_invariant
+    if pre_touches_invariant(target_property, site):
+        return None
+    closure = sorted(facts.conservative_closure(site))
+    allowed = [f for f in closure if f != site.function]
+    plan = _base_plan(facts, site, target_property, closure, allowed,
+                      target_property, stable_formula=target_property)
+    plan.ghost_state = []
+    return plan
+
+
+def _accounting_vars(target_property: str, facts) -> tuple[str, str] | None:
+    """Extract the two storage variables an equality target relates, so the
+    stub can build a contract-agnostic exposure invariant. For a target like
+    `A == B`, returns (A, B) where both are real storage vars. None if the
+    target is not a simple equality of two storage vars."""
+    import re
+    m = re.match(r"\s*([A-Za-z_]\w*)\s*==\s*([A-Za-z_]\w*)\s*$",
+                 target_property.strip())
+    if not m:
+        return None
+    a, b = m.group(1), m.group(2)
+    sv = set(facts.storage_vars)
+    if a in sv and b in sv:
+        return a, b
+    # same-variable conservation: `v == snapPre`, where snapPre is the entry
+    # snapshot ghost injected by the harness. Treat as the accounting pair.
+    if a in sv and b == "snapPre":
+        return a, b
+    return None
+
+
+def _sample_stub(facts, site, target_property, k):
+    cons = sorted(facts.conservative_closure(site))
+    fn = site.function                       # the actual exposed function
+    fn_last = [f for f in cons if f != fn] + ([fn] if fn in cons else [])
+    non_exposed = [f for f in cons if f != fn]
+    unsound = ([non_exposed[0]] if non_exposed else []) + ([fn] if fn in cons else [])
+
+    # Derive the accounting pair from the target so the stub generalizes to any
+    # contract whose target is `A == B`. The in-flight ghost defaults to
+    # 'inFlight'. Two directions are enumerated (A leads B / B leads A) so the
+    # validator/backend can select the correct one, exactly as before but with
+    # the real variable names instead of totalAssets/totalShares.
+    pair = _accounting_vars(target_property, facts)
+    g = "inFlight"
+    if pair:
+        A, B = pair
+        stable = f"{A} == {B}"
+        inv_AB = f"{A} == {B} + {g}"   # A leads (withdraw-style)
+        inv_BA = f"{B} == {A} + {g}"   # B leads (mint-style)
+    else:
+        # fall back to legacy vault names if target is not a simple equality
+        stable = "totalAssets == totalShares"
+        inv_AB = "totalAssets == totalShares + inFlight"
+        inv_BA = "totalShares == totalAssets + inFlight"
+
+    variants = [
+        (unsound, [f for f in unsound if f != fn], inv_AB),
+        (cons, [f for f in fn_last if f != fn], stable),        # too-strong (== stable)
+        (cons, [f for f in fn_last if f != fn], inv_AB),
+        (cons, [f for f in fn_last if f != fn], inv_BA),
+    ]
+    out = []
+    for i in range(min(k, len(variants))):
+        closure_fns, allowed, inv = variants[i]
+        out.append(_base_plan(facts, site, target_property,
+                              closure_fns, allowed, inv,
+                              stable_formula=stable, ghost_name=g))
+    return out
+
+
+def _repair_stub(plan, module, facts, site, target_property):
+    cons = sorted(facts.conservative_closure(site))
+    fn = site.function
+    pair = _accounting_vars(target_property, facts)
+    g = "inFlight"
+    if pair:
+        A, B = pair
+        inv = f"{A} == {B} + {g}"
+        stable = f"{A} == {B}"
+    else:
+        inv = "totalAssets == totalShares + inFlight"
+        stable = "totalAssets == totalShares"
+    return _base_plan(
+        facts, site, target_property,
+        closure_fns=cons,
+        allowed=[f for f in cons if f != fn],
+        inv_formula=inv, stable_formula=stable, ghost_name=g,
+    )

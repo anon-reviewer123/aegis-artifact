@@ -1,0 +1,37 @@
+analyzer : ast
+target   : team_balance <= address(this).balance
+
+  MAX_MINT                         uint256
+  MAX_SUPPLY                       uint256
+  RPContract                       contract RunPassInterface
+  RUNPASS_CONTRACT_ADDRESS         address
+  WLaddressesMintedBalance         mapping(address => uint256)
+  _balances                        mapping(address => uint256)
+  _name                            string
+  _operatorApprovals               mapping(address => mapping(address => bool))
+  _owner                           address
+  _owners                          mapping(uint256 => address)
+  _symbol                          string
+  _tokenApprovals                  mapping(uint256 => address)
+  addressesMintedBalance           mapping(address => uint256)
+  limitMaxPublicmint               bool
+  mintPrice                        uint256
+  mintStatus                       bool
+  notRevealedUri                   string
+  owner_wallet                     address payable
+  premintStatus                    bool
+  reveal                           bool
+  revealedUri                      string
+  runpasses                        mapping(uint256 => bool)
+  supply                           struct Counters.Counter
+  team_balance                     uint256
+  team_price                       uint256
+  team_wallet                      address payable
+  uriMetadataSuffix                string
+
+sites:
+  withdraw.call#1 before=[] after=['team_balance']
+  withdraw.call#0 before=[] after=[]
+  _checkOnERC721Received.onERC721Received#0 before=[] after=[]
+
+closure : ['mint', 'withdraw']

@@ -1,0 +1,56 @@
+{
+ "contract": "ReservaX",
+ "closure": {
+  "site_function": "withdraw",
+  "site_call": ".call",
+  "functions": [
+   "withdraw"
+  ],
+  "justification": "The withdraw function is the only one that modifies withdrawNine and withdrawTen, which are exposed during the callback."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "withdraw"
+  ],
+  "nesting_bound": {
+   "withdraw": 1
+  }
+ },
+ "phases": {
+  "function": "withdraw",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "The amount of assets in-flight during the callback window.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "withdrawNine + withdrawTen == _totalSupply[9] + _totalSupply[10] + inFlight",
+  "stable_formula": "withdrawNine + withdrawTen == _totalSupply[9] + _totalSupply[10]",
+  "kind": "additive"
+ },
+ "composition": {
+  "target_property": "withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]",
+  "rule": "The exposure invariant ensures that the sum of withdrawNine and withdrawTen does not exceed the total supply during the callback."
+ }
+}

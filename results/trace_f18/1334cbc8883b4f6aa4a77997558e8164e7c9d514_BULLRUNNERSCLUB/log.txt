@@ -1,0 +1,139 @@
+== Aegis on 1334cbc8883b4f6aa4a77997558e8164e7c9d514_BULLRUNNERSCLUB.sol ==
+target property: team_balance <= address(this).balance
+[eth-model] address(this).balance -> _ethBal; property now: team_balance <= _ethBal
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['MAX_MINT', 'MAX_SUPPLY', 'RPContract', 'RUNPASS_CONTRACT_ADDRESS', 'WLaddressesMintedBalance', '_balances', '_ethBal', '_name', '_operatorApprovals', '_owner', '_owners', '_symbol', '_tokenApprovals', 'addressesMintedBalance', 'limitMaxPublicmint', 'mintPrice', 'mintStatus', 'notRevealedUri', 'owner_wallet', 'premintStatus', 'reveal', 'revealedUri', 'runpasses', 'supply', 'team_balance', 'team_price', 'team_wallet', 'uriMetadataSuffix']
+[2] exposure site: withdraw -> .call (low-level value transfer can re-enter)
+    conservative closure: []
+[access] outside the closure under the trusted-roles assumption: ['airdropTokens', 'changeNotRevealedUri', 'changeOwnerWallet', 'changeRevealedUri', 'changeRunPassAddress', 'changeTeamWallet', 'get_balance', 'renounceOwnership', 'reserveTokens', 'setMaxSupply', 'setPrice', 'setTeamPrice', 'setmaxMintAmount', 'toggleMint', 'togglePreMint', 'togglerevealToken', 'transferOwnership', 'withdraw']
+[access] outside the closure as EOA-only (tx.origin gate; weaker since EIP-7702): ['mint', 'runpassMint']
+    airdropTokens: modifier onlyOwner -> _checkOwner()
+    changeNotRevealedUri: modifier onlyOwner -> _checkOwner()
+    changeOwnerWallet: modifier onlyOwner -> _checkOwner()
+    changeRevealedUri: modifier onlyOwner -> _checkOwner()
+    changeRunPassAddress: modifier onlyOwner -> _checkOwner()
+    changeTeamWallet: modifier onlyOwner -> _checkOwner()
+    get_balance: modifier onlyOwner -> _checkOwner()
+    mint: modifier callerIsUser: tx.origin == msg.sender
+    renounceOwnership: modifier onlyOwner -> _checkOwner()
+    reserveTokens: modifier onlyOwner -> _checkOwner()
+    runpassMint: modifier callerIsUser: tx.origin == msg.sender
+    setMaxSupply: modifier onlyOwner -> _checkOwner()
+    setPrice: modifier onlyOwner -> _checkOwner()
+    setTeamPrice: modifier onlyOwner -> _checkOwner()
+    setmaxMintAmount: modifier onlyOwner -> _checkOwner()
+    toggleMint: modifier onlyOwner -> _checkOwner()
+    togglePreMint: modifier onlyOwner -> _checkOwner()
+    togglerevealToken: modifier onlyOwner -> _checkOwner()
+    transferOwnership: modifier onlyOwner -> _checkOwner()
+    withdraw: modifier onlyOwner -> _checkOwner()
+[harness] cached 1334cbc8883b4f6aa4a77997558e8164e7c9d514_BULLRUNNERSCLUB.ethmodel.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 1334cbc8883b4f6aa4a77997558e8164e7c9d514_BULLRUNNERSCLUB.ethmodel.harness.sol (15590 chars)
+[harness] conforms to interface (found 47 functions, 36 public state vars)
+[readonly] 2 exposure site(s) with a window; decomposing each separately
+[readonly] --- site withdraw.call#1
+[readonly] 1 public view(s) admitted by the footprint premise on the window opened by withdraw
+      OBL_view_get_balance: CANARY DID NOT FIRE (status unknown); solver could not decide reachability -- reporting UNKNOWN for this view :: SMTChecker could not prove (timeout/unsupported)
+[readonly] --- site withdraw.call#0
+[readonly] 1 public view(s) admitted by the footprint premise on the window opened by withdraw
+      OBL_view_get_balance: CANARY DID NOT FIRE (status unknown); solver could not decide reachability -- reporting UNKNOWN for this view :: SMTChecker could not prove (timeout/unsupported)
+[3] deterministic candidate -- computed from what the pre-phase moves: team_balance <= _ethBal + inFlight
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 3 obligations: ['OBL_pre', 'OBL_view_get_balance', 'OBL_post']
+  [round 1] sliced harness: up to 44 state variables -> at most 5 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_view_get_balance [readonly]: VERIFIED
+      OBL_post [phases]: VERIFIED
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'phases', 'composition'] in_progress=['exposure_invariant']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation passed
+  [round 2] compiled 4 obligations: ['OBL_pre', 'OBL_view_get_balance', 'OBL_post', 'OBL_stable_implies_target']
+  [round 2] sliced harness: up to 44 state variables -> at most 27 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_view_get_balance [readonly]: VERIFIED
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_stable_implies_target [composition]: VERIFIED
+[confirm] callbacks may re-enter: undecided
+  [round 2] candidate via OBL_post: undecided -- open run undecided: SMTChecker could not prove (timeout/unsupported)
+  [round 2] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 2] CEGAR refinement constraint built for exposure_invariant
+  [round 3] validation passed
+  [round 3] compiled 4 obligations: ['OBL_pre', 'OBL_view_get_balance', 'OBL_post', 'OBL_stable_implies_target']
+  [round 3] sliced harness: up to 44 state variables -> at most 27 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_view_get_balance [readonly]: VERIFIED
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_stable_implies_target [composition]: VERIFIED
+  [round 3] candidate via OBL_post: undecided -- open run undecided: SMTChecker could not prove (timeout/unsupported)
+  [round 3] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 3] CEGAR refinement constraint built for exposure_invariant
+  repair budget (3) exhausted -> UNKNOWN
+[3] sampling 2 candidate MCVPs (openai)
+[3] closure set to the conservative closure (0 member(s)); dropped ['withdraw', 'mint']
+-- candidate 1 --
+  [round 1] validation passed
+  [round 1] compiled 4 obligations: ['OBL_pre', 'OBL_view_get_balance', 'OBL_post', 'OBL_stable_implies_target']
+  [round 1] sliced harness: up to 44 state variables -> at most 27 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_view_get_balance [readonly]: VERIFIED
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_stable_implies_target [composition]: VERIFIED
+  [round 1] candidate via OBL_post: undecided -- open run undecided: SMTChecker could not prove (timeout/unsupported)
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation passed
+  [round 2] compiled 4 obligations: ['OBL_pre', 'OBL_view_get_balance', 'OBL_post', 'OBL_stable_implies_target']
+  [round 2] sliced harness: up to 44 state variables -> at most 27 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_view_get_balance [readonly]: VERIFIED
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_stable_implies_target [composition]: VERIFIED
+  [round 2] candidate via OBL_post: undecided -- open run undecided: SMTChecker could not prove (timeout/unsupported)
+  [round 2] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 2] CEGAR refinement constraint built for exposure_invariant
+  [round 3] validation passed
+  [round 3] compiled 4 obligations: ['OBL_pre', 'OBL_view_get_balance', 'OBL_post', 'OBL_stable_implies_target']
+  [round 3] sliced harness: up to 44 state variables -> at most 27 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_view_get_balance [readonly]: VERIFIED
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_stable_implies_target [composition]: VERIFIED
+  [round 3] candidate via OBL_post: undecided -- open run undecided: SMTChecker could not prove (timeout/unsupported)
+  [round 3] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 3] CEGAR refinement constraint built for exposure_invariant
+  repair budget (3) exhausted -> UNKNOWN
+[3] closure set to the conservative closure (0 member(s)); dropped ['withdraw', 'mint']
+-- candidate 2 --
+  [round 1] validation passed
+  [round 1] compiled 4 obligations: ['OBL_pre', 'OBL_view_get_balance', 'OBL_post', 'OBL_stable_implies_target']
+  [round 1] sliced harness: up to 44 state variables -> at most 27 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_view_get_balance [readonly]: VERIFIED
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_stable_implies_target [composition]: VERIFIED
+  [round 1] candidate via OBL_post: undecided -- open run undecided: SMTChecker could not prove (timeout/unsupported)
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation passed
+  [round 2] compiled 4 obligations: ['OBL_pre', 'OBL_view_get_balance', 'OBL_post', 'OBL_stable_implies_target']
+  [round 2] sliced harness: up to 44 state variables -> at most 27 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_view_get_balance [readonly]: VERIFIED
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_stable_implies_target [composition]: VERIFIED
+  [round 2] candidate via OBL_post: undecided -- open run undecided: SMTChecker could not prove (timeout/unsupported)
+  [round 2] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 2] CEGAR refinement constraint built for exposure_invariant
+  [round 3] validation passed
+  [round 3] compiled 4 obligations: ['OBL_pre', 'OBL_view_get_balance', 'OBL_post', 'OBL_stable_implies_target']
+  [round 3] sliced harness: up to 44 state variables -> at most 27 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_view_get_balance [readonly]: VERIFIED
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_stable_implies_target [composition]: VERIFIED
+  [round 3] candidate via OBL_post: undecided -- open run undecided: SMTChecker could not prove (timeout/unsupported)
+  [round 3] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 3] CEGAR refinement constraint built for exposure_invariant
+  repair budget (3) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN

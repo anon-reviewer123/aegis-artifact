@@ -1,0 +1,33 @@
+== Aegis on 6930622ff4ECCACf7A60393d9f2Ef927c93Bb993_KinaInuBetting.sol ==
+target property: tokenInformation[tokenId].active == activeTokens.contains(tokenId)
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_ENTERED', '_NOT_ENTERED', '_owner', '_status', 'accountMatchesPending', 'activeTokens', 'amountWonByAccount', 'bettingTimeInSeconds', 'closedTokens', 'feePercent', 'feeReceiver', 'isAuthorized', 'maxBetPerToken', 'tokenIndex', 'tokenIndexToAddress', 'tokenInformation', 'tokenWinningsByAccount', 'tokenWinningsPendingByAccount', 'totalPayoutsPaid', 'validTokens']
+[loop] 2 loop-call site(s) detected
+[loop] initializeNewTokens: conserve step obligation
+      OBL_loop_step_initializeNewTokens: CANARY DID NOT FIRE (status unknown); harness did not compile -- reporting UNKNOWN :: solc compile error: Error: Expected type name
+[loop] cashOutAll: unsupported loop shape (skipped)
+[loop] loop verification: UNKNOWN
+[2] exposure site: initializeNewTokens -> .name (external interface callback may re-enter)
+    conservative closure: ['initializeNewToken', 'initializeNewTokens']
+[harness] reusing synthesized harness 6930622ff4ECCACf7A60393d9f2Ef927c93Bb993_KinaInuBetting.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 14 functions, 22 public state vars)
+[readonly] 3 exposure site(s) with a window; decomposing each separately
+[readonly] --- site cashOutAll.call#0
+[readonly] --- site cashOut.call#0
+[readonly] --- site cashOut.call#1
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

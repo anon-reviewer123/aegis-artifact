@@ -1,0 +1,44 @@
+analyzer : ast
+target   : withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]
+
+  _ENTERED                         uint256
+  _NOT_ENTERED                     uint256
+  _balances                        mapping(uint256 => mapping(address => uint256))
+  _operatorApprovals               mapping(address => mapping(address => bool))
+  _owner                           address
+  _status                          uint256
+  _totalSupply                     mapping(uint256 => uint256)
+  _uri                             string
+  addresses                        address[]
+  amounts                          uint256[]
+  creatorOne                       address
+  creatorTwo                       address
+  levels                           uint8[]
+  maxSupplyEach                    uint8[]
+  maxTxEarly                       uint8
+  maxTxPublic                      uint8
+  mintPrice                        uint64[]
+  name                             string
+  paused                           bool
+  preSaleWindowCloses              uint256
+  preSaleWindowOpens               uint256
+  publicWindowCloses               uint256
+  publicWindowOpens                uint256
+  purchaseTxs                      mapping(address => uint256)
+  purchaseTxsEarly                 mapping(address => uint256)
+  signerRole                       address
+  symbol                           string
+  withdrawNine                     uint256
+  withdrawTen                      uint256
+
+sites:
+  withdraw.call#1 before=[] after=['withdrawNine', 'withdrawTen']
+  withdraw.call#2 before=['withdrawNine', 'withdrawTen'] after=[]
+  withdraw.call#3 before=['withdrawNine', 'withdrawTen'] after=[]
+  withdraw.call#4 before=['withdrawNine', 'withdrawTen'] after=[]
+  withdraw.call#5 before=['withdrawNine', 'withdrawTen'] after=[]
+  withdraw.call#0 before=[] after=[]
+  _doSafeTransferAcceptanceCheck.onERC1155Received#0 before=[] after=[]
+  _doSafeBatchTransferAcceptanceCheck.onERC1155BatchReceived#0 before=[] after=[]
+
+closure : ['withdraw']

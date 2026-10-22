@@ -1,0 +1,8 @@
+  [validator] exposure invariant equals stable invariant, accepted: the pre-phase writes none of its variables, so it still holds when control is handed out
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['_balances'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['_balances'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['_balances'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['_balances'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['_balances'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['_balances'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)

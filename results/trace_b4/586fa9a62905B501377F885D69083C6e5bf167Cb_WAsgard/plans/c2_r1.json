@@ -1,0 +1,63 @@
+{
+ "contract": "WAsgard",
+ "closure": {
+  "site_function": "claimDividends",
+  "site_call": ".call",
+  "functions": [
+   "claimDividends",
+   "unwrap",
+   "wrap"
+  ],
+  "justification": "These functions are within the closure as they can be involved in the re-entrant call sequence and may modify exposed or related state."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "claimDividends",
+   "unwrap",
+   "wrap"
+  ],
+  "nesting_bound": {
+   "claimDividends": 1,
+   "unwrap": 1,
+   "wrap": 1
+  }
+ },
+ "phases": {
+  "function": "claimDividends",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before .call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before .call",
+   "to_marker": "after .call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after .call",
+   "to_marker": "exit"
+  },
+  "linearization_point": "immediately after .call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Total dividends being withdrawn within the current re-entrant context",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_sum__balances <= _totalSupply + inFlight",
+  "stable_formula": "_sum__balances == _totalSupply",
+  "kind": "bounded",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "_sum__balances == _totalSupply",
+  "rule": "The exposure invariant ensures that during re-entrant calls, the sum of balances may temporarily drift upwards, but not beyond permissible bounds. Stability restores once the callback completes, maintaining overall asset conservation."
+ }
+}

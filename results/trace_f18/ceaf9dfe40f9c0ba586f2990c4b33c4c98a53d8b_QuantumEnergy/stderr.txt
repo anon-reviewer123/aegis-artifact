@@ -1,0 +1,3 @@
+  [validator] exposure invariant equals stable invariant, accepted: derived from the pre-phase, whose writes cancel on the invariant
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['balanceOf'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)

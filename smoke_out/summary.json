@@ -1,0 +1,100 @@
+[
+ {
+  "address": "0x00983e4f577fc29fd8257fa2e431d7f80c02f8be",
+  "main_contract": "LakePresaleVault",
+  "exposure_sites": 1,
+  "property": "totalPendingToGet == snapPre",
+  "elapsed": 0.7,
+  "status": "UNKNOWN",
+  "backend": "smtchecker",
+  "obligations": 0
+ },
+ {
+  "address": "0x03ce7f7f2839eff19ef37c0815a9f770403d5a2a",
+  "main_contract": "Landwolf",
+  "exposure_sites": 6,
+  "property": "tokensForMarketing == tokensForDev",
+  "elapsed": 600,
+  "status": "TIMEOUT"
+ },
+ {
+  "address": "0x0c4e1f997c49a6513e3c73811b370629c014eb9b",
+  "main_contract": "Pieces",
+  "exposure_sites": 14,
+  "property": "nextLayerID == snapPre",
+  "elapsed": 1.9,
+  "status": "UNKNOWN",
+  "backend": "smtchecker",
+  "obligations": 0
+ },
+ {
+  "address": "0x0ec396b768546b793db15e53888164fb954f8eae",
+  "main_contract": "SEEKERS",
+  "exposure_sites": 4,
+  "property": "_marketingFee == snapPre",
+  "elapsed": 0.6,
+  "status": "UNKNOWN",
+  "backend": "smtchecker",
+  "obligations": 0
+ },
+ {
+  "address": "0x0f2be47130b8eb75558f446f86ffca3dfdd2006c",
+  "main_contract": "Contract",
+  "exposure_sites": 5,
+  "property": "sellCount == lastSellBlock",
+  "elapsed": 0.6,
+  "status": "UNKNOWN",
+  "backend": "smtchecker",
+  "obligations": 0
+ },
+ {
+  "address": "0x119c7ee43ebf1dedc45a3730735583bd39e32579",
+  "main_contract": "PartyGovernance",
+  "exposure_sites": 13,
+  "property": "cs == snapPre",
+  "elapsed": 1.3,
+  "status": "UNKNOWN",
+  "backend": "smtchecker",
+  "obligations": 0
+ },
+ {
+  "address": "0x119f58c3c23cc576dada32b5ea8b421232564037",
+  "main_contract": "AccessControlledOffchainAggregator",
+  "exposure_sites": 8,
+  "property": "s_configCount == snapPre",
+  "elapsed": 1.6,
+  "status": "UNKNOWN",
+  "backend": "smtchecker",
+  "obligations": 0
+ },
+ {
+  "address": "0x125cea99e19c9dc7f05c1157911654bfb2e4e368",
+  "main_contract": "Solana",
+  "exposure_sites": 3,
+  "property": "_redisFee == snapPre",
+  "elapsed": 0.6,
+  "status": "UNKNOWN",
+  "backend": "smtchecker",
+  "obligations": 0
+ },
+ {
+  "address": "0x132d868eb896c4bda9c3409e767eb202aec73d07",
+  "main_contract": "RandomNumberGenerator",
+  "exposure_sites": 3,
+  "property": "randomResult == latestLotteryId",
+  "elapsed": 0.7,
+  "status": "UNKNOWN",
+  "backend": "smtchecker",
+  "obligations": 0
+ },
+ {
+  "address": "0x15e605b3d22b08333919c4a1993a4291a333a04c",
+  "main_contract": "trump",
+  "exposure_sites": 7,
+  "property": "swapTimes == snapPre",
+  "elapsed": 0.7,
+  "status": "UNKNOWN",
+  "backend": "smtchecker",
+  "obligations": 0
+ }
+]

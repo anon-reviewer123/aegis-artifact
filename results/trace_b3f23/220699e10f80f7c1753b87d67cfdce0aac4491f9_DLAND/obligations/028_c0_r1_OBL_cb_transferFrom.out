@@ -1,0 +1,101 @@
+status: verified
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:29:27:
+   |
+29 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:29:41:
+   |
+29 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:29:55:
+   |
+29 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:29:69:
+   |
+29 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:29:80:
+   |
+29 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:29:94:
+   |
+29 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:29:108:
+   |
+29 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:33:27:
+   |
+33 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:33:55:
+   |
+33 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:33:69:
+   |
+33 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:33:83:
+   |
+33 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:33:111:
+   |
+33 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:44:27:
+   |
+44 |     function __havoc_arg2(uint16 __x0, address __x1, address __x2, address __x3) public {
+   |                           ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpm3khumex/Obligation.sol:44:40:
+   |
+44 |     function __havoc_arg2(uint16 __x0, address __x1, address __x2, address __x3) public {
+   |                                        ^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmpm3khumex/Obligation.sol:188:9:
+    |
+188 |         bool is_liquidity_transfer = ((sender == pair && recipient == router_address)
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpm3khumex/Obligation.sol:214:55:
+    |
+214 |     function __h_add_liquidity(uint liquidity_to_add, uint liquidity_earnings) internal {
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^
+
+Info: CHC: 1 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.
+

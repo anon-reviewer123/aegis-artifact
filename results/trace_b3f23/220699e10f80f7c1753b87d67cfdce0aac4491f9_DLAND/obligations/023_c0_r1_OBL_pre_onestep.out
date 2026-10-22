@@ -1,0 +1,31 @@
+status: unknown
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp66g1gl3z/OneStep.sol:38:25:
+   |
+38 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmp66g1gl3z/OneStep.sol:146:13:
+    |
+146 |             assert(president_balance + marketing_balance + development_balance + coder_balance <= _ethBal && inFlight <= president_balance);                
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: Counterexample:
+  _ethBal = 3
+  amount = 1
+  coder_balance = 1
+  development_balance = 1
+  exposed = true
+  inFlight = 1
+  marketing_balance = 1
+  president_balance = 1
+  snapPre = 0
+  this = 1
+  who = 0
+
+Note: Callstack:
+Note:
+

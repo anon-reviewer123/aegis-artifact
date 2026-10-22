@@ -1,0 +1,121 @@
+status: verified
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:76:9:
+   |
+76 |         bool success;
+   |         ^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:13:5:
+   |
+13 |     bool public success = true;   // success flag of an excised call
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp8zm1y2h5/OneStep.sol:114:41:
+    |
+114 |     function __h_withdrawableDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:11:5:
+   |
+11 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp8zm1y2h5/OneStep.sol:145:41:
+    |
+145 |     function __h_accumulativeDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:11:5:
+   |
+11 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:14:27:
+   |
+14 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:14:41:
+   |
+14 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:14:69:
+   |
+14 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:14:83:
+   |
+14 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:14:97:
+   |
+14 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:20:41:
+   |
+20 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:20:55:
+   |
+20 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:20:69:
+   |
+20 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:20:83:
+   |
+20 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:20:97:
+   |
+20 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:20:111:
+   |
+20 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:20:125:
+   |
+20 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                                             ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8zm1y2h5/OneStep.sol:69:29:
+   |
+69 |     function claimDividends(uint256 amount) public {
+   |                             ^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmp8zm1y2h5/OneStep.sol:172:17:
+    |
+172 |                 assert(_sum__balances == _totalSupply + inFlight);            
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

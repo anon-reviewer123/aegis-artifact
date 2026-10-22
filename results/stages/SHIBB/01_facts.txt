@@ -1,0 +1,59 @@
+analyzer : ast
+target   : _ethReserves + _liquidityReserves <= _balances[address(this)]
+
+  _allowances                      mapping(address => mapping(address => uint256))
+  _balances                        mapping(address => uint256)
+  _buyBlock                        mapping(address => uint256)
+  _decimals                        uint8
+  _ethReserves                     uint256
+  _isBot                           mapping(address => bool)
+  _isExcludedFromFees              mapping(address => bool)
+  _isExcludedMaxTransactionAmount  mapping(address => bool)
+  _isExcludedMaxWalletAmount       mapping(address => bool)
+  _isSniper                        mapping(address => bool)
+  _liquidityReserves               uint256
+  _name                            string
+  _owner                           address
+  _supply                          uint256
+  _symbol                          string
+  _totalSupply                     uint256
+  addToETH                         uint256
+  addToLiquidity                   uint256
+  automatedMarketMakerPairs        mapping(address => bool)
+  botBlock                         bool
+  botsCaught                       uint256
+  buyBlock                         uint256
+  entryFees                        uint256
+  inSwapAndLiquify                 bool
+  lastBuy                          mapping(address => uint256)
+  lastSell                         mapping(address => uint256)
+  lastTrade                        mapping(address => uint256)
+  lpEntryFees                      uint256
+  lpWithdrawFees                   uint256
+  marketing                        address
+  maxTxAmount                      uint256
+  maxWalletAmount                  uint256
+  mevRepel                         bool
+  onlyDev                          bool
+  reserves                         bool
+  sameBlockActive                  bool
+  sellBlock                        uint256
+  snipeBlockAmt                    uint256
+  snipersCaught                    uint256
+  tradingActive                    bool
+  tradingActiveBlock               uint256
+  uniswapV2Pair                    address
+  uniswapV2Router                  contract IUniswapV2Router02
+  withdrawFees                     uint256
+
+sites:
+  transferFrom.call#0 before=['_buyBlock', '_ethReserves', '_isBot', '_isSniper', 'botsCaught', 'lastBuy', 'lastSell', 'snipersCaught'] after=['_ethReserves', '_liquidityReserves', 'lastTrade']
+  transfer.call#0 before=['_buyBlock', '_ethReserves', '_isBot', '_isSniper', 'botsCaught', 'lastBuy', 'lastSell', 'snipersCaught'] after=['_ethReserves', '_liquidityReserves', 'lastTrade']
+  burnSniper.call#0 before=['_buyBlock', '_ethReserves', '_isBot', '_isSniper', 'botsCaught', 'lastBuy', 'lastSell', 'snipersCaught'] after=['_ethReserves', '_liquidityReserves', 'lastTrade']
+  burnBot.call#0 before=['_buyBlock', '_ethReserves', '_isBot', '_isSniper', 'botsCaught', 'lastBuy', 'lastSell', 'snipersCaught'] after=['_ethReserves', '_liquidityReserves', 'lastTrade']
+  _transfer.call#0 before=['_buyBlock', '_ethReserves', '_isBot', '_isSniper', 'botsCaught', 'lastBuy', 'lastSell', 'snipersCaught'] after=['_ethReserves', '_liquidityReserves', 'lastTrade']
+  withdrawETH.call#0 before=[] after=[]
+  withdraw.transfer#0 before=[] after=[]
+  _addLiquidity.addLiquidityETH#0 before=[] after=[]
+
+closure : ['burnBot', 'burnSniper', 'deposit', 'removeBot', 'removeSniper', 'transfer', 'transferFrom']

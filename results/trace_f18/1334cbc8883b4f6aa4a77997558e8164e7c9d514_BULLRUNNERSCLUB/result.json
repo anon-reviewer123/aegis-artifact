@@ -1,0 +1,32 @@
+{
+ "status": "UNKNOWN",
+ "candidates_tried": 3,
+ "repair_rounds": 3,
+ "obligations": [
+  {
+   "obligation": "OBL_pre",
+   "module": "phases",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  },
+  {
+   "obligation": "OBL_view_get_balance",
+   "module": "readonly",
+   "status": "verified",
+   "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+  },
+  {
+   "obligation": "OBL_post",
+   "module": "phases",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  },
+  {
+   "obligation": "OBL_stable_implies_target",
+   "module": "composition",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  }
+ ],
+ "exposure_invariant": "_ethBal == team_balance + inFlight"
+}

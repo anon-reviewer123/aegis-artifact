@@ -1,0 +1,131 @@
+{
+ "_README": "Read-only twins v2. Both members of a pair share the same guarded closure so the footprint premise admits each; they differ only in whether the exposure function's footprint writes straddle the external call.",
+ "ro_twins_v2/escrow_safe.sol": {
+  "pair": "ro2_escrow",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "totalEscrowed == openEscrows"
+ },
+ "ro_twins_v2/escrow_unsafe.sol": {
+  "pair": "ro2_escrow",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "totalEscrowed == openEscrows"
+ },
+ "ro_twins_v2/amm_safe.sol": {
+  "pair": "ro2_amm",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "reserveTotal == activeLots"
+ },
+ "ro_twins_v2/amm_unsafe.sol": {
+  "pair": "ro2_amm",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "reserveTotal == activeLots"
+ },
+ "ro_twins_v2/lending_safe.sol": {
+  "pair": "ro2_lending",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "debtTotal == openLoans"
+ },
+ "ro_twins_v2/lending_unsafe.sol": {
+  "pair": "ro2_lending",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "debtTotal == openLoans"
+ },
+ "ro_twins_v2/lpvault_safe.sol": {
+  "pair": "ro2_lpvault",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "poolValue == lpHolders"
+ },
+ "ro_twins_v2/lpvault_unsafe.sol": {
+  "pair": "ro2_lpvault",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "poolValue == lpHolders"
+ },
+ "ro_twins_v2/staking_safe.sol": {
+  "pair": "ro2_staking",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "rewardPool == stakerCount"
+ },
+ "ro_twins_v2/staking_unsafe.sol": {
+  "pair": "ro2_staking",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "rewardPool == stakerCount"
+ },
+ "ro_twins_v2/backing_safe.sol": {
+  "pair": "ro2_backing",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "backingTotal == openClaims"
+ },
+ "ro_twins_v2/backing_unsafe.sol": {
+  "pair": "ro2_backing",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "backingTotal == openClaims"
+ },
+ "ro_twins_v2/pullpayment_safe.sol": {
+  "pair": "ro2_pullpayment",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "creditTotal == openCredits"
+ },
+ "ro_twins_v2/pullpayment_unsafe.sol": {
+  "pair": "ro2_pullpayment",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "creditTotal == openCredits"
+ },
+ "ro_twins_v2/feesplit_safe.sol": {
+  "pair": "ro2_feesplit",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "feeTotal == openPayees"
+ },
+ "ro_twins_v2/feesplit_unsafe.sol": {
+  "pair": "ro2_feesplit",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "feeTotal == openPayees"
+ }
+}

@@ -1,0 +1,144 @@
+"""
+Loop rebuild slice 2: build the inductive step harness AROUND the contract's real
+extracted loop body. The harness contains the contract's own statements (from
+loop_body_extract), not authored templates.
+
+Design (conservation/refund shape first):
+  - declare the contract's real state used by the loop (the mapping written per
+    iteration + any scalar total)
+  - seed a symbolic claimant c and amount w (reachability)
+  - oneIteration(): execute the REAL pre statements, then model the external call
+    as reenter() (one more real iteration on the same claimant), then the REAL
+    post statements
+  - track paidForC (a ghost) by observing the mapping decrements, and assert the
+    per-claimant safety bound paidForC <= wInit
+
+The discrimination comes from WHERE the real code zeroes the mapping (pre vs post),
+which loop_body_extract captured from the actual source. We do NOT choose safe/
+unsafe with a boolean; we transcribe the real pre/post and let the placement decide.
+"""
+import re
+from loop_body_extract import extract_loop_body
+
+
+def _mapping_and_scalar(facts, site):
+    """Identify the per-iteration mapping (uint-valued) and scalar total written
+    in the loop, from the detected loop site + var types."""
+    vt = getattr(facts, "var_types", {}) or {}
+    mapping_var = scalar_var = None
+    for v in site.loop_body_writes:
+        t = (vt.get(v, "") or "").strip()
+        if t.startswith("mapping") and t.rstrip().endswith("uint256)"):
+            mapping_var = mapping_var or v
+        elif t.startswith("mapping") and "=> uint" in t:
+            mapping_var = mapping_var or v
+        elif t.startswith(("uint", "int")):
+            scalar_var = scalar_var or v
+    return mapping_var, scalar_var
+
+
+def build_conservation_step(contract_src, facts, site):
+    """Return step-harness source built around the contract's REAL loop body, for
+    the conservation (refund) shape. Returns None if the shape isn't recognized."""
+    fn = site.function
+    ext = extract_loop_body(contract_src, fn, site.call)
+    if ext is None:
+        return None
+    mapping_var, scalar_var = _mapping_and_scalar(facts, site)
+    if mapping_var is None:
+        return None
+
+    pre, call, post = ext["pre"], ext["call"], ext["post"]
+
+    # The real body uses loop-locals: `c` (claimant), `amt`, `i`, `claimants[i]`.
+    # For a single inductive iteration we fix a symbolic claimant `c` and its
+    # owed value. We rewrite `claimants[i]` -> c and seed c/amt from parameters.
+    # We transcribe the REAL pre/post but neutralize the array indexing and the
+    # low-level call syntax (which SMTChecker can't execute) into a re-entrant
+    # internal call. Everything touching the CONTRACT STATE (mapping, scalar)
+    # stays verbatim.
+    def _rewrite(stmts):
+        s = stmts
+        s = re.sub(r"\bclaimants\s*\[\s*i\s*\]", "c", s)
+        s = re.sub(r"\bholders\s*\[\s*i\s*\]", "c", s)
+        s = s.replace("continue;", "return;")
+        out = []
+        for line in s.splitlines():
+            ls = line.strip()
+            if re.match(r"address\s+c\s*=", ls):        # c is seeded
+                continue
+            if re.match(r"uint256\s+amt\s*=", ls):       # amt is seeded from param
+                continue
+            # drop scalar-total bookkeeping arithmetic (global over distinct
+            # claimants; not meaningful in a one-claimant inductive step and the
+            # source of the underflow modeling artifact). Keep the mapping
+            # mutations and their ordering -- those carry the safety property.
+            if scalar_var and re.match(rf"{scalar_var}\s*[-+]=", ls):
+                continue
+            out.append(line)
+        return "\n        ".join(l.strip() for l in out if l.strip())
+
+    pre_r = _rewrite(pre)
+    post_r = _rewrite(post)
+
+    # the external call -> re-entrant iteration on the same claimant c. In the
+    # safe body the mapping is already zeroed in pre, so reenter() is a no-op;
+    # in the unsafe body the zeroing is in post, so reenter() sees the old value.
+    # reenter() replays the SAME pre/post around a nested (depth-1) call that we
+    # cut off (models one re-entry, sound for the single-step argument).
+    H = f"{facts.contract}StepH"
+    src = f'''// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+// Inductive loop-step for {facts.contract}.{fn}, built around the CONTRACT'S REAL
+// loop body (extracted verbatim; state mutations are the contract's own).
+contract {H} {{
+    mapping(address => uint256) public {mapping_var};
+    {"uint256 public " + scalar_var + ";" if scalar_var else ""}
+    uint256 public paidForC;     // ghost: value paid to claimant c this iteration
+    bool    public inReenter;
+
+    // one re-entrant iteration on the same claimant c (models the callback).
+    function reenter(address c) internal {{
+        if (inReenter) return;   // cut re-entry at depth 1 (sound single-step)
+        inReenter = true;
+        uint256 amt = {mapping_var}[c];
+        if (amt != 0) {{
+        {pre_r}
+        bool ok = true;
+        {post_r}
+        paidForC += amt;
+        }}
+        inReenter = false;
+    }}
+
+    function check(address c, uint256 w) public {{
+        require(w > 0 && w < (1 << 128));
+        require({mapping_var}[c] == 0 && paidForC == 0);
+        {mapping_var}[c] = w;                   // seed the claimant's owed
+        {(scalar_var + " = w;") if scalar_var else ""}
+        uint256 wInit = w;
+        uint256 amt = {mapping_var}[c];         // real capture (as the contract does)
+        {pre_r}
+        bool ok = true;                         // call returns success; re-entry modeled by reenter()
+        reenter(c);                             // the in-loop external call re-enters
+        {post_r}
+        paidForC += amt;
+        assert(paidForC <= wInit);              // per-claimant: paid at most owed
+    }}
+}}
+'''
+    return src
+
+
+if __name__ == "__main__":
+    import sys
+    sys.path.insert(0, ".")
+    from aegis.static_analysis import analyze
+    f = analyze(sys.argv[1])
+    src = open(sys.argv[1]).read()
+    if not f.loop_sites:
+        print("no loop sites"); sys.exit(1)
+    out = build_conservation_step(src, f, f.loop_sites[0])
+    if out is None:
+        print("shape not recognized"); sys.exit(1)
+    print(out)

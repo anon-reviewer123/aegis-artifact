@@ -1,0 +1,63 @@
+{
+ "contract": "WAsgard",
+ "closure": {
+  "site_function": "claimDividends",
+  "site_call": ".call",
+  "functions": [
+   "claimDividends",
+   "unwrap",
+   "wrap"
+  ],
+  "justification": "These functions interact with the exposed storage variables 'lastClaimTimes' and 'withdrawnDividends'."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "claimDividends",
+   "unwrap",
+   "wrap"
+  ],
+  "nesting_bound": {
+   "claimDividends": 1,
+   "unwrap": 1,
+   "wrap": 1
+  }
+ },
+ "phases": {
+  "function": "claimDividends",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "_sum__balances",
+   "sol_type": "uint256",
+   "meaning": "Sum of all balances in the _balances mapping",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_sum__balances == _totalSupply + inFlight",
+  "stable_formula": "_sum__balances == _totalSupply",
+  "kind": "conserve",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "_sum__balances == _totalSupply",
+  "rule": "The exposure invariant ensures that the sum of balances conserves across the callback window, accounting for in-flight changes."
+ }
+}

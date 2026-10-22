@@ -1,0 +1,29 @@
+== Aegis on 36579E63cF1B4ab794aA6B5E12d4A1eaEB29e87d_OCTOPUS_MINT.sol ==
+target property: none
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['owner', 'sale_in_progress']
+[loop] 1 loop-call site(s) detected
+[loop] mintLoop: progress step obligation
+      OBL_loop_step_mintLoop: CANARY DID NOT FIRE (status unknown); harness did not compile -- reporting UNKNOWN :: solc compile error: Error: "break" has to be in a "for" or "while" loop.
+[loop] loop verification: UNKNOWN
+[2] exposure site: whitdraw -> .transfer (transfer may trigger fallback)
+    conservative closure: []
+[harness] reusing synthesized harness 36579E63cF1B4ab794aA6B5E12d4A1eaEB29e87d_OCTOPUS_MINT.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 5 functions, 5 public state vars)
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

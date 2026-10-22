@@ -1,0 +1,223 @@
+"""
+compiler.py - Module 6: lower an MCVP into per-obligation SMTChecker harnesses.
+
+KEY DESIGN (this is what makes a failure localize and a VERIFIED mean something):
+Each assume-guarantee obligation is compiled into its OWN minimal harness
+contract that (1) `require`s the obligation's assumptions (the A in A=>G), then
+(2) executes the relevant phase/callback, then (3) `assert`s the guarantee (G).
+SMTChecker (CHC engine) discharges or refutes each assertion independently.
+
+We emit a separate harness per obligation rather than one combined contract so
+that exactly one obligation maps to exactly one SMTChecker assertion, and a
+counterexample names the obligation precisely (needed for fail-safe
+localization and the dependency-driven repair loop).
+
+Obligations emitted (the A/G decomposition of the MCVP):
+  OBL_pre              : I_stable@entry  => I_exp@before-call          [phases/exp_inv]
+  OBL_cb_<f>           : I_exp           => I_exp after callback f      [closure/exp_inv]
+  OBL_post             : I_exp           => I_stable@exit               [phases]
+  OBL_stable_implies   : I_stable        => target_property            [composition]
+
+Each harness is a full standalone Solidity file targeting SMTChecker. The
+contract's accounting logic is taken from the phase-split harness contract the
+project ships (<Name>.harness.sol) so the obligations execute real state
+updates, not abstractions.
+"""
+from __future__ import annotations
+from dataclasses import dataclass
+from .mcvp import MCVP
+from .static_analysis import ContractFacts
+
+
+@dataclass
+class Obligation:
+    name: str                 # e.g. "OBL_cb_redeemAll"
+    module: str               # responsible MCVP module
+    harness_source: str       # full standalone .sol for SMTChecker
+    description: str
+
+
+# SMTChecker pragma + engine settings live in the file header.
+_HEADER = """// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+"""
+
+
+def _harness_contract_name(contract: str) -> str:
+    return f"{contract}H"
+
+
+def compile_obligations(plan: MCVP, facts: ContractFacts,
+                        harness_contract_src: str) -> list[Obligation]:
+    """Return a list of independently-checkable Obligation objects.
+
+    `harness_contract_src` is the source of <Name>.harness.sol, which exposes
+    the pre/exposed/post phases (beginExposed/endExposed) and the callbacks as
+    callable functions. We import nothing; we inline that contract's body into
+    each obligation file so SMTChecker sees a closed program.
+    """
+    C = plan.contract
+    H = _harness_contract_name(C)
+    inv_exp = plan.exposure_invariant.formula
+    inv_stable = plan.exposure_invariant.stable_formula
+    target = plan.composition.target_property
+
+    # The harness contract body (without its own SPDX/pragma) so we can inline.
+    body = _strip_header(harness_contract_src)
+
+    obligations: list[Obligation] = []
+
+    # ---- OBL_pre : pre-phase establishes I_exp ----
+    obligations.append(Obligation(
+        name="OBL_pre", module="phases",
+        description="pre-phase establishes the exposure invariant",
+        harness_source=_wrap(_trim_harness(body, {"beginExposed"}), H, f"""
+        function check(uint256 amount) public {{
+            // assume stable invariant holds on entry and a feasible withdrawal
+            require({_q(inv_stable)});
+            require(v.shares(address(this)) >= amount);
+            v.depositFor(address(this), amount); // make shares feasible
+            v.beginExposed(amount);              // PRE phase body
+            assert({_q(inv_exp)});               // must establish I_exp
+        }}""")))
+
+    # ---- OBL_cb_<f> : each callback preserves I_exp ----
+    for f in plan.closure.functions:
+        if f == plan.phases.function:
+            continue  # the exposed function itself handled via nesting bound
+        obligations.append(Obligation(
+            name=f"OBL_cb_{f}", module="closure",
+            description=f"callback {f} preserves the exposure invariant",
+            # Keep beginExposed so `exposed==true` is REACHABLE: without a writer
+            # of `exposed`, the precondition require(v.exposed()) is unsatisfiable
+            # and the obligation verifies VACUOUSLY (a false negative). We keep
+            # beginExposed + the callback f, but still strip unrelated siblings
+            # (e.g. a buggy endExposed) so f's own correctness is what is tested.
+            harness_source=_wrap(_trim_harness(body, {"beginExposed", f}), H, f"""
+            function check(uint256 amount) public {{
+                require(v.exposed());
+                require({_q(inv_exp)});           // assume I_exp before callback
+                v.{f}(amount);                    // run the callback
+                assert({_q(inv_exp)});            // I_exp must still hold
+            }}""")))
+
+    # ---- OBL_post : post-phase restores I_stable ----
+    # "Restores the stable invariant" means returning to a CLEAN non-exposed
+    # state: I_stable holds AND the in-flight ghost is fully settled (==0) AND
+    # we have left the exposed phase. Asserting only I_stable at exit is too
+    # weak -- it misses a contract that leaves inFlight permanently corrupted
+    # (the BuggyVault bug), which breaks the NEXT operation. The precondition
+    # settles the full in-flight amount (inFlight == amount), matching the real
+    # withdraw linearization.
+    obligations.append(Obligation(
+        name="OBL_post", module="phases",
+        description="post-phase restores the stable invariant and clears in-flight",
+        harness_source=_wrap(_trim_harness(body, {"beginExposed", "endExposed"}), H, f"""
+        function check(uint256 amount) public {{
+            require(v.exposed());
+            require({_q(inv_exp)});               // assume I_exp at call return
+            require(v.inFlight() == amount);      // post settles the full in-flight amount
+            v.endExposed(amount);                 // POST phase body
+            assert({_q(inv_stable)});             // I_stable restored
+            assert(v.inFlight() == 0);            // in-flight ghost fully settled
+            assert(!v.exposed());                 // exposed phase exited
+        }}""")))
+
+    # ---- OBL_stable_implies_target : composition link ----
+    # If the target differs from the stable invariant, prove I_stable => target.
+    if target.strip() != inv_stable.strip():
+        obligations.append(Obligation(
+            name="OBL_stable_implies_target", module="composition",
+            description="stable invariant implies the target property",
+            harness_source=_wrap(body, H, f"""
+            function check() public {{
+                require({_q(inv_stable)});
+                assert({_q(target)});
+            }}""")))
+
+    return obligations
+
+
+def _q(formula: str) -> str:
+    """Rewrite a backend-agnostic invariant into SMTChecker-callable Solidity.
+    Storage reads must go through the inner contract handle `v`."""
+    # The harness exposes public getters; rewrite bare var names to v.<var>().
+    import re
+    known = ["totalAssets", "totalShares", "inFlight", "exposed"]
+    out = formula
+    for name in known:
+        out = re.sub(rf"\b{name}\b", f"v.{name}()", out)
+    return out
+
+
+def _trim_harness(src: str, keep_funcs: set[str]) -> str:
+    """Return the harness source with only the named functions kept (plus the
+    constructor and all state variables / getters). This isolates each
+    obligation so the CHC engine cannot reach a BUGGY SIBLING function as a
+    prior transaction and corrupt the entry state -- which was causing spurious
+    cross-obligation failures (a bug in endExposed making OBL_pre fail too).
+    After trimming, an obligation fails ONLY if the phase IT tests is wrong,
+    so fault localization is precise.
+
+    Implementation: a brace-matching scan that drops top-level `function <name>`
+    definitions whose name is not in keep_funcs. Constructors and state vars are
+    always kept. depositFor is always kept (needed to seed feasible state)."""
+    import re
+    always = {"depositFor"}
+    keep = set(keep_funcs) | always
+
+    out = []
+    i = 0
+    n = len(src)
+    fn_re = re.compile(r"function\s+([A-Za-z_]\w*)\s*\(")
+    while i < n:
+        m = fn_re.search(src, i)
+        if not m:
+            out.append(src[i:])
+            break
+        name = m.group(1)
+        # find the body: from the '{' after the signature, brace-match to close
+        brace = src.find("{", m.end())
+        if brace == -1:
+            out.append(src[i:])
+            break
+        depth = 0
+        j = brace
+        while j < n:
+            if src[j] == "{":
+                depth += 1
+            elif src[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    j += 1
+                    break
+            j += 1
+        # text before this function is always emitted
+        out.append(src[i:m.start()])
+        if name in keep:
+            out.append(src[m.start():j])  # keep the whole function
+        # else: drop it entirely
+        i = j
+    return "".join(out)
+
+
+def _strip_header(src: str) -> str:
+    lines = src.splitlines()
+    kept = [ln for ln in lines
+            if not ln.strip().startswith("// SPDX")
+            and not ln.strip().startswith("pragma ")]
+    return "\n".join(kept)
+
+
+def _wrap(inner_body: str, inner_name: str, check_fn: str) -> str:
+    """Produce a full standalone SMTChecker file: the inner harness contract
+    plus an Obligation contract that instantiates it and holds one `check`."""
+    return f"""{_HEADER}
+{inner_body}
+
+contract Obligation {{
+    {inner_name} v;
+    constructor() {{ v = new {inner_name}(address(this)); }}
+{check_fn}
+}}
+"""

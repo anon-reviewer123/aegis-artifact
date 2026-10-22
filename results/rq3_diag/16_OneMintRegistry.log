@@ -1,0 +1,49 @@
+== Aegis on 046688068a38e5DF1717e30AE192C761c873df60_OneMintRegistry.sol ==
+target property: none
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_ADMIN_SLOT', '_BEACON_SLOT', '_IMPLEMENTATION_SLOT', '_ROLLBACK_SLOT', '__gap', '__self', '_addonApprovals', '_addonListMapping', '_devs', '_initialized', '_initializing', '_owner']
+[2] exposure site: unsetDevMapping -> .call (low-level call can re-enter)
+    conservative closure: []
+[harness] reusing synthesized harness 046688068a38e5DF1717e30AE192C761c873df60_OneMintRegistry.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 6 functions, 12 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 3 obligations: ['OBL_pre', 'OBL_cb_setDevMapping', 'OBL_post']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types uint256[50] storage ref and uint256.
+      OBL_cb_setDevMapping [closure]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types uint256[50] storage ref and uint256.
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types uint256[50] storage ref and uint256.
+  [round 1] correct=['protocol', 'ghost_state', 'phases', 'composition'] in_progress=['closure', 'exposure_invariant']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation passed
+  [round 2] compiled 3 obligations: ['OBL_pre', 'OBL_cb_setDevMapping', 'OBL_post']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types uint256[50] storage ref and uint256.
+      OBL_cb_setDevMapping [closure]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types uint256[50] storage ref and uint256.
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types uint256[50] storage ref and uint256.
+  [round 2] correct=['protocol', 'ghost_state', 'phases', 'composition'] in_progress=['closure', 'exposure_invariant']
+  [round 2] CEGAR refinement constraint built for exposure_invariant
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation passed
+  [round 1] compiled 5 obligations: ['OBL_pre', 'OBL_cb_initialize', 'OBL_cb_setApprovalMapping', 'OBL_cb_setDevMapping', 'OBL_post']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types uint256[50] storage ref and uint256.
+      OBL_cb_initialize [closure]: UNKNOWN :: solc compile error: Error: Expected primary expression.
+      OBL_cb_setApprovalMapping [closure]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types uint256[50] storage ref and uint256.
+      OBL_cb_setDevMapping [closure]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types uint256[50] storage ref and uint256.
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types uint256[50] storage ref and uint256.
+  [round 1] correct=['protocol', 'ghost_state', 'phases', 'composition'] in_progress=['closure', 'exposure_invariant']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation flagged: ['protocol']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] protocol references non-closure functions ['equip', 'onERC1155BatchReceived', 'onERC1155Received', 'supportsInterface', 'transferOwnership', 'unequip', 'unsetApprovalMapping']
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain

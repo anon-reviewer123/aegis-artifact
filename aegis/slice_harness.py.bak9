@@ -1,0 +1,688 @@
+import re
+
+from .harness_synth import _guard_span, _clean_chunk
+
+_ELEM = r"(?:u?int\d*|address(?:\s+payable)?|bool|bytes\d*|string)"
+_KEYWORDS = {
+    "if", "else", "for", "while", "do", "return", "returns", "require",
+    "assert", "revert", "emit", "new", "delete", "this", "super", "msg",
+    "block", "tx", "abi", "true", "false", "memory", "storage", "calldata",
+    "public", "private", "internal", "external", "view", "pure", "payable",
+    "constant", "immutable", "virtual", "override", "unchecked", "type",
+    "keccak256", "sha256", "ecrecover", "addmod", "mulmod", "selfdestruct",
+    "gasleft", "blockhash", "now", "wei", "gwei", "ether", "seconds",
+    "minutes", "hours", "days", "weeks", "uint", "int", "byte", "bytes",
+    "string", "address", "bool", "mapping", "struct", "enum", "function",
+    "modifier", "event", "contract", "interface", "library", "using", "is",
+    "try", "catch", "assembly", "let", "continue", "break", "constructor",
+    "receive", "fallback", "indexed", "anonymous",
+}
+
+
+class SliceUnsupported(Exception):
+    pass
+
+
+_TYPE_NAME = re.compile(
+    r"^(?:u?int(?:8|16|24|32|40|48|56|64|72|80|88|96|104|112|120|128|136|144|"
+    r"152|160|168|176|184|192|200|208|216|224|232|240|248|256)?|"
+    r"bytes(?:[1-9]|[12]\d|3[0-2])?|address|bool|string|mapping)$")
+
+
+def _is_type_name(word):
+    """True for a Solidity type used where an identifier might be expected.
+
+    Sized elementary types are not in the keyword list, so a transcribed
+    `uint256 x = 1;` leaves `uint256` looking like a free name and it gets
+    declared as a variable (`uint256 uint256;`).
+    """
+    return bool(_TYPE_NAME.match(word))
+
+
+_RESERVED_EXTRA = {
+    "in", "of", "alias", "apply", "auto", "case", "copyof", "default",
+    "define", "final", "implements", "inline", "macro", "match", "mutable",
+    "null", "partial", "promise", "reference", "relocatable", "sealed",
+    "sizeof", "static", "supports", "switch", "typedef", "typeof", "var",
+    "after", "days", "hours", "weeks", "years",
+}
+
+
+def _local_names(text):
+    """Names declared locally inside the sliced bodies.
+
+    A local must not also be emitted as a state variable: the duplicate either
+    shadows the local or contradicts its type, which is how `bool selfSponsor =
+    false;` ends up alongside `uint256 selfSponsor;`.
+    """
+    try:
+        from .harness_synth import _declared_locals
+        return set(_declared_locals(text))
+    except Exception:
+        return set()
+
+
+def _fix_nested_mappings(text, known):
+    """Abstract mapping value types, innermost first, without losing parens.
+
+    A single non-recursive substitution over `mapping(K => V)` cannot see that V
+    is itself a mapping, so the closing parenthesis of the inner type is left
+    dangling.
+    """
+    pat = re.compile(r"mapping\s*\(\s*([^(),=]+?)\s*=>\s*([^(),]+?)\s*\)")
+    prev = None
+    while prev != text:
+        prev = text
+
+        def repl(m):
+            key, val = m.group(1).strip(), m.group(2).strip()
+            if not _TYPE_NAME.match(key.split("[")[0]):
+                key = "uint256"
+            vb = val.split("[")[0].strip()
+            if not _TYPE_NAME.match(vb) and vb not in known \
+                    and not vb.startswith("@"):
+                val = "uint256"
+            return "@MAP@(%s => %s)" % (key, val)
+
+        text = pat.sub(repl, text)
+    return text.replace("@MAP@", "mapping")
+
+
+def _repair_havoc_tuples(text):
+    """Drop tuple assignments whose right-hand call was havoced away.
+
+    `(bool ok, bytes memory ret) = target.call(data);` loses its call when the
+    callee is not in the slice, leaving a tuple bound to a plain value. The
+    components are unconstrained either way, so the statement is replaced by
+    declarations of its parts.
+    """
+    def repl(m):
+        comps = [c.strip() for c in m.group(1).split(",") if c.strip()]
+        out = []
+        for c in comps:
+            parts = c.split()
+            if len(parts) >= 2:
+                out.append("%s %s;" % (" ".join(parts[:-1]), parts[-1]))
+        return " ".join(out) if out else ";"
+    return re.sub(r"\(([^()]*,[^()]*)\)\s*=\s*[^;]*;", repl, text)
+
+
+def _abstract_user_types(text, known):
+    """Replace types the slice does not define with `uint256`.
+
+    The slice deliberately omits struct and contract definitions it does not
+    need, so a transcribed `Ring storage ring = ...` or a
+    `mapping(uint256 => Proposal)` names a type that is not present. Abstracting
+    it to an unconstrained integer keeps the declaration well-formed and leaves
+    the value unconstrained, which widens rather than narrows the reachable
+    states.
+    """
+    def map_repl(m):
+        key, val = m.group(1).strip(), m.group(2).strip()
+        if not _TYPE_NAME.match(val.split("[")[0]) and val not in known:
+            val = "uint256"
+        if not _TYPE_NAME.match(key.split("[")[0]):
+            key = "uint256"
+        return "mapping(%s => %s)" % (key, val)
+
+    text = re.sub(r"mapping\s*\(\s*([^=)]+?)\s*=>\s*([^)]+?)\s*\)",
+                  map_repl, text)
+
+    def local_repl(m):
+        tname, loc, var = m.group(1), m.group(2), m.group(3)
+        if _TYPE_NAME.match(tname) or tname in known:
+            return m.group(0)
+        return "uint256 %s" % var
+
+    text = re.sub(r"\b([A-Z]\w*)\s+(storage|memory|calldata)\s+"
+                  r"([A-Za-z_]\w*)\b", local_repl, text)
+    text = re.sub(r"\b([A-Z]\w*)\s+([a-z_]\w*)\s*(?==)",
+                  lambda m: m.group(0) if (_TYPE_NAME.match(m.group(1))
+                                           or m.group(1) in known)
+                  else "uint256 %s " % m.group(2), text)
+    return text
+
+
+def _split_returns(text):
+    parts, depth, buf = [], 0, ""
+    for c in text:
+        if c in "([":
+            depth += 1
+        elif c in ")]":
+            depth -= 1
+        if c == "," and depth == 0:
+            parts.append(buf.strip())
+            buf = ""
+        else:
+            buf += c
+    if buf.strip():
+        parts.append(buf.strip())
+    return parts
+
+
+def _comparable_return(header, enums):
+    """Pick a scalar component of the view's return list to observe.
+
+    A view returning several values, or an enum, is still observable: the
+    obligation compares one scalar across the callback window, so projecting a
+    single elementary component is enough. Struct and array returns have no
+    scalar projection and are reported unsupported.
+    """
+    m = re.search(r"returns\s*\(([^)]*)\)", header or "")
+    if not m:
+        return None, None, "view has no return type"
+    parts = _split_returns(m.group(1))
+    if not parts:
+        return None, None, "view has no return type"
+    for idx, p in enumerate(parts):
+        base = p.strip().split()[0]
+        if re.match(_ELEM + r"$", base):
+            return ("address" if base.startswith("address") else base), \
+                idx, ""
+        if base in enums:
+            return "uint256", idx, ""
+    return None, None, "view return type not comparable"
+
+
+def _enum_names(src):
+    return {m.group(1) for m in re.finditer(r"\benum\s+([A-Za-z_]\w*)", src)}
+
+
+def _project_return(body, idx, n_parts, rtype):
+    """Rewrite `return (a, b, c);` to yield only the observed component."""
+    if n_parts <= 1:
+        return body
+
+    def repl(m):
+        inner = m.group(1).strip()
+        if inner.startswith("(") and inner.endswith(")"):
+            comps = _split_returns(inner[1:-1])
+            if len(comps) == n_parts:
+                return "return %s;" % comps[idx].strip()
+        if rtype == "bool":
+            return "return false;"
+        if rtype.startswith("address"):
+            return "return address(0);"
+        return "return %s(0);" % rtype
+    return re.sub(r"return\s+([^;]+);", repl, body)
+
+
+def _match(src, open_idx):
+    depth = 0
+    for i in range(open_idx, len(src)):
+        if src[i] == "{":
+            depth += 1
+        elif src[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return i
+    return -1
+
+
+def _strip(text):
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    text = re.sub(r"//[^\n]*", " ", text)
+    return text
+
+
+def contract_body(src, name):
+    for m in re.finditer(r"\b(?:abstract\s+)?contract\s+" + re.escape(name) +
+                         r"\b[^{]*\{", src):
+        end = _match(src, m.end() - 1)
+        if end != -1:
+            return src[m.end():end], m.group(0)
+    return "", ""
+
+
+def base_names(header):
+    m = re.search(r"\bis\b([^{]*)\{?", header)
+    if not m:
+        return []
+    return [x.strip().split("(")[0].strip()
+            for x in m.group(1).split(",") if x.strip()]
+
+
+def full_body(src, name, seen=None):
+    """Contract body concatenated with its base contracts' bodies."""
+    seen = seen or set()
+    if name in seen:
+        return ""
+    seen.add(name)
+    body, header = contract_body(src, name)
+    if not body:
+        return ""
+    out = body
+    for b in base_names(header):
+        out += "\n" + full_body(src, b, seen)
+    return out
+
+
+def state_vars(body):
+    """name -> declared type, for storage declarations at contract level."""
+    spans = []
+    for m in re.finditer(r"function\s+\w*\s*\([^;{]*\{", body):
+        end = _match(body, m.end() - 1)
+        if end != -1:
+            spans.append((m.start(), end))
+    out = {}
+    pat = re.compile(
+        r"^[ \t]*((?:mapping\s*\(.*?\)|%s|[A-Z]\w*)(?:\s*\[[^\]]*\])*)"
+        r"((?:\s+(?:public|private|internal|constant|immutable|override))*)"
+        r"\s+([A-Za-z_]\w*)\s*(?:=[^;]*)?;" % _ELEM, re.M)
+    for m in pat.finditer(body):
+        if any(a <= m.start() <= b for a, b in spans):
+            continue
+        if "constant" in m.group(2) or "immutable" in m.group(2):
+            continue
+        out[m.group(3)] = m.group(1).strip()
+    return out
+
+
+def find_function(body, name):
+    for m in re.finditer(r"function\s+" + re.escape(name) + r"\s*\(", body):
+        depth, j = 0, m.end() - 1
+        while j < len(body):
+            if body[j] == "(":
+                depth += 1
+            elif body[j] == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+            j += 1
+        params = body[m.end():j]
+        brace = body.find("{", j)
+        semi = body.find(";", j)
+        if brace == -1 or (semi != -1 and semi < brace):
+            continue
+        header = body[j + 1:brace]
+        end = _match(body, brace)
+        if end == -1:
+            continue
+        return params, header, body[brace + 1:end]
+    return None, None, None
+
+
+def identifiers(text):
+    """Free identifiers, excluding member-access names and call targets.
+
+    `msg.sender` and `a.length` must not contribute `sender` or `length`: they
+    are members of another value, not names the slice has to declare.
+    """
+    text = _strip(text)
+    out = set()
+    for m in re.finditer(r"(\.\s*)?\b([A-Za-z_]\w*)\b\s*(\()?", text):
+        if m.group(1) or m.group(3):
+            continue
+        if m.group(2) in _KEYWORDS or m.group(2) in _RESERVED_EXTRA \
+                or _is_type_name(m.group(2)):
+            continue
+        out.add(m.group(2))
+    return out
+
+
+def used_state(text, svars):
+    return {v for v in svars if re.search(r"\b%s\b" % re.escape(v), text)}
+
+
+_NEVER_HAVOC = {
+    "revert", "require", "assert", "emit", "return", "if", "for", "while",
+    "delete", "new", "keccak256", "sha256", "ecrecover", "addmod", "mulmod",
+    "type", "unchecked", "selfdestruct", "payable", "address", "uint256",
+    "int256", "bool", "bytes32", "string", "bytes",
+}
+
+
+def havoc_calls(body, known):
+    """Replace calls to functions we did not slice in with a symbolic read."""
+    def repl(m):
+        name = m.group(1)
+        if name in known or name in _KEYWORDS or name in _NEVER_HAVOC:
+            return m.group(0)
+        # `revert CustomError(...)`, `emit Event(...)` and `new C(...)` name a
+        # construct, not a helper whose value the slice needs.
+        pre = body[max(0, m.start() - 12):m.start()]
+        if re.search(r"\b(revert|emit|new)\s+$", pre):
+            return m.group(0)
+        return "_havoc"
+    return re.sub(r"\b([A-Za-z_]\w*)\s*\([^()]*\)", repl, body)
+
+
+def declare(vtype, name, known=frozenset()):
+    # Mapping types must go through the nesting-aware rewriter: the general
+    # abstraction stops at the first `)`, so a mapping whose value is itself a
+    # mapping loses its inner type and keeps the inner closing parenthesis.
+    t = vtype.strip()
+    if t.startswith("mapping"):
+        t = _fix_nested_mappings(t, known)
+    else:
+        t = _abstract_user_types(t, known)
+    if t.startswith("mapping"):
+        return "    %s %s;" % (t, name)
+    base = t.split("[")[0].strip()
+    if re.match(r"^[A-Z]", base) and base not in known:
+        return "    uint256 %s;" % name
+    return "    %s %s;" % (t, name)
+
+
+def build_slice_harness(src, contract, exposure_fn, view_fn):
+    """Emit a minimal contract containing only what the read-only obligation
+    mentions: the exposure function split into pre/post phases, the flagged
+    view, and the state variables those two touch.
+
+    Reconstructing the whole contract forces the harness to reproduce every
+    type, base contract and helper it declares, most of which the assertion
+    never mentions. Slicing to the property's criterion removes that surface.
+    Calls not carried into the slice are replaced with an unconstrained value
+    rather than dropped, so an omitted effect widens the reachable states
+    instead of silently fixing them.
+    """
+    src = _strip(src)
+    body = full_body(src, contract)
+    if not body:
+        return None, "contract body not found"
+
+    svars = state_vars(body)
+    if not svars:
+        return None, "no state variables"
+
+    e_params, e_header, e_body = find_function(body, exposure_fn)
+    if e_body is None:
+        return None, "exposure function not found"
+    v_params, v_header, v_body = find_function(body, view_fn)
+    if v_body is None:
+        return None, "view function not found"
+
+    m = re.search(r"\.call\s*[({]|\.\s*on[A-Z]\w*\s*\(|"
+                  r"\.tokensReceived\s*\(|\.onFlashLoan\s*\(", e_body)
+    if not m:
+        return None, "no external call in exposure function"
+    cs, ce = _guard_span(e_body, m.start())
+    pre = _clean_chunk(e_body[:cs], keep_requires=False)
+    post = _clean_chunk(e_body[ce:], keep_requires=False)
+    _value_expr = _call_value_expr(e_body, m.start())
+
+    enums = _enum_names(src)
+    rtype, ridx, rerr = _comparable_return(v_header, enums)
+    if rtype is None:
+        return None, rerr
+    _rparts = len(_split_returns(
+        re.search(r"returns\s*\(([^)]*)\)", v_header).group(1)))
+    v_body = _project_return(v_body, ridx, _rparts, rtype)
+
+    relevant = used_state(pre + post + v_body, svars)
+    if not relevant:
+        return None, "no shared state between phases and view"
+
+    _bindings = _bind_exposure_params(e_params, set())
+    _need_addr = "_addrOf(" in _bindings
+    if _bindings:
+        pre = _bindings + pre
+        post = _bindings + post
+    pre = _stabilize_env(_repair_havoc_tuples(pre))
+    if _value_expr:
+        pre = pre.rstrip() + "\n" + _stabilize_env(
+            _transfer_effect(_value_expr, None, None)).rstrip()
+    post = _stabilize_env(_repair_havoc_tuples(post))
+    v_body = _stabilize_env(v_body)
+    decls = "\n".join(declare(svars[v], v, enums) for v in sorted(relevant))
+    decls = _fix_nested_mappings(decls, enums)
+    pre = _abstract_user_types(pre, enums)
+    post = _abstract_user_types(post, enums)
+    v_body = _abstract_user_types(v_body, enums)
+
+    known = set(relevant) | {"beginExposed", "endExposed", exposure_fn,
+                             view_fn, "_havoc"}
+    pre = havoc_calls(pre, known)
+    post = havoc_calls(post, known)
+    v_body = havoc_calls(v_body, known)
+
+    pnames = {n for _, n in
+              (p.strip().rsplit(" ", 1) for p in (e_params or "").split(",")
+               if p.strip() and " " in p.strip())}
+    declared_locally = _strict_locals(pre) | _strict_locals(post) \
+        | _strict_locals(v_body)
+    free = (identifiers(pre) | identifiers(post) | identifiers(v_body)) \
+        - relevant - known - pnames - declared_locally \
+        - {"amount", "_ethBalance", "_blockTime", "_blockNum", "_gasLeft"}
+    extra = "\n".join("    uint256 %s;" % f for f in sorted(free)
+                      if re.match(r"^[A-Za-z_]\w*$", f))
+
+    name = "%sSlice" % contract
+    return ("""// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+/// Property slice for {contract}: exposure `{exposure_fn}` vs view `{view_fn}`.
+contract {name} {{
+{decls}
+{extra}
+    uint256 _havoc;
+{env}
+
+    function beginExposed(uint256 amount) public {{
+{pre}
+    }}
+
+    function endExposed(uint256 amount) public {{
+{post}
+    }}
+
+    function observed() public view returns ({rtype}) {{
+{v_body}
+    }}
+}}
+""".format(contract=contract, exposure_fn=exposure_fn, view_fn=view_fn,
+           name=name, decls=decls, extra=extra, pre=pre, post=post,
+           rtype=rtype, v_body=v_body,
+           env=_ENV_DECLS), "")
+
+
+_STRICT_LOCAL = re.compile(
+    r"^\s*((?:mapping\s*\([^)]*\)|[A-Za-z_]\w*)(?:\s*\[[^\]]*\])*)"
+    r"(?:\s+(?:memory|storage|calldata))?"
+    r"\s+([A-Za-z_]\w*)\s*(?==|;)", re.M)
+
+
+def _strict_locals(text):
+    """Names a body declares itself.
+
+    Deliberately stricter than the harness-wide detector: it only accepts a
+    type followed by a name at the start of a statement. A looser rule
+    misclassifies ordinary expressions as declarations, and the name then gets
+    neither a local nor a state declaration.
+    """
+    out = set()
+    for m in _STRICT_LOCAL.finditer(_strip(text)):
+        t = m.group(1)
+        if t in ("return", "emit", "revert", "require", "assert", "if",
+                 "for", "while", "else", "delete", "new"):
+            continue
+        out.add(m.group(2))
+    return out
+
+
+_ENV_READS = (
+    (r"address\s*\(\s*this\s*\)\s*\.\s*balance", "_ethBalance"),
+    (r"\bmsg\s*\.\s*value\b", "amount"),
+    (r"\bblock\s*\.\s*timestamp\b", "_blockTime"),
+    (r"\bblock\s*\.\s*number\b", "_blockNum"),
+    (r"\bgasleft\s*\(\s*\)", "_gasLeft"),
+)
+
+
+def _call_value_expr(e_body, call_pos):
+    """The amount a value-bearing external call sends, as a source expression.
+
+    Recognises `.call{value: X}(...)`, the legacy `.call.value(X)(...)`, and
+    `.transfer(X)` / `.send(X)`. Returns None when the call carries no value.
+    """
+    window = e_body[max(0, call_pos - 200):call_pos + 200]
+    m = re.search(r"\.call\s*\{[^}]*\bvalue\s*:\s*([^,}]+)", window)
+    if m:
+        return m.group(1).strip()
+    m = re.search(r"\.call\s*\.\s*value\s*\(\s*([^)]+?)\s*\)", window)
+    if m:
+        return m.group(1).strip()
+    m = re.search(r"\.(?:transfer|send)\s*\(\s*([^)]+?)\s*\)", window)
+    if m:
+        return m.group(1).strip()
+    return None
+
+
+def _transfer_effect(value_expr, relevant, svars):
+    """Statements applying the call's value transfer before control returns.
+
+    Ether leaves the contract when the call is made, not when it returns, so a
+    view reading `address(this).balance` sees the reduced amount throughout the
+    callback window while any bookkeeping in the post-phase is still pending.
+    Omitting this makes the pre-phase empty and the window indistinguishable
+    from the entry state, which is why a contract that sends before it settles
+    its accounting appeared consistent.
+    """
+    if not value_expr:
+        return ""
+    return "        _ethBalance -= %s;\n" % value_expr
+
+
+def _bind_exposure_params(params, relevant):
+    """Declarations binding the exposure function's own parameters.
+
+    The sliced phases are that function's statements, so they still refer to its
+    parameters by name (`supply -= burn;`). The obligation drives the phases
+    through a uniform `amount`, so every other parameter needs a local binding
+    or the body references an undeclared name.
+    """
+    out, primary = [], False
+    for p in _split_returns(params or ""):
+        p = " ".join(p.split())
+        if not p or " " not in p:
+            continue
+        parts = p.split()
+        name = parts[-1]
+        if name in relevant or name == "amount":
+            continue
+        ptype = " ".join(parts[:-1])
+        ptype = re.sub(r"\b(memory|calldata|storage)\b", " ", ptype)
+        ptype = " ".join(ptype.split())
+        base = ptype.split("[")[0].strip()
+        if "[" in ptype or base in ("bytes", "string"):
+            continue
+        if base in ("uint256", "uint") and not primary:
+            primary = True
+            out.append("        uint256 %s = amount;" % name)
+        elif re.fullmatch(r"uint\d*", base):
+            out.append("        %s %s = %s(amount);" % (base, name, base))
+        elif re.fullmatch(r"int\d*", base):
+            out.append("        %s %s = %s(int256(amount));" % (base, name,
+                                                                base))
+        elif base.startswith("address"):
+            out.append("        address %s = address(0);" % name)
+        elif base == "bool":
+            out.append("        bool %s = amount != 0;" % name)
+        elif re.fullmatch(r"bytes([1-9]|[12]\d|3[0-2])", base):
+            out.append("        %s %s = %s(bytes32(amount));" % (base, name,
+                                                                 base))
+        else:
+            out.append("        uint256 %s;" % name)
+    return ("\n".join(out) + "\n") if out else ""
+
+
+_ADDR_HELPER = """    function _addrOf(uint256 v) internal pure returns (address) {
+        return address(uint160(v));
+    }
+"""
+
+
+def _stabilize_env(text):
+    """Bind environment reads to state variables.
+
+    `address(this).balance` and `gasleft()` are unconstrained at every
+    occurrence, so a view reading one returns a fresh value on each call and any
+    comparison across the callback window is decided by that noise rather than
+    by the contract. Binding them once keeps them unknown but consistent.
+    """
+    for pat, name in _ENV_READS:
+        text = re.sub(pat, name, text)
+    return text
+
+
+_ENV_DECLS = """    uint256 _ethBalance;
+    uint256 _blockTime;
+    uint256 _blockNum;
+    uint256 _gasLeft;"""
+
+
+def _seed_params(decls):
+    """Parameters and assignments that put the slice in an arbitrary state.
+
+    A slice starts from the constructor, so every variable is zero and stays
+    zero: the only feasible transfer amount is zero, the three observations
+    coincide and the obligation holds for any contract. Seeding each variable
+    from an unconstrained parameter makes the states the property is about
+    reachable.
+    """
+    params, body = [], []
+    for i, line in enumerate(decls.splitlines()):
+        m = re.match(r"\s*(mapping\s*\(\s*([^=)]+?)\s*=>\s*([^)]+?)\s*\)"
+                     r"|[A-Za-z_]\w*(?:\s*\[[^\]]*\])*)\s+([A-Za-z_]\w*)\s*;",
+                     line)
+        if not m:
+            continue
+        vtype, key, val, name = m.group(1), m.group(2), m.group(3), m.group(4)
+        if vtype.startswith("mapping"):
+            vt = (val or "uint256").strip()
+            if vt.startswith("mapping") or "[" in vt:
+                continue
+            kt = (key or "uint256").strip()
+            idx = "msg.sender" if kt.startswith("address") else "_k%d" % i
+            if not kt.startswith("address"):
+                params.append("%s _k%d" % (kt, i))
+            params.append("%s _s%d" % (vt, i))
+            body.append("        %s[%s] = _s%d;" % (name, idx, i))
+        elif "[" in vtype:
+            continue
+        else:
+            params.append("%s _s%d" % (vtype, i))
+            body.append("        %s = _s%d;" % (name, i))
+        if len(params) > 8:
+            break
+    return params, body
+
+
+def build_slice_obligation(src, contract, exposure_fn, view_fn):
+    """Slice plus the read-only reentrancy obligation.
+
+    The property is that the view never exposes a state corresponding to no
+    quiescent point: its value during the callback window must equal either the
+    value on entry or the value once the call has settled. A contract that
+    applies all of its updates on one side of the external call satisfies this;
+    one that splits an update across the call does not, which is the shape the
+    Curve and Balancer incidents took.
+    """
+    body, err = build_slice_harness(src, contract, exposure_fn, view_fn)
+    if body is None:
+        return None, err
+    m = re.search(r"function observed\(\) public view returns \(([^)]*)\)",
+                  body)
+    rtype = m.group(1).strip() if m else "uint256"
+    cast = "uint256" if rtype not in ("bool",) else "uint256"
+    conv = {
+        "bool": "(%s ? 1 : 0)",
+        "address": "uint256(uint160(%s))",
+    }.get(rtype if not rtype.startswith("address") else "address",
+          "uint256(%s)")
+    obs = conv % "observed()"
+    dm = re.search(r"contract \w+ \{\n(.*?)\n\n    function beginExposed",
+                   body, re.S)
+    seed_params, seed_body = _seed_params(dm.group(1) if dm else "")
+    sig = ", ".join(["uint256 amount"] + seed_params)
+    check = """
+    function check(%s) public {
+%s
+        uint256 entry = %s;
+        beginExposed(amount);
+        uint256 during = %s;
+        endExposed(amount);
+        uint256 settled = %s;
+        assert(during == entry || during == settled);
+    }
+""" % (sig, "\n".join(seed_body), obs, obs, obs)
+    return body.rstrip()[:-1] + check + "}\n", ""

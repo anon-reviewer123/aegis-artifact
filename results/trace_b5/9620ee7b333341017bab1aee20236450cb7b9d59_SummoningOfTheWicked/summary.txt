@@ -1,0 +1,20 @@
+STATUS: VERIFIED
+exposure invariant: None
+candidates tried: 0   repair rounds: 0
+
+[1] static analysis (ast): storage=['MAX_DEMONS', 'MAX_SUMMON', 'MAX_SUMMONERS', '_balances', '_name', '_operatorApprovals', '_owners', '_symbol', '_tokenApprovals', 'baseURI', 'demonSacrifice', 'demons', 'maxDemons', 'offering', 'owner', 'portal', 'revealed', 'seal', 'summoned', 'summoners']
+[2] exposure site: openPortalSealed -> .call (low-level value transfer can re-enter)
+    conservative closure: ['openPortalSealed']
+[access] outside the closure under the trusted-roles assumption: ['openPortal', 'setApprovalForAll', 'setBaseURI', 'setOwner', 'setSeal', 'withdraw']
+[access] outside the closure as EOA-only (tx.origin gate; weaker since EIP-7702): ['sacrifice']
+[harness] cached 9620ee7b333341017bab1aee20236450cb7b9d59_SummoningOfTheWicked.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 9620ee7b333341017bab1aee20236450cb7b9d59_SummoningOfTheWicked.harness.sol (10893 chars)
+[harness] conforms to interface (found 26 functions, 26 public state vars)
+[readonly] 1 public view(s) admitted by the footprint premise on the window opened by openPortalSealed
+      OBL_view_totalSupply_canary: fired (harness body reachable)
+      OBL_view_totalSupply: VERIFIED
+[readonly] read-only verification: VERIFIED
+
+obligation files (in order):
+  001_pre_OBL_view_totalSupply_canary                  status: failed
+  002_pre_OBL_view_totalSupply                         status: verified

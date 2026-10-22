@@ -1,0 +1,162 @@
+STATUS: UNKNOWN
+exposure invariant: _sum__balances <= _totalSupply + inFlight
+candidates tried: 3   repair rounds: 1
+
+[1] static analysis (ast): storage=['Asgard', '_allowances', '_balances', '_name', '_owner', '_symbol', '_totalSupply', 'deposits', 'excludedFromDividends', 'lastClaimTimes', 'lastWrapped', 'magnifiedDividendCorrections', 'magnifiedDividendPerShare', 'magnitude', 'mustClaimDuration', 'silenceWarning', 'totalDividendsDistributed', 'weekInSeconds', 'withdrawnDividends']
+[2] exposure site: wrap -> .transferFrom (external interface callback may re-enter)
+    conservative closure: ['wrap']
+[access] outside the closure under the trusted-roles assumption: ['adminSetBalance', 'claimInactiveAccountDividends', 'excludeFromDividends', 'renounceOwnership', 'transferOwnership']
+[harness] cached 586fa9a62905B501377F885D69083C6e5bf167Cb_WAsgard.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 586fa9a62905B501377F885D69083C6e5bf167Cb_WAsgard.harness.sol (14879 chars)
+[harness] conforms to interface (found 37 functions, 32 public state vars)
+[readonly] 2 exposure site(s) with a window; decomposing each separately
+[readonly] --- site claimInactiveAccountDividends.call#0
+[readonly] withdrawableDividendOf: rule inapplicable -- closure member claimDividends writes footprint withdrawnDividends; falling through to the general arm
+[readonly] withdrawnDividendOf: rule inapplicable -- closure member claimDividends writes footprint withdrawnDividends; falling through to the general arm
+[readonly] --- site claimDividends.call#0
+[readonly] withdrawableDividendOf: rule inapplicable -- closure member unwrap writes footprint magnifiedDividendCorrections; falling through to the general arm
+[readonly] 1 public view(s) admitted by the footprint premise on the window opened by claimDividends
+      OBL_view_withdrawnDividendOf: CANARY DID NOT FIRE (status unknown); harness did not compile -- reporting UNKNOWN for this view :: solc compile error: Error: Undeclared identifier.  @  _sum_deposits  += amount;   // keep sum ghost consistent
+[3] decomposing 2 exposure site(s) separately (--sites all)
+[3] --- site claimInactiveAccountDividends.call#0
+[3] deterministic candidate -- the pre-phase writes none of the target's variables, so the target itself holds at the call
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 8 obligations: ['OBL_pre', 'OBL_cb_claimDividends', 'OBL_cb_unwrap', 'OBL_cb_wrap', 'OBL_post', 'OBL_reach_claimDividends_canary', 'OBL_reach_unwrap_canary', 'OBL_reach_wrap_canary']
+  [round 1] sliced harness: up to 34 state variables -> at most 15 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_claimDividends [closure]: VERIFIED
+      OBL_cb_unwrap [closure]: VERIFIED
+      OBL_cb_wrap [closure]: VERIFIED
+      OBL_post [phases]: VERIFIED
+      OBL_reach_claimDividends_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_unwrap_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_wrap_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'exposure_invariant', 'phases', 'composition'] in_progress=[]
+[gate:nesting] closure member(s) claimDividends, wrap may themselves yield control; the depth-one callback model does not cover this contract
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  [round 3] validation flagged: ['exposure_invariant']
+  repair budget (3) exhausted -> UNKNOWN
+-- candidate 2 --
+  [round 1] validation passed
+  [round 1] compiled 8 obligations: ['OBL_pre', 'OBL_cb_claimDividends', 'OBL_cb_unwrap', 'OBL_cb_wrap', 'OBL_post', 'OBL_reach_claimDividends_canary', 'OBL_reach_unwrap_canary', 'OBL_reach_wrap_canary']
+  [round 1] sliced harness: up to 34 state variables -> at most 15 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_cb_claimDividends [closure]: VERIFIED
+      OBL_cb_unwrap [closure]: VERIFIED
+      OBL_cb_wrap [closure]: VERIFIED
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_reach_claimDividends_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_unwrap_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_wrap_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation passed
+  [round 2] compiled 8 obligations: ['OBL_pre', 'OBL_cb_claimDividends', 'OBL_cb_unwrap', 'OBL_cb_wrap', 'OBL_post', 'OBL_reach_claimDividends_canary', 'OBL_reach_unwrap_canary', 'OBL_reach_wrap_canary']
+  [round 2] sliced harness: up to 34 state variables -> at most 15 per obligation
+      OBL_cb_claimDividends [closure]: REUSED :: invariant unchanged since cached proof
+      OBL_cb_unwrap [closure]: REUSED :: invariant unchanged since cached proof
+      OBL_cb_wrap [closure]: REUSED :: invariant unchanged since cached proof
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_reach_claimDividends_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_unwrap_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_wrap_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 2] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 2] CEGAR refinement constraint built for exposure_invariant
+  [round 3] validation passed
+  [round 3] compiled 8 obligations: ['OBL_pre', 'OBL_cb_claimDividends', 'OBL_cb_unwrap', 'OBL_cb_wrap', 'OBL_post', 'OBL_reach_claimDividends_canary', 'OBL_reach_unwrap_canary', 'OBL_reach_wrap_canary']
+  [round 3] sliced harness: up to 34 state variables -> at most 15 per obligation
+      OBL_cb_claimDividends [closure]: REUSED :: invariant unchanged since cached proof
+      OBL_cb_unwrap [closure]: REUSED :: invariant unchanged since cached proof
+      OBL_cb_wrap [closure]: REUSED :: invariant unchanged since cached proof
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_reach_claimDividends_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_unwrap_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_wrap_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 3] correct=['closure', 'protocol', 'ghost_state', 'composition'] in_progress=['exposure_invariant', 'phases']
+  [round 3] CEGAR refinement constraint built for exposure_invariant
+  repair budget (3) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+[3] --- site claimDividends.call#0
+[3] deterministic candidate -- the pre-phase writes none of the target's variables, so the target itself holds at the call
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 9 obligations: ['OBL_pre', 'OBL_cb_claimDividends', 'OBL_cb_unwrap', 'OBL_cb_wrap', 'OBL_view_withdrawnDividendOf', 'OBL_post', 'OBL_reach_claimDividends_canary', 'OBL_reach_unwrap_canary', 'OBL_reach_wrap_canary']
+  [round 1] sliced harness: up to 34 state variables -> at most 14 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_claimDividends [closure]: VERIFIED
+      OBL_cb_unwrap [closure]: VERIFIED
+      OBL_cb_wrap [closure]: VERIFIED
+      OBL_view_withdrawnDividendOf [readonly]: UNKNOWN :: solc compile error: Error: Undeclared identifier.  @  _sum_deposits  += amount;   // keep sum ghost consistent
+      OBL_post [phases]: VERIFIED
+      OBL_reach_claimDividends_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_unwrap_canary [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_reach_wrap_canary [phases]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+  [round 1] every open obligation is undecided; the plan is not repairable -- moving to the next candidate
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  [round 3] validation flagged: ['exposure_invariant']
+  repair budget (3) exhausted -> UNKNOWN
+-- candidate 2 --
+  [round 1] validation passed
+  [round 1] compiled 9 obligations: ['OBL_pre', 'OBL_cb_claimDividends', 'OBL_cb_unwrap', 'OBL_cb_wrap', 'OBL_view_withdrawnDividendOf', 'OBL_post', 'OBL_reach_claimDividends_canary', 'OBL_reach_unwrap_canary', 'OBL_reach_wrap_canary']
+  [round 1] sliced harness: up to 34 state variables -> at most 14 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_claimDividends [closure]: VERIFIED
+      OBL_cb_unwrap [closure]: VERIFIED
+      OBL_cb_wrap [closure]: VERIFIED
+      OBL_view_withdrawnDividendOf [readonly]: UNKNOWN :: solc compile error: Error: Undeclared identifier.  @  _sum_deposits  += amount;   // keep sum ghost consistent
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_reach_claimDividends_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_unwrap_canary [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_reach_wrap_canary [phases]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+  [round 1] every open obligation is undecided; the plan is not repairable -- moving to the next candidate
+no candidate verified -> UNKNOWN
+[3] 2 of 2 site(s) not verified -> UNKNOWN
+
+obligation files (in order):
+  001_pre_OBL_view_withdrawnDividendOf_canary          status: unknown
+  002_pre_OBL_view_withdrawnDividendOf_canary_onestep  status: unknown
+  003_c0_r1_OBL_pre_onestep                            status: verified
+  004_c0_r1_OBL_cb_claimDividends_onestep              status: verified
+  005_c0_r1_OBL_cb_unwrap_onestep                      status: verified
+  006_c0_r1_OBL_cb_wrap_onestep                        status: verified
+  007_c0_r1_OBL_post_onestep                           status: verified
+  008_c0_r1_OBL_reach_claimDividends_canary            status: unknown
+  009_c0_r1_OBL_reach_claimDividends_canary_onestep    status: failed
+  010_c0_r1_OBL_reach_unwrap_canary                    status: unknown
+  011_c0_r1_OBL_reach_unwrap_canary_onestep            status: failed
+  012_c0_r1_OBL_reach_wrap_canary                      status: unknown
+  013_c0_r1_OBL_reach_wrap_canary_onestep              status: failed
+  014_c2_r1_OBL_pre_onestep                            status: unknown
+  015_c2_r1_OBL_pre                                    status: failed
+  016_c2_r1_OBL_cb_claimDividends_onestep              status: verified
+  017_c2_r1_OBL_cb_unwrap_onestep                      status: verified
+  018_c2_r1_OBL_cb_wrap_onestep                        status: verified
+  019_c2_r1_OBL_post_onestep                           status: unknown
+  020_c2_r1_OBL_post                                   status: unknown
+  021_c0_r1_OBL_pre_onestep                            status: verified
+  022_c0_r1_OBL_cb_claimDividends_onestep              status: verified
+  023_c0_r1_OBL_cb_unwrap_onestep                      status: verified
+  024_c0_r1_OBL_cb_wrap_onestep                        status: verified
+  025_c0_r1_OBL_view_withdrawnDividendOf               status: unknown
+  026_c0_r1_OBL_post_onestep                           status: verified
+  027_c0_r1_OBL_reach_claimDividends_canary            status: unknown
+  028_c0_r1_OBL_reach_claimDividends_canary_onestep    status: failed
+  029_c0_r1_OBL_reach_unwrap_canary                    status: unknown
+  030_c0_r1_OBL_reach_unwrap_canary_onestep            status: unknown
+  031_c0_r1_OBL_reach_wrap_canary                      status: unknown
+  032_c0_r1_OBL_reach_wrap_canary_onestep              status: unknown
+  033_c2_r1_OBL_pre_onestep                            status: verified
+  034_c2_r1_OBL_cb_claimDividends_onestep              status: verified
+  035_c2_r1_OBL_cb_unwrap_onestep                      status: verified
+  036_c2_r1_OBL_cb_wrap_onestep                        status: verified
+  037_c2_r1_OBL_post_onestep                           status: unknown
+  038_c2_r1_OBL_post                                   status: unknown

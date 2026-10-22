@@ -1,0 +1,156 @@
+status: verified
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp9tz582kt/OneStep.sol:167:9:
+    |
+167 |         uint256[] memory idTokens = __h_rpWalletPasses(msg.sender);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp9tz582kt/OneStep.sol:26:5:
+   |
+26 |     uint256[] public idTokens;   // symbolic (declared uint256[] in the source)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp9tz582kt/OneStep.sol:258:35:
+    |
+258 |     function __h_isApprovedForAll(address owner, address operator) internal view returns (bool) {
+    |                                   ^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp9tz582kt/OneStep.sol:27:5:
+   |
+27 |     address public owner;   // symbolic (declared address in the source)
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp9tz582kt/OneStep.sol:278:9:
+    |
+278 |         uint256[] memory idTokens = __h_rpWalletPasses(_address);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp9tz582kt/OneStep.sol:26:5:
+   |
+26 |     uint256[] public idTokens;   // symbolic (declared uint256[] in the source)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp9tz582kt/OneStep.sol:311:9:
+    |
+311 |         address owner,
+    |         ^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp9tz582kt/OneStep.sol:27:5:
+   |
+27 |     address public owner;   // symbolic (declared address in the source)
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp9tz582kt/OneStep.sol:35:55:
+   |
+35 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, address __x3, bool __x4, uint256 __x5, bool __x6, address __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp9tz582kt/OneStep.sol:35:69:
+   |
+35 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, address __x3, bool __x4, uint256 __x5, bool __x6, address __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp9tz582kt/OneStep.sol:35:119:
+   |
+35 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, address __x3, bool __x4, uint256 __x5, bool __x6, address __x7) public {
+   |                                                                                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp9tz582kt/OneStep.sol:43:38:
+   |
+43 |     function __havoc_cfg1(bool __x0, bool __x1, uint256 __x2, uint256 __x3, address __x4) public {
+   |                                      ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp9tz582kt/OneStep.sol:43:77:
+   |
+43 |     function __havoc_cfg1(bool __x0, bool __x1, uint256 __x2, uint256 __x3, address __x4) public {
+   |                                                                             ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp9tz582kt/OneStep.sol:56:41:
+   |
+56 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, bool __x5, address __x6, address __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp9tz582kt/OneStep.sol:56:55:
+   |
+56 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, bool __x5, address __x6, address __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp9tz582kt/OneStep.sol:56:69:
+   |
+56 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, bool __x5, address __x6, address __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp9tz582kt/OneStep.sol:157:32:
+    |
+157 |     function renounceOwnership(uint256 amount) public {
+    |                                ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp9tz582kt/OneStep.sol:162:26:
+    |
+162 |     function runpassMint(uint256 amount) public {
+    |                          ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp9tz582kt/OneStep.sol:176:32:
+    |
+176 |     function setApprovalForAll(uint256 amount) public {
+    |                                ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp9tz582kt/OneStep.sol:207:25:
+    |
+207 |     function toggleMint(uint256 amount) public {
+    |                         ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp9tz582kt/OneStep.sol:212:28:
+    |
+212 |     function togglePreMint(uint256 amount) public {
+    |                            ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp9tz582kt/OneStep.sol:230:32:
+    |
+230 |     function transferOwnership(uint256 amount) public {
+    |                                ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp9tz582kt/OneStep.sol:237:23:
+    |
+237 |     function withdraw(uint256 amount) public {
+    |                       ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp9tz582kt/OneStep.sol:300:33:
+    |
+300 |     function __h_rpWalletPasses(address _address) internal view returns (uint256[] memory) {
+    |                                 ^^^^^^^^^^^^^^^^
+
+Warning: Function state mutability can be restricted to view
+   --> /tmp/tmp9tz582kt/OneStep.sol:379:5:
+    |
+379 |     function __aegis_check() public {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmp9tz582kt/OneStep.sol:382:17:
+    |
+382 |                 assert(team_balance <= _ethBal);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

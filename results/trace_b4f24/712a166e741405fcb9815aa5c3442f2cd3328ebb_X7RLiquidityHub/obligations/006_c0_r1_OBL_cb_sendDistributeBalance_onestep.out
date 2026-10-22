@@ -1,0 +1,140 @@
+status: unknown
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:85:9:
+   |
+85 |         uint256 ethToSend = distributeBalance;
+   |         ^^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:31:5:
+   |
+31 |     uint256 public ethToSend;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:19:27:
+   |
+19 |     function __havoc_cfg0(uint256 __x0, bool __x1, uint256 __x2, address __x3, bool __x4, uint256 __x5, uint256 __x6, address __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:19:41:
+   |
+19 |     function __havoc_cfg0(uint256 __x0, bool __x1, uint256 __x2, address __x3, bool __x4, uint256 __x5, uint256 __x6, address __x7) public {
+   |                                         ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:19:52:
+   |
+19 |     function __havoc_cfg0(uint256 __x0, bool __x1, uint256 __x2, address __x3, bool __x4, uint256 __x5, uint256 __x6, address __x7) public {
+   |                                                    ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:19:80:
+   |
+19 |     function __havoc_cfg0(uint256 __x0, bool __x1, uint256 __x2, address __x3, bool __x4, uint256 __x5, uint256 __x6, address __x7) public {
+   |                                                                                ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:19:91:
+   |
+19 |     function __havoc_cfg0(uint256 __x0, bool __x1, uint256 __x2, address __x3, bool __x4, uint256 __x5, uint256 __x6, address __x7) public {
+   |                                                                                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:19:105:
+   |
+19 |     function __havoc_cfg0(uint256 __x0, bool __x1, uint256 __x2, address __x3, bool __x4, uint256 __x5, uint256 __x6, address __x7) public {
+   |                                                                                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:19:119:
+   |
+19 |     function __havoc_cfg0(uint256 __x0, bool __x1, uint256 __x2, address __x3, bool __x4, uint256 __x5, uint256 __x6, address __x7) public {
+   |                                                                                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:23:27:
+   |
+23 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:23:41:
+   |
+23 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:23:55:
+   |
+23 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:23:69:
+   |
+23 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:23:83:
+   |
+23 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:23:97:
+   |
+23 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:23:111:
+   |
+23 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:43:25:
+   |
+43 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpyh0dtgsg/OneStep.sol:81:36:
+   |
+81 |     function sendDistributeBalance(uint256 amount) public {
+   |                                    ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpyh0dtgsg/OneStep.sol:136:24:
+    |
+136 |     function __preBody(uint256 amount) internal {
+    |                        ^^^^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmpyh0dtgsg/OneStep.sol:152:17:
+    |
+152 |                 assert(distributeBalance + treasuryBalance + liquidityBalance <= _ethBal && ethToSend == treasuryBalance);            
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: Counterexample:
+  _ethBal = 0
+  amount = 0
+  distributeBalance = 1
+  distributeTarget = 1
+  ethToSend = 1
+  exposed = true
+  inFlight = 0
+  liquidityBalance = 0
+  snapPre = 0
+  success = false
+  this = 26285
+  treasuryBalance = 0
+  treasuryTarget = 0
+
+Note: Callstack:
+Note:
+

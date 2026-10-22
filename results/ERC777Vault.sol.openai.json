@@ -1,0 +1,100 @@
+{
+  "contract": "ERC777Vault.sol",
+  "llm": "openai",
+  "status": "VERIFIED",
+  "expected": "VERIFIED",
+  "match": true,
+  "backend": "smtchecker",
+  "repair_rounds": 1,
+  "total_repairs": 0,
+  "first_try_verified": true,
+  "llm_first_plan_sound_as_proposed": true,
+  "obligations": [
+    {
+      "obligation": "OBL_pre",
+      "module": "phases",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    },
+    {
+      "obligation": "OBL_cb_deposit",
+      "module": "closure",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    },
+    {
+      "obligation": "OBL_cb_redeemAll",
+      "module": "closure",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    },
+    {
+      "obligation": "OBL_post",
+      "module": "phases",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    }
+  ],
+  "seconds": 71.9,
+  "llm_generated_mcvp": {
+    "contract": "ERC777Vault",
+    "closure": {
+      "site_function": "withdraw",
+      "site_call": ".tokensReceived",
+      "functions": [
+        "deposit",
+        "redeemAll",
+        "withdraw"
+      ],
+      "justification": "All listed functions modify or depend on the variables involved in the risky_site and the target property."
+    },
+    "protocol": {
+      "during_phase": "exposed",
+      "allowed_callbacks": [
+        "deposit",
+        "redeemAll"
+      ],
+      "nesting_bound": {
+        "withdraw": 1,
+        "deposit": 0,
+        "redeemAll": 0
+      }
+    },
+    "phases": {
+      "function": "withdraw",
+      "pre": {
+        "name": "pre",
+        "from_marker": "start_withdraw",
+        "to_marker": "before_tokensReceived"
+      },
+      "exposed": {
+        "name": "exposed",
+        "from_marker": "before_tokensReceived",
+        "to_marker": "after_tokensReceived"
+      },
+      "post": {
+        "name": "post",
+        "from_marker": "after_tokensReceived",
+        "to_marker": "end_withdraw"
+      },
+      "linearization_point": "after_tokensReceived"
+    },
+    "ghost_state": [
+      {
+        "name": "assetsInFlight_backup",
+        "sol_type": "uint256",
+        "meaning": "Backup of inFlight assets to account for those temporarily deducted during withdrawal.",
+        "backed_by_storage": false
+      }
+    ],
+    "exposure_invariant": {
+      "formula": "totalAssets + inFlight == totalShares",
+      "stable_formula": "totalAssets == totalShares"
+    },
+    "composition": {
+      "target_property": "totalAssets == totalShares",
+      "rule": "The exposure invariant supports the target property by accounting for assets in flight during the exposed phase."
+    }
+  },
+  "ag_spec_rendered": "Assume-Guarantee specification for ERC777Vault\n  target property phi : totalAssets == totalShares\n\n  [A_cb]  ASSUMPTION (assumption)\n          During withdraw's exposed phase, re-entrant control is confined to the callback closure ['deposit', 'redeemAll', 'withdraw']; every such callback is admitted by the protocol, with bounded nesting.\n          formal: admissible_callbacks=['deposit', 'redeemAll', 'withdraw'], nesting={'withdraw': 1, 'deposit': 0, 'redeemAll': 0}\n          discharged by: ['OBL_closure_soundness']\n\n  [G_pre] GUARANTEE\n          If the stable invariant holds on entry, the pre-phase establishes the exposure invariant before the external call.\n          formal: {totalAssets == totalShares} pre-phase {totalAssets + inFlight == totalShares}\n          discharged by: ['OBL_pre']\n\n  [G_exp] GUARANTEE\n          Every callback admitted by A_cb preserves the exposure invariant while the contract is externally exposed.\n          formal: forall f in A_cb. {totalAssets + inFlight == totalShares} f {totalAssets + inFlight == totalShares}\n          discharged by: ['OBL_cb_deposit', 'OBL_cb_redeemAll']\n\n  [G_post] GUARANTEE\n          When the external call returns, the post-phase restores the stable invariant and fully settles the in-flight ghost state.\n          formal: {totalAssets + inFlight == totalShares} post-phase {totalAssets == totalShares /\\ inFlight==0}\n          discharged by: ['OBL_post']\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => totalAssets == totalShares\n      where callbacks are confined to admissible_callbacks=['deposit', 'redeemAll', 'withdraw'], nesting={'withdraw': 1, 'deposit': 0, 'redeemAll': 0}"
+}

@@ -1,0 +1,74 @@
+STATUS: UNKNOWN
+exposure invariant: _sum_balances == _ethBal + inFlight
+candidates tried: 3   repair rounds: 1
+
+[eth-model] address(this).balance -> _ethBal; property now: _sum_balances == _ethBal
+[1] static analysis (ast): storage=['PRICE', '_ethBal', 'balances']
+[2] exposure site: withdraw -> .call (low-level value transfer can re-enter)
+    conservative closure: ['deposit', 'withdraw']
+[harness] cached fe4afb98416e3892c129e7508a7ed3078f605189_VulnerableContract.ethmodel.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to fe4afb98416e3892c129e7508a7ed3078f605189_VulnerableContract.ethmodel.harness.sol (2925 chars)
+[harness] conforms to interface (found 6 functions, 8 public state vars)
+[3] deterministic candidate -- computed from what the pre-phase moves: _sum_balances == _ethBal
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_deposit', 'OBL_cb_withdraw', 'OBL_post', 'OBL_reach_deposit_canary', 'OBL_reach_withdraw_canary']
+  [round 1] sliced harness: up to 8 state variables -> at most 8 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_cb_deposit [closure]: FAILED :: SMTChecker found an assertion violation
+      OBL_cb_withdraw [closure]: FAILED :: SMTChecker found an assertion violation
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_reach_deposit_canary [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_reach_withdraw_canary [phases]: FAILED :: SMTChecker found an assertion violation
+[confirm] callbacks may re-enter: violated
+[confirm] re-entry blocked:       violated
+  [round 1] candidate via OBL_cb_deposit: not_invariant -- violated even with re-entry blocked: the property is not an invariant of the contract
+  [round 1] the target is violated without any callback; not a reentrancy finding
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 1 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_deposit', 'OBL_cb_withdraw', 'OBL_post', 'OBL_reach_deposit_canary', 'OBL_reach_withdraw_canary']
+  [round 1] sliced harness: up to 8 state variables -> at most 8 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_cb_deposit [closure]: FAILED :: SMTChecker found an assertion violation
+      OBL_cb_withdraw [closure]: FAILED :: SMTChecker found an assertion violation
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_reach_deposit_canary [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_reach_withdraw_canary [phases]: FAILED :: SMTChecker found an assertion violation
+  [round 1] candidate via OBL_cb_deposit: not_invariant -- violated even with re-entry blocked: the property is not an invariant of the contract
+  [round 1] the target is violated without any callback; not a reentrancy finding
+-- candidate 2 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_deposit', 'OBL_cb_withdraw', 'OBL_post', 'OBL_reach_deposit_canary', 'OBL_reach_withdraw_canary']
+  [round 1] sliced harness: up to 8 state variables -> at most 8 per obligation
+      OBL_pre [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_cb_deposit [closure]: FAILED :: SMTChecker found an assertion violation
+      OBL_cb_withdraw [closure]: FAILED :: SMTChecker found an assertion violation
+      OBL_post [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_reach_deposit_canary [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_reach_withdraw_canary [phases]: FAILED :: SMTChecker found an assertion violation
+  [round 1] candidate via OBL_cb_deposit: not_invariant -- violated even with re-entry blocked: the property is not an invariant of the contract
+  [round 1] the target is violated without any callback; not a reentrancy finding
+no candidate verified -> UNKNOWN
+
+obligation files (in order):
+  001_c0_r1_OBL_pre_onestep                            status: unknown
+  002_c0_r1_OBL_pre                                    status: failed
+  003_c0_r1_OBL_cb_deposit_onestep                     status: unknown
+  004_c0_r1_OBL_cb_deposit                             status: failed
+  005_c0_r1_OBL_cb_withdraw_onestep                    status: unknown
+  006_c0_r1_OBL_cb_withdraw                            status: failed
+  007_c0_r1_OBL_post_onestep                           status: unknown
+  008_c0_r1_OBL_post                                   status: failed
+  009_c0_r1_OBL_reach_deposit_canary                   status: failed
+  010_c0_r1_OBL_reach_withdraw_canary                  status: failed
+  011_c0_r1_CONFIRM_open                               status: failed
+  012_c0_r1_CONFIRM_blocked                            status: failed
+  013_c1_r1_OBL_pre_onestep                            status: unknown
+  014_c1_r1_OBL_pre                                    status: failed
+  015_c1_r1_OBL_cb_deposit_onestep                     status: unknown
+  016_c1_r1_OBL_cb_deposit                             status: failed
+  017_c1_r1_OBL_cb_withdraw_onestep                    status: unknown
+  018_c1_r1_OBL_cb_withdraw                            status: failed
+  019_c1_r1_OBL_post_onestep                           status: unknown
+  020_c1_r1_OBL_post                                   status: failed

@@ -1,0 +1,135 @@
+contract,family,arm,label,expected,status,outcome,seconds,backend,reason
+ClassicReentrancy_S01.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,100.0,smtchecker,"[readonly] invariant: rule inapplicable -- closure member deposit writes footprint _ethBal,totalDeposits; fall | [3] sampling 4 candidate MCVPs (openai)"
+ClassicReentrancy_S02.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,92.5,smtchecker,"[readonly] invariant: rule inapplicable -- closure member deposit writes footprint _ethBal,totalDeposits; fall | [3] sampling 4 candidate MCVPs (openai)"
+ClassicReentrancy_S03.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,94.8,smtchecker,"[readonly] invariant: rule inapplicable -- closure member deposit writes footprint _ethBal,totalDeposits; fall | [3] sampling 4 candidate MCVPs (openai)"
+ClassicReentrancy_S04.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,125.2,smtchecker,"[readonly] invariant: rule inapplicable -- closure member deposit writes footprint _ethBal,totalDeposits; fall | [3] sampling 4 candidate MCVPs (openai)"
+ClassicReentrancy_S05.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,133.5,smtchecker,"[readonly] invariant: rule inapplicable -- closure member deposit writes footprint _ethBal,totalDeposits; fall | [3] sampling 4 candidate MCVPs (openai)"
+ClassicReentrancy_S06.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,75.5,smtchecker,[readonly] invariant: rule inapplicable -- closure member claimSurplus writes footprint totalDeposits; falling | [3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_S07.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,80.8,smtchecker,[readonly] invariant: rule inapplicable -- closure member claimSurplus writes footprint totalHeld; falling thr | [3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_S08.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,84.3,smtchecker,[readonly] invariant: rule inapplicable -- closure member claimSurplus writes footprint totalOwed; falling thr | [3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_S09.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,84.6,smtchecker,[readonly] invariant: rule inapplicable -- closure member claimSurplus writes footprint totalStaked; falling t | [3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_S10.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,86.3,smtchecker,[readonly] invariant: rule inapplicable -- closure member claimSurplus writes footprint totalEscrowed; falling | [3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_U01.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,125.8,smtchecker,"[readonly] invariant: rule inapplicable -- closure member deposit writes footprint _ethBal,totalDeposits; fall | [3] sampling 4 candidate MCVPs (openai)"
+ClassicReentrancy_U02.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,120.7,smtchecker,"[readonly] invariant: rule inapplicable -- closure member deposit writes footprint _ethBal,totalDeposits; fall | [3] sampling 4 candidate MCVPs (openai)"
+ClassicReentrancy_U03.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,155.4,smtchecker,"[readonly] invariant: rule inapplicable -- closure member deposit writes footprint _ethBal,totalDeposits; fall | [3] sampling 4 candidate MCVPs (openai)"
+ClassicReentrancy_U04.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,160.2,smtchecker,"[readonly] invariant: rule inapplicable -- closure member deposit writes footprint _ethBal,totalDeposits; fall | [3] sampling 4 candidate MCVPs (openai)"
+ClassicReentrancy_U05.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,160.2,smtchecker,"[readonly] invariant: rule inapplicable -- closure member deposit writes footprint _ethBal,totalDeposits; fall | [3] sampling 4 candidate MCVPs (openai)"
+ClassicReentrancy_U06.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,115.7,smtchecker,[readonly] invariant: rule inapplicable -- closure member claimSurplus writes footprint totalDeposits; falling | [3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_U07.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,116.2,smtchecker,[readonly] invariant: rule inapplicable -- closure member claimSurplus writes footprint totalHeld; falling thr | [3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_U08.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,116.3,smtchecker,[readonly] invariant: rule inapplicable -- closure member claimSurplus writes footprint totalOwed; falling thr | [3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_U09.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,121.7,smtchecker,[readonly] invariant: rule inapplicable -- closure member claimSurplus writes footprint totalStaked; falling t | [3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_U10.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,116.9,smtchecker,[readonly] invariant: rule inapplicable -- closure member claimSurplus writes footprint totalEscrowed; falling | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_S01.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,12.1,smtchecker,[readonly] read-only verification: VERIFIED
+CrossFunctionDesync_S02.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,12.4,smtchecker,[readonly] read-only verification: VERIFIED
+CrossFunctionDesync_S03.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,12.2,smtchecker,[readonly] read-only verification: VERIFIED
+CrossFunctionDesync_S04.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,12.5,smtchecker,[readonly] read-only verification: VERIFIED
+CrossFunctionDesync_S05.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,12.4,smtchecker,[readonly] read-only verification: VERIFIED
+CrossFunctionDesync_S06.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,73.3,smtchecker,[readonly] invariant: rule inapplicable -- closure member mint writes footprint trackedValue; falling through  | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_S07.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,80.0,smtchecker,[readonly] invariant: rule inapplicable -- closure member mint writes footprint booked; falling through to the | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_S08.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,74.5,smtchecker,[readonly] invariant: rule inapplicable -- closure member mint writes footprint tracked; falling through to th | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_S09.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,73.9,smtchecker,[readonly] invariant: rule inapplicable -- closure member mint writes footprint issued; falling through to the | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_S10.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,74.3,smtchecker,[readonly] invariant: rule inapplicable -- closure member mint writes footprint recorded; falling through to t | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U01.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,105.5,smtchecker,[readonly] invariant: rule inapplicable -- closure member mintShares writes footprint trackedValue; falling th | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U02.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,102.6,smtchecker,[readonly] invariant: rule inapplicable -- closure member mintShares writes footprint trackedValue; falling th | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U03.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,100.8,smtchecker,[readonly] invariant: rule inapplicable -- closure member mintShares writes footprint trackedValue; falling th | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U04.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,101.4,smtchecker,[readonly] invariant: rule inapplicable -- closure member mintShares writes footprint trackedValue; falling th | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U05.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,103.7,smtchecker,[readonly] invariant: rule inapplicable -- closure member mintShares writes footprint trackedValue; falling th | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U06.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,111.1,smtchecker,[readonly] invariant: rule inapplicable -- closure member mint writes footprint trackedValue; falling through  | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U07.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,100.5,smtchecker,[readonly] invariant: rule inapplicable -- closure member mint writes footprint booked; falling through to the | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U08.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,110.6,smtchecker,[readonly] invariant: rule inapplicable -- closure member mint writes footprint tracked; falling through to th | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U09.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,112.0,smtchecker,[readonly] invariant: rule inapplicable -- closure member mint writes footprint issued; falling through to the | [3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U10.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,101.0,smtchecker,[readonly] invariant: rule inapplicable -- closure member mint writes footprint recorded; falling through to t | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S01.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,50.7,smtchecker,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S02.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,47.8,smtchecker,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S03.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,55.3,smtchecker,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S04.sol,flash_loan,general,safe,VERIFIED,TIMEOUT,NV,300.1,?,per-contract budget
+FlashLoanCallback_S05.sol,flash_loan,general,safe,VERIFIED,TIMEOUT,NV,300.0,?,per-contract budget
+FlashLoanCallback_S06.sol,flash_loan,general,safe,VERIFIED,TIMEOUT,NV,300.1,?,per-contract budget
+FlashLoanCallback_U01.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,111.1,smtchecker,[readonly] invariant: rule inapplicable -- closure member depositDuringCallback writes footprint totalAssets;  | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U02.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,99.8,smtchecker,[readonly] invariant: rule inapplicable -- closure member depositDuringCallback writes footprint totalAssets;  | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U03.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,99.6,smtchecker,[readonly] invariant: rule inapplicable -- closure member depositDuringCallback writes footprint totalAssets;  | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U04.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,103.0,smtchecker,"[readonly] invariant: rule inapplicable -- closure member supply writes footprint cash,totalAssets; falling th | [3] sampling 4 candidate MCVPs (openai)"
+FlashLoanCallback_U05.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,103.2,smtchecker,"[readonly] invariant: rule inapplicable -- closure member supply writes footprint idle,poolSize; falling throu | [3] sampling 4 candidate MCVPs (openai)"
+FlashLoanCallback_U06.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,103.9,smtchecker,"[readonly] invariant: rule inapplicable -- closure member supply writes footprint bookValue,liquid; falling th | [3] sampling 4 candidate MCVPs (openai)"
+ForcedRevertGriefing_S01.sol,forced_revert_loop,general,safe,VERIFIED,VERIFIED,TN,7.1,smtchecker,[loop] loop verification: VERIFIED
+ForcedRevertGriefing_S02.sol,forced_revert_loop,general,safe,VERIFIED,VERIFIED,TN,7.1,smtchecker,[loop] loop verification: VERIFIED
+ForcedRevertGriefing_U01.sol,forced_revert_loop,general,unsafe,BUG_FOUND,BUG_FOUND,TP,8.2,smtchecker,[loop] loop verification: BUG_FOUND
+ForcedRevertGriefing_U02.sol,forced_revert_loop,general,unsafe,BUG_FOUND,BUG_FOUND,TP,8.3,smtchecker,[loop] loop verification: BUG_FOUND
+PhaseOrderingDesync_S01.sol,phase_ordering,general,safe,VERIFIED,VERIFIED,TN,13.4,smtchecker,[readonly] read-only verification: VERIFIED
+PhaseOrderingDesync_S02.sol,phase_ordering,general,safe,VERIFIED,VERIFIED,TN,75.2,smtchecker,[readonly] invariant: rule inapplicable -- closure member adjust writes footprint debit; falling through to th | [3] sampling 4 candidate MCVPs (openai)
+PhaseOrderingDesync_S03.sol,phase_ordering,general,safe,VERIFIED,VERIFIED,TN,73.7,smtchecker,[readonly] invariant: rule inapplicable -- closure member adjust writes footprint charged; falling through to  | [3] sampling 4 candidate MCVPs (openai)
+PhaseOrderingDesync_S04.sol,phase_ordering,general,safe,VERIFIED,VERIFIED,TN,74.9,smtchecker,[readonly] invariant: rule inapplicable -- closure member adjust writes footprint billed; falling through to t | [3] sampling 4 candidate MCVPs (openai)
+PhaseOrderingDesync_S05.sol,phase_ordering,general,safe,VERIFIED,VERIFIED,TN,72.1,smtchecker,[readonly] invariant: rule inapplicable -- closure member adjust writes footprint drawn; falling through to th | [3] sampling 4 candidate MCVPs (openai)
+PhaseOrderingDesync_U01.sol,phase_ordering,general,unsafe,BUG_FOUND,VERIFIED,FN,132.2,smtchecker,[readonly] invariant: rule inapplicable -- closure member settleAux writes footprint credit; falling through t | [3] sampling 4 candidate MCVPs (openai)
+PhaseOrderingDesync_U02.sol,phase_ordering,general,unsafe,BUG_FOUND,BUG_FOUND,TP,93.4,smtchecker,[readonly] invariant: rule inapplicable -- closure member adjust writes footprint debit; falling through to th | [3] sampling 4 candidate MCVPs (openai)
+PhaseOrderingDesync_U03.sol,phase_ordering,general,unsafe,BUG_FOUND,BUG_FOUND,TP,92.9,smtchecker,[readonly] invariant: rule inapplicable -- closure member adjust writes footprint charged; falling through to  | [3] sampling 4 candidate MCVPs (openai)
+PhaseOrderingDesync_U04.sol,phase_ordering,general,unsafe,BUG_FOUND,BUG_FOUND,TP,99.4,smtchecker,[readonly] invariant: rule inapplicable -- closure member adjust writes footprint billed; falling through to t | [3] sampling 4 candidate MCVPs (openai)
+PhaseOrderingDesync_U05.sol,phase_ordering,general,unsafe,BUG_FOUND,BUG_FOUND,TP,100.5,smtchecker,[readonly] invariant: rule inapplicable -- closure member adjust writes footprint drawn; falling through to th | [3] sampling 4 candidate MCVPs (openai)
+TokenHookAccounting_S01.sol,token_hook,general,safe,VERIFIED,VERIFIED,TN,69.5,smtchecker,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_S02.sol,token_hook,general,safe,VERIFIED,VERIFIED,TN,70.3,smtchecker,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_S03.sol,token_hook,general,safe,VERIFIED,VERIFIED,TN,69.7,smtchecker,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_S04.sol,token_hook,general,safe,VERIFIED,VERIFIED,TN,69.0,smtchecker,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_S05.sol,token_hook,general,safe,VERIFIED,VERIFIED,TN,81.8,smtchecker,"[readonly] invariant: rule inapplicable -- closure member fund writes footprint credits,liabilities; falling t | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_S06.sol,token_hook,general,safe,VERIFIED,VERIFIED,TN,79.7,smtchecker,"[readonly] invariant: rule inapplicable -- closure member fund writes footprint owedTotal,vouchers; falling th | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_S07.sol,token_hook,general,safe,VERIFIED,VERIFIED,TN,70.6,smtchecker,"[readonly] invariant: rule inapplicable -- closure member fund writes footprint notes,obligations; falling thr | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_S08.sol,token_hook,general,safe,VERIFIED,VERIFIED,TN,70.2,smtchecker,"[readonly] invariant: rule inapplicable -- closure member fund writes footprint coupons,dues; falling through  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U01.sol,token_hook,general,unsafe,BUG_FOUND,VERIFIED,FN,79.4,smtchecker,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U02.sol,token_hook,general,unsafe,BUG_FOUND,VERIFIED,FN,80.9,smtchecker,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U03.sol,token_hook,general,unsafe,BUG_FOUND,VERIFIED,FN,82.0,smtchecker,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U04.sol,token_hook,general,unsafe,BUG_FOUND,VERIFIED,FN,82.2,smtchecker,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U05.sol,token_hook,general,unsafe,BUG_FOUND,BUG_FOUND,TP,106.3,smtchecker,"[readonly] invariant: rule inapplicable -- closure member fund writes footprint credits,liabilities; falling t | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U06.sol,token_hook,general,unsafe,BUG_FOUND,BUG_FOUND,TP,106.8,smtchecker,"[readonly] invariant: rule inapplicable -- closure member fund writes footprint owedTotal,vouchers; falling th | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U07.sol,token_hook,general,unsafe,BUG_FOUND,BUG_FOUND,TP,108.3,smtchecker,"[readonly] invariant: rule inapplicable -- closure member fund writes footprint notes,obligations; falling thr | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U08.sol,token_hook,general,unsafe,BUG_FOUND,BUG_FOUND,TP,106.2,smtchecker,"[readonly] invariant: rule inapplicable -- closure member fund writes footprint coupons,dues; falling through  | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_S01.sol,eoa_assumption,general,safe,VERIFIED,BUG_FOUND,FP,79.7,smtchecker,[3] sampling 4 candidate MCVPs (openai)
+UnexpectedEOACallback_S02.sol,eoa_assumption,general,safe,VERIFIED,VERIFIED,TN,61.4,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint accruedTotal,rewardDebt; fal | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_S03.sol,eoa_assumption,general,safe,VERIFIED,VERIFIED,TN,67.5,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint bonusDebt,bonusTotal; fallin | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_S04.sol,eoa_assumption,general,safe,VERIFIED,VERIFIED,TN,71.3,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint rebateDebt,rebateTotal; fall | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_U01.sol,eoa_assumption,general,unsafe,BUG_FOUND,BUG_FOUND,TP,97.3,smtchecker,[readonly] invariant: rule inapplicable -- closure member accrue writes footprint rewardDebt; falling through  | [3] sampling 4 candidate MCVPs (openai)
+UnexpectedEOACallback_U02.sol,eoa_assumption,general,unsafe,BUG_FOUND,BUG_FOUND,TP,113.4,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint accruedTotal,rewardDebt; fal | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_U03.sol,eoa_assumption,general,unsafe,BUG_FOUND,BUG_FOUND,TP,110.9,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint bonusDebt,bonusTotal; fallin | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_U04.sol,eoa_assumption,general,unsafe,BUG_FOUND,BUG_FOUND,TP,111.3,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint rebateDebt,rebateTotal; fall | [3] sampling 4 candidate MCVPs (openai)"
+dividend_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,11.0,smtchecker,[loop] loop verification: VERIFIED
+dividend_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,11.1,smtchecker,[loop] loop verification: BUG_FOUND
+griefing_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,8.2,smtchecker,[loop] loop verification: VERIFIED
+griefing_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,9.6,smtchecker,[loop] loop verification: BUG_FOUND
+refund_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,10.3,smtchecker,[loop] loop verification: VERIFIED
+refund_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,11.1,smtchecker,[loop] loop verification: BUG_FOUND
+airdrop_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,11.2,smtchecker,[loop] loop verification: VERIFIED
+airdrop_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,11.2,smtchecker,[loop] loop verification: BUG_FOUND
+batch_payout_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,10.4,smtchecker,[loop] loop verification: VERIFIED
+batch_payout_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,11.0,smtchecker,[loop] loop verification: BUG_FOUND
+escrow_release_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,10.4,smtchecker,[loop] loop verification: VERIFIED
+escrow_release_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,10.9,smtchecker,[loop] loop verification: BUG_FOUND
+fee_split_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,15.6,smtchecker,[loop] loop verification: VERIFIED
+fee_split_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,13.5,smtchecker,[loop] loop verification: BUG_FOUND
+queue_drain_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,8.0,smtchecker,[loop] loop verification: VERIFIED
+queue_drain_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,9.5,smtchecker,[loop] loop verification: BUG_FOUND
+vesting_claim_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,10.5,smtchecker,[loop] loop verification: VERIFIED
+vesting_claim_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,10.8,smtchecker,[loop] loop verification: BUG_FOUND
+amm_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,140.3,smtchecker,[readonly] read-only verification: VERIFIED
+amm_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,62.7,smtchecker,[readonly] read-only verification: BUG_FOUND
+backing_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,155.9,smtchecker,[readonly] read-only verification: VERIFIED
+backing_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,68.2,smtchecker,[readonly] read-only verification: BUG_FOUND
+escrow_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,160.2,smtchecker,[readonly] read-only verification: VERIFIED
+escrow_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,105.1,smtchecker,[readonly] read-only verification: BUG_FOUND
+feesplit_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,165.9,smtchecker,[readonly] read-only verification: VERIFIED
+feesplit_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,59.2,smtchecker,[readonly] read-only verification: BUG_FOUND
+lending_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,123.8,smtchecker,[readonly] read-only verification: VERIFIED
+lending_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,32.9,smtchecker,[readonly] read-only verification: BUG_FOUND
+lpvault_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,126.9,smtchecker,[readonly] read-only verification: VERIFIED
+lpvault_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,33.0,smtchecker,[readonly] read-only verification: BUG_FOUND
+pullpayment_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,128.4,smtchecker,[readonly] read-only verification: VERIFIED
+pullpayment_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,32.6,smtchecker,[readonly] read-only verification: BUG_FOUND
+staking_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,128.2,smtchecker,[readonly] read-only verification: VERIFIED
+staking_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,33.4,smtchecker,[readonly] read-only verification: BUG_FOUND
+depth_streak_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,12.8,smtchecker,[loop] loop verification: VERIFIED
+depth_streak_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,14.1,smtchecker,[loop] loop verification: BUG_FOUND
+depth_tier_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,13.0,smtchecker,[loop] loop verification: VERIFIED
+depth_tier_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,13.5,smtchecker,[loop] loop verification: BUG_FOUND
+nonlinear_rate_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,9.7,smtchecker,[loop] loop verification: VERIFIED
+nonlinear_rate_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,9.8,smtchecker,[loop] loop verification: BUG_FOUND
+widening_accum_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,9.9,smtchecker,[loop] loop verification: VERIFIED
+widening_accum_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,10.3,smtchecker,[loop] loop verification: BUG_FOUND
+widening_ledger_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,6.7,smtchecker,[loop] loop verification: VERIFIED
+widening_ledger_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,8.8,smtchecker,[loop] loop verification: BUG_FOUND

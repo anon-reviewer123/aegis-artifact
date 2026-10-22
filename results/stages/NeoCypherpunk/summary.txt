@@ -1,0 +1,33 @@
+
+======================================================================
+NeoCypherpunk
+harness  : DOES NOT COMPILE  (245 lines)
+    Error: Expected primary expression.  (line 75)
+           72 |         require(exposed && inFlight == amount, "phase mismatch");
+           73 |         if (__branch0) {
+           74 | 
+      >>   75 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingmarketingFees = 0; };
+           76 |         inFlight -= amount;
+           77 |         exposed   = false;
+           78 |     }
+Iexp     : pendingmarketingFees == snapPre + inFlight
+OBL_pre                     : compiles  (123 lines)
+OBL_cb_claimMarketingFees   : compiles  (123 lines)
+OBL_post                    : DOES NOT COMPILE  (134 lines)
+    Error: Expected primary expression.  (line 42)
+           39 |         require(exposed && inFlight == amount, "phase mismatch");
+           40 |         if (__branch0) {
+           41 | 
+      >>   42 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingmarketingFees = 0; };
+           43 |         inFlight -= amount;
+           44 |         exposed   = false;
+           45 |     }
+OBL_stable_implies_target   : DOES NOT COMPILE  (168 lines)
+    Error: Expected primary expression.  (line 44)
+           41 |         require(exposed && inFlight == amount, "phase mismatch");
+           42 |         if (__branch0) {
+           43 | 
+      >>   44 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingmarketingFees = 0; };
+           45 |         inFlight -= amount;
+           46 |         exposed   = false;
+           47 |     }

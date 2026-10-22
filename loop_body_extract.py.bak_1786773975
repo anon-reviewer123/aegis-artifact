@@ -1,0 +1,74 @@
+"""
+Loop rebuild, slice 1: extract the CONTRACT'S REAL loop body as source text,
+split around the in-loop external call. Analog of harness_synth._phase_body but
+for the loop body. Returns (pre_call_stmts, call_stmt, post_call_stmts) as source
+strings taken verbatim from the contract -- so the rebuilt harness contains the
+contract's own code, not authored templates.
+"""
+import re
+
+
+def extract_loop_body(contract_src, function_name, call_token=".call"):
+    """Locate `function_name`, find the loop containing the external call, and
+    return the loop body split around the call:
+        (pre, call_line, post)
+    all as verbatim source substrings. Returns None if not found."""
+    # locate the function
+    fn_re = re.compile(rf"function\s+{re.escape(function_name)}\s*\([^)]*\)\s*[^{{]*{{",
+                       re.DOTALL)
+    m = fn_re.search(contract_src)
+    if not m:
+        return None
+    start = m.end()
+    depth, i = 1, start
+    while i < len(contract_src) and depth > 0:
+        if contract_src[i] == "{": depth += 1
+        elif contract_src[i] == "}": depth -= 1
+        i += 1
+    fn_body = contract_src[start:i - 1]
+
+    # find the loop header (for/while) whose body contains the call
+    tok = call_token.lstrip(".")
+    for lm in re.finditer(r"\b(for|while)\s*\([^{]*\)\s*\{", fn_body):
+        # brace-match the loop body
+        bstart = lm.end() - 1
+        d, j = 0, bstart
+        while j < len(fn_body):
+            if fn_body[j] == "{": d += 1
+            elif fn_body[j] == "}":
+                d -= 1
+                if d == 0: break
+            j += 1
+        loop_body = fn_body[lm.end():j]
+        cpos = loop_body.find(tok)
+        if cpos == -1:
+            continue
+        # find the whole statement containing the call (back to prev ; or {, fwd to ;)
+        stmt_start = max(loop_body.rfind(";", 0, cpos), loop_body.rfind("{", 0, cpos)) + 1
+        stmt_end = loop_body.find(";", cpos)
+        if stmt_end == -1:
+            stmt_end = len(loop_body)
+        else:
+            stmt_end += 1
+        pre = loop_body[:stmt_start].strip()
+        call_stmt = loop_body[stmt_start:stmt_end].strip()
+        post = loop_body[stmt_end:].strip()
+        return {"pre": pre, "call": call_stmt, "post": post,
+                "loop_header": fn_body[lm.start():lm.end()].strip()}
+    return None
+
+
+if __name__ == "__main__":
+    import sys
+    src = open(sys.argv[1]).read()
+    fn = sys.argv[2] if len(sys.argv) > 2 else "settle"
+    r = extract_loop_body(src, fn)
+    if r is None:
+        print("NOT FOUND"); sys.exit(1)
+    print("LOOP HEADER:", r["loop_header"])
+    print("--- PRE (real contract statements before the call) ---")
+    print(r["pre"])
+    print("--- CALL (the in-loop external call, verbatim) ---")
+    print(r["call"])
+    print("--- POST (real contract statements after the call) ---")
+    print(r["post"])

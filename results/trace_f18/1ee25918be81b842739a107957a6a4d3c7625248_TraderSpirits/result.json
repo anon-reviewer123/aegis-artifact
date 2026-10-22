@@ -1,0 +1,7 @@
+{
+ "status": "UNKNOWN",
+ "candidates_tried": 3,
+ "repair_rounds": 3,
+ "obligations": [],
+ "exposure_invariant": "publicMinted + inFlight <= publicMintLimit"
+}

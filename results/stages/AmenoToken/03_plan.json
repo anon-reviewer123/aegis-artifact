@@ -1,0 +1,63 @@
+{
+ "contract": "AmenoToken",
+ "closure": {
+  "site_function": "swapAndSendMarketingFee",
+  "site_call": ".call",
+  "functions": [
+   "claimMarketingFees",
+   "transfer",
+   "transferFrom",
+   "swapAndSendMarketingFee"
+  ],
+  "justification": "These functions can affect the pendingMarketingFee and are reachable during the callback."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "claimMarketingFees",
+   "transfer",
+   "transferFrom"
+  ],
+  "nesting_bound": {
+   "claimMarketingFees": 1,
+   "transfer": 1,
+   "transferFrom": 1
+  }
+ },
+ "phases": {
+  "function": "swapAndSendMarketingFee",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "exit"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "The amount of pendingMarketingFee in-flight during the callback window.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "pendingMarketingFee == snapPre + inFlight",
+  "stable_formula": "pendingMarketingFee == snapPre",
+  "kind": "conserve"
+ },
+ "composition": {
+  "target_property": "pendingMarketingFee + pendingBurnFee <= _balances[address(this)]",
+  "rule": "The exposure invariant ensures pendingMarketingFee is accurately tracked during reentrancy, maintaining the target property."
+ }
+}

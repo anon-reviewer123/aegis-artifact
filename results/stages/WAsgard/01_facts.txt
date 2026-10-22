@@ -1,0 +1,30 @@
+analyzer : ast
+target   : _sum__balances == _totalSupply
+
+  Asgard                           address
+  _allowances                      mapping(address => mapping(address => uint256))
+  _balances                        mapping(address => uint256)
+  _name                            string
+  _owner                           address
+  _symbol                          string
+  _totalSupply                     uint256
+  deposits                         mapping(address => uint256)
+  excludedFromDividends            mapping(address => bool)
+  lastClaimTimes                   mapping(address => uint256)
+  lastWrapped                      mapping(address => uint256)
+  magnifiedDividendCorrections     mapping(address => int256)
+  magnifiedDividendPerShare        uint256
+  magnitude                        uint256
+  mustClaimDuration                uint256
+  silenceWarning                   bool
+  totalDividendsDistributed        uint256
+  weekInSeconds                    uint256
+  withdrawnDividends               mapping(address => uint256)
+
+sites:
+  wrap.transferFrom#0 before=[] after=['deposits', 'lastWrapped']
+  unwrap.transfer#0 before=[] after=[]
+  claimInactiveAccountDividends.call#0 before=['withdrawnDividends'] after=['lastClaimTimes']
+  claimDividends.call#0 before=['withdrawnDividends'] after=['lastClaimTimes']
+
+closure : ['wrap']

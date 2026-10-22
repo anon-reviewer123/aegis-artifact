@@ -1,0 +1,160 @@
+status: failed
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:31:41:
+   |
+31 |     function __havoc_cfg0(uint256 __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, uint8 __x5, address __x6, address __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:31:97:
+   |
+31 |     function __havoc_cfg0(uint256 __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, uint8 __x5, address __x6, address __x7) public {
+   |                                                                                                 ^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:31:123:
+   |
+31 |     function __havoc_cfg0(uint256 __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, uint8 __x5, address __x6, address __x7) public {
+   |                                                                                                                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:39:27:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                           ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:39:38:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                                      ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:39:52:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                                                    ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:39:94:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:39:108:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:39:122:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                                                                          ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:44:27:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:44:41:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                                         ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:44:52:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                                                    ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:44:66:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                                                                  ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:44:108:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpydp8ils3/OneStep.sol:44:122:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                                                                                                                          ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpydp8ils3/OneStep.sol:282:29:
+    |
+282 |     function __h_isContract(address _addr) internal view returns (bool) {
+    |                             ^^^^^^^^^^^^^
+
+Warning: Function state mutability can be restricted to pure
+   --> /tmp/tmpydp8ils3/OneStep.sol:282:5:
+    |
+282 |     function __h_isContract(address _addr) internal view returns (bool) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmpydp8ils3/OneStep.sol:332:13:
+    |
+332 |             assert(false);       
+    |             ^^^^^^^^^^^^^
+Note: Counterexample:
+   = false
+  BuyFeePercent = 9
+  LPtoken = 84
+  LiqQueue = 9
+  SellFeePercent = 12
+  __a10__to = 84
+  __a8__to = 0
+  __a9__from = 0
+  _addr = 0
+  _from = 0
+  _to = 84
+  _value = 127
+  allowance[_from][msg.sender] = 62
+  amount = 9
+  balanceOf[_from] = 57
+  balanceOf[_to] = 60
+  balanceOf[address(this)] = 57
+  balanceOf[msg.sender] = 119
+  balanceOf[who] = 119
+  cTime = 9
+  deployer = 1
+  exposed = true
+  fee = 124
+  feeQueue = 1
+  feeamt = 1
+  hSellFeePercent = 11
+  hasBought[who] = false
+  hasSold[_from] = false
+  hasSold[who] = true
+  immuneFromFee[_from] = false
+  immuneFromFee[_to] = false
+  immuneToMaxWallet[_to] = true
+  inFlight = 9
+  lastTx[_from] = 59
+  lastTx[who] = 59
+  maxWalletPercent = 59
+  size = 0
+  snapPre = 0
+  this = 4
+  totalSupply = 100
+  transferFee = 12
+  who = 0
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

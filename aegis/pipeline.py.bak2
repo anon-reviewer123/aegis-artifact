@@ -1,0 +1,337 @@
+"""
+pipeline.py - The Aegis(C, phi) driver: dependency-driven fixpoint repair over
+an assume-guarantee MCVP, checked by a REAL backend.
+
+Honesty guarantees:
+  * A plan is VERIFIED only if a real solver discharged EVERY obligation.
+  * If solc is not installed, status is UNAVAILABLE -- never VERIFIED.
+  * A concrete counterexample on an obligation yields BUG_FOUND with the trace.
+"""
+from __future__ import annotations
+from dataclasses import dataclass, field
+import os
+
+from . import static_analysis, synth, validator, compiler, backend
+from . import failsafe as localize_mod
+from . import depgraph
+from . import refinement          # Idea 1: CEGAR-guided refinement
+from . import proof_cache         # Idea 2: cross-round proof reuse
+from .mcvp import MCVP
+
+
+@dataclass
+class AegisResult:
+    status: str        # VERIFIED | BUG_FOUND | UNKNOWN | UNAVAILABLE
+    plan: MCVP | None
+    candidates_tried: int
+    repair_rounds: int
+    total_repairs: int
+    backend_used: str = "none"
+    obligations_report: list = field(default_factory=list)
+    # --- A/G core artifact + RQ metrics (for the paper) ---
+    ag_decomposition: dict | None = None   # the explicit A/G triple, rendered
+    metrics: dict = field(default_factory=dict)  # RQ instrumentation
+    log: list[str] = field(default_factory=list)
+
+
+def run_aegis(sol_path: str, target_property: str,
+              llm_backend: str = "stub", k: int = 4,
+              max_repair_rounds: int = 8, smt_timeout_ms: int = 0,
+              verbose: bool = True) -> AegisResult:
+    log: list[str] = []
+
+    def say(s: str):
+        log.append(s)
+        if verbose:
+            print(s)
+
+    say(f"== Aegis on {os.path.basename(sol_path)} ==")
+    say(f"target property: {target_property}")
+
+    # Backend banner -- never let a simulated result masquerade as real.
+    if backend.solc_healthy():
+        say("[backend] REAL SMTChecker (solc on PATH) -- results are sound")
+        backend_used = "smtchecker"
+    else:
+        say("[backend] *** NO REAL VERIFIER: solc not on PATH ***")
+        say("[backend] *** results will be UNAVAILABLE, never VERIFIED ***")
+        say("[backend] install: pip install solc-select && "
+            "solc-select install 0.8.26 && solc-select use 0.8.26")
+        backend_used = "none"
+
+    facts = static_analysis.analyze(sol_path)
+    say(f"[1] static analysis ({static_analysis.LAST_ANALYZER}): "
+        f"storage={facts.storage_vars}")
+    if static_analysis.LAST_ANALYZER != "ast":
+        say("[1] NOTE: regex analyzer used (no working solc AST); "
+            "soundness claim requires the AST analyzer")
+    if not facts.exposure_sites:
+        say("no callback-exposed sites found; nothing to verify")
+        return AegisResult("UNKNOWN", None, 0, 0, 0, backend_used, [], log)
+
+    site = facts.exposure_sites[0]
+    conservative = facts.conservative_closure(site)
+    say(f"[2] exposure site: {site.function} -> {site.call} ({site.reason})")
+    say(f"    conservative closure: {sorted(conservative)}")
+
+    hc_path = sol_path.replace(".sol", ".harness.sol")
+    if not os.path.exists(hc_path):
+        # Auto-synthesize the harness from the contract source. This makes
+        # the pipeline contract-agnostic: the user supplies only the .sol
+        # file and the target property. The synthesized harness is then
+        # validated by harness_check the same way a user-authored one would
+        # be -- a malformed synthesis is caught by the same conformance gate,
+        # preserving the soundness story.
+        from . import harness_synth
+        say(f"[harness] no harness file at {os.path.basename(hc_path)}; "
+            f"auto-synthesizing from contract source")
+        contract_src = open(sol_path).read()
+        hc_src = harness_synth.synthesize_harness(contract_src, facts, site)
+        with open(hc_path, "w") as fh:
+            fh.write(hc_src)
+        say(f"[harness] wrote synthesized harness to "
+            f"{os.path.basename(hc_path)} ({len(hc_src)} chars)")
+    else:
+        hc_src = open(hc_path).read()
+
+    # Enforce the harness interface contract. A non-conforming harness silently
+    # produces broken or vacuous obligations -- refuse to run rather than emit
+    # a meaningless VERIFIED.
+    from . import harness_check
+    report = harness_check.check_harness(hc_src, list(conservative))
+    if not report.conforming:
+        say(f"[!] {report.diagnostic}")
+        return AegisResult("HARNESS_NONCONFORMING", None, 0, 0, 0, backend_used,
+                           [{"obligation": "harness_interface", "module": "harness",
+                             "status": "failed", "detail": report.diagnostic}], log)
+    say(f"[harness] conforms to interface "
+        f"(found {len(report.found_functions)} functions, "
+        f"{len(report.found_state_vars)} public state vars)")
+
+    say(f"[3] sampling {k} candidate MCVPs ({llm_backend})")
+    candidates = synth.sample_plans(facts, site, target_property,
+                                    backend=llm_backend, k=k)
+
+    best = None
+    for ci, plan in enumerate(candidates):
+        say(f"-- candidate {ci} --")
+        res = _fixpoint(plan, facts, site, target_property, conservative,
+                        hc_src, max_repair_rounds, llm_backend, smt_timeout_ms,
+                        backend_used, say)
+        res.candidates_tried = ci + 1
+        res.backend_used = backend_used
+        if res.status in ("VERIFIED", "BUG_FOUND"):
+            res.log = log
+            return res
+        best = res
+
+    say("no candidate verified -> "
+        + ("UNAVAILABLE (no backend)" if backend_used == "none" else "UNKNOWN"))
+    if best:
+        best.candidates_tried = len(candidates)
+        best.log = log
+        return best
+    return AegisResult("UNKNOWN", None, len(candidates), 0, 0, backend_used,
+                       [], log)
+
+
+def _fixpoint(plan, facts, site, target_property, conservative, hc_src,
+              max_repair_rounds, llm_backend, smt_timeout_ms, backend_used, say):
+    total_repairs = 0
+    dirty = set(depgraph.ALL_MODULES)
+    last_results = []
+
+    # --- Idea 1 + Idea 2 shared state ------------------------------------
+    # Idea 2: a cache of discharged callback-preservation proofs, keyed by the
+    # invariant they were proven against, queried by Z3 entailment each round.
+    cache = proof_cache.ProofCache()
+    # Idea 1: ledger of concrete states proven safe, fed into refinement so a
+    # strengthened invariant must preserve them.
+    verified_states: list[dict] = []
+    # the identifiers a counterexample may mention (storage + declared ghosts)
+    known_idents = set(facts.storage_vars) | {g.name for g in plan.ghost_state}
+
+    for rnd in range(1, max_repair_rounds + 1):
+        # (a) validate: schema + conservative-closure SOUNDNESS gate
+        failed_val = validator.validate(plan, facts, site)
+        if failed_val:
+            say(f"  [round {rnd}] validation flagged: {failed_val}")
+            # Capture the validator's diagnostic (printed to stderr) as the
+            # failure_detail to feed the LLM in repair. The detail string for
+            # this round is the modules that failed; the validator already
+            # printed the specific reason to stderr in the run log.
+            detail = (f"validation rejected modules: {failed_val}. "
+                      f"Common causes: closure omits a reachable callback; "
+                      f"protocol's allowed_callbacks must equal the closure; "
+                      f"exposure invariant must reference every storage var the "
+                      f"target property mentions (no vacuous invariants using "
+                      f"unconstrained ghosts); exposure invariant must be "
+                      f"strictly weaker than the stable invariant.")
+            for m in depgraph.repair_order(set(failed_val)):
+                plan = synth.repair_module(plan, m, facts, site, target_property,
+                                           backend=llm_backend,
+                                           failure_detail=detail)
+                total_repairs += 1
+                dirty |= {m} | depgraph.downstream_of({m})
+            continue
+        say(f"  [round {rnd}] validation passed")
+
+        # refresh known identifiers (ghost set may have changed via repair)
+        known_idents = set(facts.storage_vars) | {g.name for g in plan.ghost_state}
+        ghost_names = [g.name for g in plan.ghost_state]
+        inv_new = plan.exposure_invariant.formula
+
+        # (b) compile per-obligation harnesses
+        obligations = compiler.compile_obligations(plan, facts, hc_src)
+        say(f"  [round {rnd}] compiled {len(obligations)} obligations: "
+            f"{[o.name for o in obligations]}")
+
+        # (b2) Idea 2: PROOF REUSE. For each callback-preservation obligation
+        # that we proved in an earlier round, ask Z3 whether the (possibly new)
+        # exposure invariant still entails the cached one. If valid, skip the
+        # expensive CHC re-discharge and reuse the cached VERIFIED. This is an
+        # optimisation only: a skip happens solely on a Z3-VALID entailment.
+        to_check = []
+        reused_results = []
+        for ob in obligations:
+            if ob.name.startswith("OBL_cb_"):
+                dec = cache.try_reuse(ob.name, inv_new,
+                                      facts.storage_vars, ghost_names)
+                if dec.reused:
+                    say(f"      {ob.name} [closure]: REUSED :: {dec.reason}")
+                    reused_results.append(backend.ObligationResult(
+                        ob.name, ob.module, "verified",
+                        f"reused cached proof ({dec.reason})"))
+                    continue
+                # entailment failed -> thread Z3's witness back as Idea-1 feedback
+                if dec.witness:
+                    say(f"      {ob.name}: reuse declined ({dec.reason}); "
+                        f"witness {dec.witness}")
+            to_check.append(ob)
+
+        # (c) REAL backend check (only on the not-reused obligations)
+        checked = backend.run(to_check, timeout_ms=smt_timeout_ms)
+        results = reused_results + checked
+        # keep a stable obligation order for reporting
+        order = {o.name: i for i, o in enumerate(obligations)}
+        results.sort(key=lambda r: order.get(r.name, 1_000))
+        last_results = results
+        for r in results:
+            if r.detail.startswith("reused cached proof"):
+                continue  # already printed as REUSED
+            tag = r.status.upper()
+            extra = f" :: {r.detail}" if r.status != "verified" else ""
+            say(f"      {r.name} [{r.module}]: {tag}{extra}")
+
+        # (c2) Idea 2: populate the cache from freshly-verified callback proofs,
+        # and (Idea 1) log the verified pre-state for refinement preservation.
+        for r in results:
+            if r.status == "verified" and r.name.startswith("OBL_cb_"):
+                cb = r.name[len("OBL_cb_"):]
+                cache.record_verified(r.name, cb, inv_new, rnd)
+        # A canonical "stable, settled" safe state: inFlight==0 reduces I_exp to
+        # I_stable, so totalAssets==totalShares with all ghosts zero is a state
+        # every correct invariant must keep. Record it once.
+        if not verified_states and any(r.status == "verified" for r in results):
+            safe = {g.name: 0 for g in plan.ghost_state}
+            for v in facts.storage_vars:
+                safe.setdefault(v, 0)
+            verified_states.append(safe)
+
+        # If there is no real backend, stop honestly.
+        if any(r.status == "no_backend" for r in results):
+            return AegisResult("UNAVAILABLE", plan, 0, rnd, total_repairs,
+                               backend_used, _report(results))
+
+        # bug detection: a concrete counterexample
+        for r in results:
+            if r.status == "failed" and r.counterexample:
+                say(f"  [round {rnd}] BUG_FOUND via {r.name}")
+                say(f"      counterexample: {r.counterexample}")
+                return AegisResult("BUG_FOUND", plan, 0, rnd, total_repairs,
+                                   backend_used, _report(results))
+
+        # (d) localize failures to modules
+        loc = localize_mod.localize(plan, results)
+        in_prog = loc.in_progress_modules()
+        say(f"  [round {rnd}] correct={loc.correct_modules()} "
+            f"in_progress={sorted(in_prog)}")
+
+        if loc.all_correct():
+            say(f"  [round {rnd}] FIXPOINT -> VERIFIED (real solver)")
+            from . import assume_guarantee as ag
+            decomp = ag.derive(plan)
+            say("")
+            say(decomp.render())
+            metrics = {
+                "obligations_total": len(results),
+                "obligations_verified": sum(1 for r in results
+                                            if r.status == "verified"),
+                "repair_rounds": rnd,
+                "total_repairs": total_repairs,
+                "ag_components": len(decomp.components()),
+                "callback_closure_size": len(plan.closure.functions),
+                # Idea 2: proof-reuse payoff (RQ on re-verification cost)
+                "proof_reuse_hits": cache.stats()["reuse_hits"],
+                "proof_reuse_misses": cache.stats()["reuse_misses"],
+                "cached_proofs": cache.stats()["cached_proofs"],
+            }
+            return AegisResult("VERIFIED", plan, 0, rnd, total_repairs,
+                               backend_used, _report(results),
+                               ag_decomposition={"rendered": decomp.render(),
+                                                 "theorem": decomp.composition_theorem()},
+                               metrics=metrics)
+
+        # (e) repair in dependency order; propagate dirtiness
+        # Build a per-module failure detail from the solver results so the LLM
+        # knows which OBLIGATION failed and why -- not just the module name.
+        module_to_failures: dict[str, list[str]] = {}
+        raw_cex_for_module: dict[str, str] = {}
+        for r in results:
+            if r.status in ("failed", "unknown"):
+                module_to_failures.setdefault(r.module, []).append(
+                    f"{r.name} ({r.status}): {r.detail}"
+                    + (f"; counterexample: {r.counterexample}"
+                       if r.counterexample else ""))
+                if r.counterexample:
+                    raw_cex_for_module[r.module] = r.counterexample
+
+        for m in depgraph.repair_order(in_prog):
+            # Idea 1: for the exposure-invariant module (the module CEGAR
+            # refines), build a structured strengthening constraint from the
+            # counterexample instead of passing the raw solver text.
+            if m == "exposure_invariant":
+                block, _cm = refinement.refine(
+                    raw_cex_for_module.get(m, ""),
+                    obligation="exposure_invariant", module=m,
+                    known_idents=known_idents,
+                    verified_states=verified_states)
+                detail = block
+                say(f"  [round {rnd}] CEGAR refinement constraint built for "
+                    f"exposure_invariant")
+            else:
+                detail = "\n".join(module_to_failures.get(m, []))
+
+            prev_closure = set(plan.closure.functions)
+            plan = synth.repair_module(plan, m, facts, site, target_property,
+                                       backend=llm_backend,
+                                       failure_detail=detail)
+            total_repairs += 1
+            dirty |= {m} | depgraph.downstream_of({m})
+
+            # Idea 2: a repaired exposure invariant re-opens every cached
+            # callback proof for entailment re-check next round (handled by
+            # try_reuse). A repaired CLOSURE may drop a callback; invalidate any
+            # cached proof for callbacks no longer present.
+            if m == "closure":
+                for gone in prev_closure - set(plan.closure.functions):
+                    cache.invalidate_for_callback(gone)
+
+    say(f"  repair budget ({max_repair_rounds}) exhausted -> UNKNOWN")
+    return AegisResult("UNKNOWN", plan, 0, max_repair_rounds, total_repairs,
+                       backend_used, _report(last_results))
+
+
+def _report(results):
+    return [{"obligation": r.name, "module": r.module, "status": r.status,
+             "detail": r.detail} for r in results]

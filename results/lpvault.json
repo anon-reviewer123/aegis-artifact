@@ -1,0 +1,48 @@
+[
+  {
+    "tool": "aegis",
+    "contract": "LpVault.sol",
+    "class": "cross_function_desync",
+    "verdict": "BUG_FOUND",
+    "expected": "BUG_FOUND",
+    "correct": true,
+    "localized": true,
+    "localized_to": "OBL_cb_mint",
+    "misfired_on": null,
+    "repair_rounds": 1,
+    "total_repairs": 0,
+    "candidates_tried": 1,
+    "closure_size": 3,
+    "backend": "smtchecker",
+    "seconds": 74.1,
+    "metrics": {}
+  },
+  {
+    "tool": "aegis",
+    "contract": "LpVaultSafe.sol",
+    "class": "cross_function_desync",
+    "verdict": "VERIFIED",
+    "expected": "VERIFIED",
+    "correct": true,
+    "localized": false,
+    "localized_to": null,
+    "misfired_on": null,
+    "repair_rounds": 1,
+    "total_repairs": 0,
+    "candidates_tried": 1,
+    "closure_size": 3,
+    "backend": "smtchecker",
+    "seconds": 58.8,
+    "metrics": {
+      "obligations_total": 5,
+      "obligations_verified": 5,
+      "repair_rounds": 1,
+      "total_repairs": 0,
+      "ag_components": 4,
+      "callback_closure_size": 3,
+      "proof_reuse_hits": 0,
+      "proof_reuse_misses": 0,
+      "cached_proofs": 2
+    }
+  }
+]

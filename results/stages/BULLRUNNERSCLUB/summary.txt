@@ -1,0 +1,25 @@
+
+======================================================================
+BULLRUNNERSCLUB
+harness  : DOES NOT COMPILE  (195 lines)
+    Error: Undeclared identifier.  (line 132)
+          129 |     /// Closure callback: wraps runpassMint so OBL_cb_runpassMint can drive it.
+          130 |     function runpassMint(uint256 amount) public {
+          131 |         require(premintStatus, "Presale Mint Paused for now");
+      >>  132 |         require(numberOfTokens > 0, "You are not eligible");
+          133 |     }
+          134 | 
+          135 |     /// Closure callback: wraps setApprovalForAll so OBL_cb_setApprovalForAll can drive it.
+Iexp     : team_balance == address(this).balance + inFlight
+OBL_pre                     : compiles  (110 lines)
+OBL_cb_mint                 : compiles  (115 lines)
+OBL_post                    : compiles  (117 lines)
+OBL_stable_implies_target   : DOES NOT COMPILE  (142 lines)
+    Error: Undeclared identifier.  (line 85)
+           82 | 
+           83 |     /// Closure callback: wraps runpassMint so OBL_cb_runpassMint can drive it.
+           84 |     function runpassMint(uint256 amount) public {
+      >>   85 |         require(numberOfTokens > 0, "You are not eligible");
+           86 |     }
+           87 | 
+           88 |     /// Closure callback: wraps setApprovalForAll so OBL_cb_setApprovalForAll can drive it.

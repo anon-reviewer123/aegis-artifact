@@ -1,0 +1,15 @@
+status: failed
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpfkh4aty8/Obligation.sol:52:23:
+   |
+52 |     function withdraw(uint256 amount) public {
+   |                       ^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation happens here.
+  --> /tmp/tmpfkh4aty8/Obligation.sol:69:17:
+   |
+69 |                 assert(v._sum_balances() == v._ethBal() + v.inFlight());            // I_exp must still hold
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

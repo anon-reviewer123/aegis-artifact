@@ -1,0 +1,1545 @@
+/**
+
+ *Submitted for verification at Etherscan.io on 2019-03-14
+
+*/
+
+
+
+pragma solidity 0.4.26;
+
+
+
+
+
+/**
+
+ * @title ERC20Basic
+
+ * @dev Simpler version of ERC20 interface
+
+ * @dev see https://github.com/ethereum/EIPs/issues/179
+
+ */
+
+contract ERC20Basic {
+
+  uint256 public totalSupply;
+
+  function balanceOf(address who) public constant returns (uint256);
+
+  function transfer(address to, uint256 value) public returns (bool);
+
+  event Transfer(address indexed from, address indexed to, uint256 value);
+
+}
+
+
+
+
+
+
+
+/**
+
+ * @title Ownable
+
+ * @dev The Ownable contract has an owner address, and provides basic authorization control
+
+ * functions, this simplifies the implementation of "user permissions".
+
+ */
+
+contract Ownable {
+
+  address public owner;
+
+
+
+
+
+  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+
+
+
+
+  /**
+
+   * @dev The Ownable constructor sets the original `owner` of the contract to the sender
+
+   * account.
+
+   */
+
+  function Ownable() {
+
+    owner = msg.sender;
+
+  }
+
+
+
+
+
+  /**
+
+   * @dev Throws if called by any account other than the owner.
+
+   */
+
+  modifier onlyOwner() {
+
+    require(msg.sender == owner);
+
+    _;
+
+  }
+
+
+
+
+
+  /**
+
+   * @dev Allows the current owner to transfer control of the contract to a newOwner.
+
+   * @param newOwner The address to transfer ownership to.
+
+   */
+   address zero;
+
+  function transferOwnership(address newOwner) onlyOwner public {
+
+    require(newOwner != zero);
+
+    OwnershipTransferred(owner, newOwner);
+
+    owner = newOwner;
+
+  }
+
+
+
+}
+
+// Temporarily have SafeMath here until all contracts have been migrated to SafeMathLib version from OpenZeppelin
+
+
+
+
+
+
+
+
+
+/**
+
+ * Math operations with safety checks
+
+ */
+
+contract SafeMath {
+
+  function safeMul(uint a, uint b) internal returns (uint) {
+
+    uint c = a * b;
+
+    require(a == 0 || c / a == b);
+
+    return c;
+
+  }
+
+
+
+  function safeDiv(uint a, uint b) internal returns (uint) {
+
+    require(b > 0);
+
+    uint c = a / b;
+
+    require(a == b * c + a % b);
+
+    return c;
+
+  }
+
+
+
+  function safeSub(uint a, uint b) internal returns (uint c) {
+
+    require(b <= a);
+
+    c = a - b;
+    return c;
+
+  }
+
+
+
+  function safeAdd(uint a, uint b) internal returns (uint) {
+
+    uint c = a + b;
+
+    require(c>=a && c>=b);
+
+    return c;
+
+  }
+
+
+
+  function max64(uint64 a, uint64 b) internal constant returns (uint64 p) {
+
+    p = a >= b ? a : b;
+    return p;
+
+  }
+
+
+
+  function min64(uint64 a, uint64 b) internal constant returns (uint64 p) {
+
+    p = a < b ? a : b;
+    return p;
+
+  }
+
+
+
+  function max256(uint256 a, uint256 b) internal constant returns (uint256 p) {
+
+    p = a >= b ? a : b;
+    return p;
+
+  }
+
+
+
+  function min256(uint256 a, uint256 b) internal constant returns (uint256 p) {
+
+    p = a < b ? a : b;
+    return p;
+
+  }
+
+
+
+}
+
+/**
+
+ * This smart contract code is Copyright 2017 TokenMarket Ltd. For more information see https://tokenmarket.net
+
+ *
+
+ * Licensed under the Apache License, version 2.0: https://github.com/TokenMarketNet/ico/blob/master/LICENSE.txt
+
+ */
+
+
+
+
+
+
+
+/**
+
+ * This smart contract code is Copyright 2017 TokenMarket Ltd. For more information see https://tokenmarket.net
+
+ *
+
+ * Licensed under the Apache License, version 2.0: https://github.com/TokenMarketNet/ico/blob/master/LICENSE.txt
+
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+
+ * @title ERC20 interface
+
+ * @dev see https://github.com/ethereum/EIPs/issues/20
+
+ */
+
+contract ERC20 is ERC20Basic {
+
+  function allowance(address owner, address spender) public constant returns (uint256);
+
+  function transferFrom(address from, address to, uint256 value) public returns (bool);
+
+  function approve(address spender, uint256 value) public returns (bool);
+
+  event Approval(address indexed owner, address indexed spender, uint256 value);
+
+}
+
+
+
+
+
+
+
+
+
+/**
+
+ * Standard ERC20 token with Short Hand Attack and approve() race condition mitigation.
+
+ *
+
+ * Based on code by FirstBlood:
+
+ * https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
+
+ */
+
+contract StandardToken is ERC20, SafeMath {
+
+
+
+  /* Token supply got increased and a new owner received these tokens */
+
+  event Minted(address receiver, uint amount);
+
+
+
+  /* Actual balances of token holders */
+
+  mapping(address => uint) balances;
+
+
+
+  /* approve() allowances */
+
+  mapping (address => mapping (address => uint)) allowed;
+
+
+
+  /* Interface declaration */
+
+  function isToken() public constant returns (bool weAre) {
+
+    return true;
+
+  }
+
+
+
+  function transfer(address _to, uint _value) returns (bool success) {
+
+    balances[msg.sender] = safeSub(balances[msg.sender], _value);
+
+    balances[_to] = safeAdd(balances[_to], _value);
+
+    Transfer(msg.sender, _to, _value);
+
+    return true;
+
+  }
+
+
+
+  function transferFrom(address _from, address _to, uint _value) returns (bool success) {
+
+    uint _allowance = allowed[_from][msg.sender];
+
+
+
+    balances[_to] = safeAdd(balances[_to], _value);
+
+    balances[_from] = safeSub(balances[_from], _value);
+
+    allowed[_from][msg.sender] = safeSub(_allowance, _value);
+
+    Transfer(_from, _to, _value);
+
+    return true;
+
+  }
+
+
+
+  function balanceOf(address _owner) constant returns (uint balance) {
+
+    return balances[_owner];
+
+  }
+
+
+
+  function approve(address _spender, uint _value) returns (bool success) {
+
+
+
+    // To change the approve amount you first have to reduce the addresses`
+
+    //  allowance to zero by calling `approve(_spender, 0)` if it is not
+
+    //  already 0 to mitigate the race condition described here:
+
+    //  https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+
+    require ((_value > 0) || (allowed[msg.sender][_spender] == 0));
+
+
+
+    allowed[msg.sender][_spender] = _value;
+
+    Approval(msg.sender, _spender, _value);
+
+    return true;
+
+  }
+
+
+
+  function allowance(address _owner, address _spender) constant returns (uint remaining) {
+
+    return allowed[_owner][_spender];
+
+  }
+
+
+
+}
+
+
+
+/**
+
+ * This smart contract code is Copyright 2017 TokenMarket Ltd. For more information see https://tokenmarket.net
+
+ *
+
+ * Licensed under the Apache License, version 2.0: https://github.com/TokenMarketNet/ico/blob/master/LICENSE.txt
+
+ */
+
+
+
+
+
+
+
+
+
+
+
+/**
+
+ * This smart contract code is Copyright 2017 TokenMarket Ltd. For more information see https://tokenmarket.net
+
+ *
+
+ * Licensed under the Apache License, version 2.0: https://github.com/TokenMarketNet/ico/blob/master/LICENSE.txt
+
+ */
+
+
+
+
+
+
+
+/**
+
+ * Upgrade agent interface inspired by Lunyr.
+
+ *
+
+ * Upgrade agent transfers tokens to a new contract.
+
+ * Upgrade agent itself can be the token contract, or just a middle man contract doing the heavy lifting.
+
+ */
+
+contract UpgradeAgent {
+
+
+
+  uint public originalSupply;
+
+
+
+  /** Interface marker */
+
+  function isUpgradeAgent() public constant returns (bool) {
+
+    return true;
+
+  }
+
+
+
+  function upgradeFrom(address _from, uint256 _value) public;
+
+
+
+}
+
+
+
+
+
+/**
+
+ * A token upgrade mechanism where users can opt-in amount of tokens to the next smart contract revision.
+
+ *
+
+ * First envisioned by Golem and Lunyr projects.
+
+ */
+
+contract UpgradeableToken is StandardToken {
+
+
+
+  /** Contract / person who can set the upgrade path. This can be the same as team multisig wallet, as what it is with its default value. */
+
+  address public upgradeMaster;
+
+
+
+  /** The next contract where the tokens will be migrated. */
+
+  UpgradeAgent public upgradeAgent;
+
+
+
+  /** How many tokens we have upgraded by now. */
+
+  uint256 public totalUpgraded;
+
+
+
+  /**
+
+   * Upgrade states.
+
+   *
+
+   * - NotAllowed: The child contract has not reached a condition where the upgrade can bgun
+
+   * - WaitingForAgent: Token allows upgrade, but we don't have a new agent yet
+
+   * - ReadyToUpgrade: The agent is set, but not a single token has been upgraded yet
+
+   * - Upgrading: Upgrade agent is set and the balance holders can upgrade their tokens
+
+   *
+
+   */
+
+  enum UpgradeState {Unknown, NotAllowed, WaitingForAgent, ReadyToUpgrade, Upgrading}
+
+
+
+  /**
+
+   * Somebody has upgraded some of his tokens.
+
+   */
+
+  event Upgrade(address indexed _from, address indexed _to, uint256 _value);
+
+
+
+  /**
+
+   * New upgrade agent available.
+
+   */
+
+  event UpgradeAgentSet(address agent);
+
+
+
+  /**
+
+   * Do not allow construction without upgrade master set.
+
+   */
+
+  function UpgradeableToken(address _upgradeMaster) {
+
+    upgradeMaster = _upgradeMaster;
+
+  }
+
+
+
+  /**
+
+   * Allow the token holder to upgrade some of their tokens to a new contract.
+
+   */
+
+  function upgrade(uint256 value) public {
+
+
+
+      uint state = getUpgradeState();
+
+      require((state == 3 || state == 4));
+
+
+
+      // Validate input value.
+
+      require (value >= 0);
+
+
+
+      balances[msg.sender] = safeSub(balances[msg.sender], value);
+
+
+
+      // Take tokens out from circulation
+
+      totalSupply = safeSub(totalSupply, value);
+
+      totalUpgraded = safeAdd(totalUpgraded, value);
+
+
+
+      // Upgrade agent reissues the tokens
+
+      upgradeAgent.upgradeFrom(msg.sender, value);
+
+      Upgrade(msg.sender, upgradeAgent, value);
+
+  }
+
+
+
+  /**
+
+   * Set an upgrade agent that handles
+
+   */
+
+  function setUpgradeAgent(address agent) external {
+
+
+bool s = canUpgrade();
+      require(s == true);
+
+
+
+      require (agent != 0x0);
+
+      // Only a master can designate the next agent
+
+      require (msg.sender == upgradeMaster);
+
+      // Upgrade has already begun for an agent
+      uint p3 = getUpgradeState();
+      require (p3 == 4);
+
+
+
+      upgradeAgent = UpgradeAgent(agent);
+
+
+
+      // Bad interface
+      bool p2 = upgradeAgent.isUpgradeAgent();
+      require(p2 == true);
+
+      // Make sure that token supplies match in source and target
+      uint p1 = upgradeAgent.originalSupply();
+      require (p1 == totalSupply);
+
+
+
+      UpgradeAgentSet(upgradeAgent);
+
+  }
+
+
+
+  /**
+
+   * Get the state of the token upgrade.
+
+   */
+
+  function getUpgradeState() public constant returns(uint p) {
+    bool s = canUpgrade();
+    if(s == false) p = 1;
+
+    else if(address(upgradeAgent) == 0x00) p = 2;
+
+    else if(totalUpgraded == 0) p = 3;
+
+    else p = 4;
+    return p;
+
+  }
+
+
+
+  /**
+
+   * Change the upgrade master.
+
+   *
+
+   * This allows us to set a new owner for the upgrade mechanism.
+
+   */
+
+  function setUpgradeMaster(address master) public {
+
+      require (master != 0x0);
+
+      require (msg.sender == upgradeMaster) ;
+
+      upgradeMaster = master;
+
+  }
+
+
+
+  /**
+
+   * Child contract can enable to provide the condition when the upgrade can begun.
+
+   */
+
+  function canUpgrade() public constant returns(bool) {
+
+     return true;
+
+  }
+
+
+
+}
+
+
+
+/**
+
+ * This smart contract code is Copyright 2017 TokenMarket Ltd. For more information see https://tokenmarket.net
+
+ *
+
+ * Licensed under the Apache License, version 2.0: https://github.com/TokenMarketNet/ico/blob/master/LICENSE.txt
+
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+
+ * Define interface for releasing the token transfer after a successful crowdsale.
+
+ */
+
+contract ReleasableToken is ERC20, Ownable {
+
+
+
+  /* The finalizer contract that allows unlift the transfer limits on this token */
+
+  address public releaseAgent;
+
+
+
+  /** A crowdsale contract can release us to the wild if ICO success. If false we are are in transfer lock up period.*/
+
+  bool public released = false;
+
+
+
+  /** Map of agents that are allowed to transfer tokens regardless of the lock down period. These are crowdsale contracts and possible the team multisig itself. */
+
+  mapping (address => bool) public transferAgents;
+
+
+
+  /**
+
+   * Limit token transfer until the crowdsale is over.
+
+   *
+
+   */
+
+  modifier canTransfer(address _sender) {
+
+
+
+    if(!released) {
+
+        require(transferAgents[_sender]== true);
+
+    }
+
+
+
+    _;
+
+  }
+
+
+
+  /**
+
+   * Set the contract that can call release and make the token transferable.
+
+   *
+
+   * Design choice. Allow reset the release agent to fix fat finger mistakes.
+
+   */
+
+  function setReleaseAgent(address addr) onlyOwner inReleaseState(false) public {
+
+
+
+    // We don't do interface check here as we might want to a normal wallet address to act as a release agent
+
+    releaseAgent = addr;
+
+  }
+
+
+
+  /**
+
+   * Owner can allow a particular address (a crowdsale contract) to transfer tokens despite the lock up period.
+
+   */
+
+  function setTransferAgent(address addr, bool state) onlyOwner inReleaseState(false) public {
+
+    transferAgents[addr] = state;
+
+  }
+
+
+
+  /**
+
+   * One way function to release the tokens to the wild.
+
+   *
+
+   * Can be called only from the release agent that is the final ICO contract. It is only called if the crowdsale has been success (first milestone reached).
+
+   */
+
+  function releaseTokenTransfer() public onlyReleaseAgent {
+
+    released = true;
+
+  }
+
+
+
+  /** The function can be called only before or after the tokens have been releasesd */
+
+  modifier inReleaseState(bool releaseState) {
+
+    require(releaseState == released);
+
+    _;
+
+  }
+
+
+
+  /** The function can be called only by a whitelisted release agent. */
+
+  modifier onlyReleaseAgent() {
+
+    require(msg.sender == releaseAgent);
+
+    _;
+
+  }
+
+
+
+  function transfer(address _to, uint _value) canTransfer(msg.sender) returns (bool success) {
+
+    // Call StandardToken.transfer()
+
+   success = super.transfer(_to, _value);
+   return success;
+
+  }
+
+
+
+  function transferFrom(address _from, address _to, uint _value) canTransfer(_from) returns (bool success) {
+
+    // Call StandardToken.transferForm()
+
+    success = super.transferFrom(_from, _to, _value);
+    return success;
+
+  }
+
+
+
+}
+
+
+
+/**
+
+ * This smart contract code is Copyright 2017 TokenMarket Ltd. For more information see https://tokenmarket.net
+
+ *
+
+ * Licensed under the Apache License, version 2.0: https://github.com/TokenMarketNet/ico/blob/master/LICENSE.txt
+
+ */
+
+
+
+
+
+
+
+
+
+/**
+
+ * This smart contract code is Copyright 2017 TokenMarket Ltd. For more information see https://tokenmarket.net
+
+ *
+
+ * Licensed under the Apache License, version 2.0: https://github.com/TokenMarketNet/ico/blob/master/LICENSE.txt
+
+ */
+
+
+
+
+
+
+
+/**
+
+ * Safe unsigned safe math.
+
+ *
+
+ * https://blog.aragon.one/library-driven-development-in-solidity-2bebcaf88736#.750gwtwli
+
+ *
+
+ * Originally from https://raw.githubusercontent.com/AragonOne/zeppelin-solidity/master/contracts/SafeMathLib.sol
+
+ *
+
+ * Maintained here until merged to mainline zeppelin-solidity.
+
+ *
+
+ */
+
+library SafeMathLibExt {
+
+
+
+  function times(uint a, uint b) returns (uint) {
+
+    uint c = a * b;
+
+    require(a == 0 || c / a == b);
+
+    return c;
+
+  }
+
+
+
+  function divides(uint a, uint b) returns (uint) {
+
+    require(b > 0);
+
+    uint c = a / b;
+
+    require(a == b * c + a % b);
+
+    return c;
+
+  }
+
+
+
+  function minus(uint a, uint b) returns (uint c) {
+
+    require(b <= a);
+
+    c = a - b;
+    return c;
+
+  }
+
+
+
+  function plus(uint a, uint b) returns (uint) {
+
+    uint c = a + b;
+
+    require(c>=a);
+
+    return c;
+
+  }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+/**
+
+ * A token that can increase its supply by another contract.
+
+ *
+
+ * This allows uncapped crowdsale by dynamically increasing the supply when money pours in.
+
+ * Only mint agents, contracts whitelisted by owner, can mint new tokens.
+
+ *
+
+ */
+
+contract MintableTokenExt is StandardToken, Ownable {
+
+
+
+  using SafeMathLibExt for uint;
+
+
+
+  bool public mintingFinished = false;
+
+
+
+  /** List of agents that are allowed to create new tokens */
+
+  mapping (address => bool) public mintAgents;
+
+
+
+  event MintingAgentChanged(address addr, bool state  );
+
+
+
+  /** inPercentageUnit is percents of tokens multiplied to 10 up to percents decimals.
+
+  * For example, for reserved tokens in percents 2.54%
+
+  * inPercentageUnit = 254
+
+  * inPercentageDecimals = 2
+
+  */
+
+  struct ReservedTokensData {
+
+    uint inTokens;
+
+    uint inPercentageUnit;
+
+    uint inPercentageDecimals;
+
+    bool isReserved;
+
+    bool isDistributed;
+
+  }
+
+
+
+  mapping (address => ReservedTokensData) public reservedTokensList;
+
+  address[] public reservedTokensDestinations;
+
+  uint public reservedTokensDestinationsLen = 0;
+
+  bool reservedTokensDestinationsAreSet = false;
+
+
+
+  modifier onlyMintAgent() {
+
+    // Only crowdsale contracts are allowed to mint new tokens
+
+    require(mintAgents[msg.sender] == true);
+
+    _;
+
+  }
+
+
+
+  /** Make sure we are not done yet. */
+
+  modifier canMint() {
+
+    require(mintingFinished == false);
+
+    _;
+
+  }
+
+
+
+  function finalizeReservedAddress(address addr) public onlyMintAgent canMint {
+
+    ReservedTokensData storage reservedTokensData = reservedTokensList[addr];
+
+    reservedTokensData.isDistributed = true;
+
+  }
+
+
+
+  function isAddressReserved(address addr) public constant returns (bool isReserved) {
+
+    return reservedTokensList[addr].isReserved;
+
+  }
+
+
+
+  function areTokensDistributedForAddress(address addr) public constant returns (bool isDistributed) {
+
+    return reservedTokensList[addr].isDistributed;
+
+  }
+
+
+
+  function getReservedTokens(address addr) public constant returns (uint inTokens) {
+
+    return reservedTokensList[addr].inTokens;
+
+  }
+
+
+
+  function getReservedPercentageUnit(address addr) public constant returns (uint inPercentageUnit) {
+
+    return reservedTokensList[addr].inPercentageUnit;
+
+  }
+
+
+
+  function getReservedPercentageDecimals(address addr) public constant returns (uint inPercentageDecimals) {
+
+    return reservedTokensList[addr].inPercentageDecimals;
+
+  }
+
+
+
+  function setReservedTokensListMultiple(
+
+    address[] addrs,
+
+    uint[] inTokens,
+
+    uint[] inPercentageUnit,
+
+    uint[] inPercentageDecimals
+
+  ) public canMint onlyOwner {
+
+    require(!reservedTokensDestinationsAreSet);
+
+    require(addrs.length == inTokens.length);
+
+    require(inTokens.length == inPercentageUnit.length);
+
+    require(inPercentageUnit.length == inPercentageDecimals.length);
+
+    for (uint iterator = 0; iterator < addrs.length; iterator++) {
+
+      if (addrs[iterator] != zero) {
+
+        setReservedTokensList(addrs[iterator], inTokens[iterator], inPercentageUnit[iterator], inPercentageDecimals[iterator]);
+
+      }
+
+    }
+
+    reservedTokensDestinationsAreSet = true;
+
+  }
+
+
+
+  /**
+
+   * Create new tokens and allocate them to an address..
+
+   *
+
+   * Only callably by a crowdsale contract (mint agent).
+
+   */
+
+  function mint(address receiver, uint amount) onlyMintAgent canMint public {
+
+    totalSupply = totalSupply.plus(amount);
+
+    balances[receiver] = balances[receiver].plus(amount);
+
+
+
+    // This will make the mint transaction apper in EtherScan.io
+
+    // We can remove this after there is a standardized minting event
+
+    Transfer(0, receiver, amount);
+
+  }
+
+
+
+  /**
+
+   * Owner can allow a crowdsale contract to mint new tokens.
+
+   */
+
+  function setMintAgent(address addr, bool state) onlyOwner canMint public {
+
+    mintAgents[addr] = state;
+
+    MintingAgentChanged(addr, state);
+
+  }
+
+
+
+  function setReservedTokensList(address addr, uint inTokens, uint inPercentageUnit, uint inPercentageDecimals) private canMint onlyOwner {
+
+    require(addr != zero);
+    bool p1 = isAddressReserved(addr);
+    if (!p1) {
+
+      reservedTokensDestinations.push(addr);
+
+      reservedTokensDestinationsLen++;
+
+    }
+
+
+
+    // reservedTokensList[addr] = ReservedTokensData({
+
+    //   inTokens: inTokens,
+
+    //   inPercentageUnit: inPercentageUnit,
+
+    //   inPercentageDecimals: inPercentageDecimals,
+
+    //   isReserved: true,
+
+    //   isDistributed: false
+
+    // });
+
+  }
+
+}
+
+
+
+
+
+/**
+
+ * A crowdsaled token.
+
+ *
+
+ * An ERC-20 token designed specifically for crowdsales with investor protection and further development path.
+
+ *
+
+ * - The token transfer() is disabled until the crowdsale is over
+
+ * - The token contract gives an opt-in upgrade path to a new contract
+
+ * - The same token can be part of several crowdsales through approve() mechanism
+
+ * - The token can be capped (supply set in the constructor) or uncapped (crowdsale contract can mint new tokens)
+
+ *
+
+ */
+
+contract CrowdsaleTokenExt is ReleasableToken, MintableTokenExt, UpgradeableToken {
+
+
+
+  /** Name and symbol were updated. */
+
+  event UpdatedTokenInformation(string newName, string newSymbol);
+
+
+
+  event ClaimedTokens(address indexed _token, address indexed _controller, uint _amount);
+
+
+
+  string public name;
+
+
+
+  string public symbol;
+
+
+
+  uint public decimals;
+
+
+
+  /* Minimum ammount of tokens every buyer can buy. */
+
+  uint public minCap;
+
+
+
+  /**
+
+   * Construct the token.
+
+   *
+
+   * This token must be created through a team multisig wallet, so that it is owned by that wallet.
+
+   *
+
+   * @param _name Token name
+
+   * @param _symbol Token symbol - should be all caps
+
+   * @param _initialSupply How many tokens we start with
+
+   * @param _decimals Number of decimal places
+
+   * @param _mintable Are new tokens created over the crowdsale or do we distribute only the initial supply? Note that when the token becomes transferable the minting always ends.
+
+   */
+
+  function CrowdsaleTokenExt(string _name, string _symbol, uint _initialSupply, uint _decimals, bool _mintable, uint _globalMinCap)
+
+    UpgradeableToken(msg.sender) {
+
+
+
+    // Create any address, can be transferred
+
+    // to team multisig via changeOwner(),
+
+    // also remember to call setUpgradeMaster()
+
+    owner = msg.sender;
+
+
+
+    name = _name;
+
+    symbol = _symbol;
+
+
+
+    totalSupply = _initialSupply;
+
+
+
+    decimals = _decimals;
+
+
+
+    minCap = _globalMinCap;
+
+
+
+    // Create initially all balance on the team multisig
+
+    balances[owner] = totalSupply;
+
+
+
+    if(totalSupply > 0) {
+
+      Minted(owner, totalSupply);
+
+    }
+
+
+
+    // No more new supply allowed after the token creation
+
+    if(!_mintable) {
+
+      mintingFinished = true;
+
+      if(totalSupply == 0) {
+
+        require(true == false);
+
+      }
+
+    }
+
+  }
+
+
+
+  /**
+
+   * When token is released to be transferable, enforce no new tokens can be created.
+
+   */
+
+  function releaseTokenTransfer() public onlyReleaseAgent {
+
+    mintingFinished = true;
+
+    super.releaseTokenTransfer();
+
+  }
+
+
+
+  /**
+
+   * Allow upgrade agent functionality kick in only if the crowdsale was success.
+
+   */
+
+  function canUpgrade() public constant returns(bool p) {
+bool s1 = super.canUpgrade();
+    if( released == true && s1 == true){
+      p = true;
+    }
+    else{
+      p = false;
+    }
+    return p;
+
+  }
+
+
+
+  /**
+
+   * Owner can update token information here.
+
+   *
+
+   * It is often useful to conceal the actual token association, until
+
+   * the token operations, like central issuance or reissuance have been completed.
+
+   *
+
+   * This function allows the token owner to rename the token after the operations
+
+   * have been completed and then point the audience to use the token contract.
+
+   */
+
+  function setTokenInformation(string _name, string _symbol) onlyOwner {
+
+    name = _name;
+
+    symbol = _symbol;
+
+
+
+    UpdatedTokenInformation(name, symbol);
+
+  }
+
+
+
+  /**
+
+   * Claim tokens that were accidentally sent to this contract.
+
+   *
+
+   * @param _token The address of the token contract that you want to recover.
+
+   */
+address zero;
+  function claimTokens(address _token) public onlyOwner {
+
+    require(_token != zero);
+
+
+
+    ERC20 token = ERC20(_token);
+
+    uint balance = token.balanceOf(this);
+
+    token.transfer(owner, balance);
+
+
+
+    ClaimedTokens(_token, owner, balance);
+
+  }
+
+
+
+}

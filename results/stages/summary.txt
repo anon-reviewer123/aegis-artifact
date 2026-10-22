@@ -1,0 +1,226 @@
+
+======================================================================
+BPYC
+harness  : compiles  (210 lines)
+Iexp     : _sum__rOwned == _totalProportion + inFlight
+OBL_pre                     : compiles  (90 lines)
+OBL_cb_setSwapBackSettings  : compiles  (95 lines)
+OBL_cb_transferFrom         : compiles  (91 lines)
+OBL_post                    : compiles  (102 lines)
+
+======================================================================
+BULLRUNNERSCLUB
+harness  : DOES NOT COMPILE  (195 lines)
+    Error: Undeclared identifier.  (line 132)
+          129 |     /// Closure callback: wraps runpassMint so OBL_cb_runpassMint can drive it.
+          130 |     function runpassMint(uint256 amount) public {
+          131 |         require(premintStatus, "Presale Mint Paused for now");
+      >>  132 |         require(numberOfTokens > 0, "You are not eligible");
+          133 |     }
+          134 | 
+          135 |     /// Closure callback: wraps setApprovalForAll so OBL_cb_setApprovalForAll can drive it.
+Iexp     : team_balance == address(this).balance + inFlight
+OBL_pre                     : compiles  (110 lines)
+OBL_cb_mint                 : compiles  (115 lines)
+OBL_post                    : compiles  (117 lines)
+OBL_stable_implies_target   : DOES NOT COMPILE  (142 lines)
+    Error: Undeclared identifier.  (line 85)
+           82 | 
+           83 |     /// Closure callback: wraps runpassMint so OBL_cb_runpassMint can drive it.
+           84 |     function runpassMint(uint256 amount) public {
+      >>   85 |         require(numberOfTokens > 0, "You are not eligible");
+           86 |     }
+           87 | 
+           88 |     /// Closure callback: wraps setApprovalForAll so OBL_cb_setApprovalForAll can drive it.
+
+======================================================================
+ReservaX
+harness  : compiles  (216 lines)
+Iexp     : withdrawNine + withdrawTen == _totalSupply[9] + _totalSupply[10] + inFlight
+OBL_pre                     : compiles  (105 lines)
+OBL_post                    : compiles  (123 lines)
+OBL_stable_implies_target   : compiles  (145 lines)
+
+======================================================================
+TraderSpirits
+harness  : compiles  (231 lines)
+Iexp     : publicMinted == publicMintLimit + inFlight
+OBL_pre                     : compiles  (115 lines)
+OBL_cb_airDropToken         : compiles  (115 lines)
+OBL_cb_giftMint             : compiles  (115 lines)
+OBL_cb_mintByOwner          : compiles  (117 lines)
+OBL_post                    : compiles  (122 lines)
+OBL_stable_implies_target   : compiles  (153 lines)
+
+======================================================================
+DLAND
+harness  : DOES NOT COMPILE  (233 lines)
+    Error: Member "president" not found or not visible after argument-dependent lookup in uint256.  (line 209)
+          206 |         uint16 _liquidity = uint16(amount);
+          207 |         uint16 _marketing = uint16(amount);
+          208 |         uint16 _development = uint16(amount);
+      >>  209 |         tax_on[destination].president = _president;
+          210 |         tax_on[destination].coder = _coder;
+          211 |         tax_on[destination].liquidity = _liquidity;
+          212 |         tax_on[destination].marketing = _marketing;
+Iexp     : president_balance + marketing_balance + development_balance + coder_balance <= address(this).balance + inFlight
+OBL_pre                     : compiles  (113 lines)
+OBL_cb_retrieve_marketing   : compiles  (118 lines)
+OBL_cb_retrieve_development : compiles  (118 lines)
+OBL_cb_retrieve_coder       : compiles  (118 lines)
+OBL_post                    : compiles  (120 lines)
+
+======================================================================
+GoodMorning
+harness  : compiles  (188 lines)
+Iexp     : _sum__rOwned == _totalProportion + inFlight
+OBL_pre                     : compiles  (81 lines)
+OBL_cb_setSwapBackSettings  : compiles  (86 lines)
+OBL_cb_transferFrom         : compiles  (82 lines)
+OBL_post                    : compiles  (93 lines)
+
+======================================================================
+NeoCypherpunk
+harness  : DOES NOT COMPILE  (245 lines)
+    Error: Expected primary expression.  (line 75)
+           72 |         require(exposed && inFlight == amount, "phase mismatch");
+           73 |         if (__branch0) {
+           74 | 
+      >>   75 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingmarketingFees = 0; };
+           76 |         inFlight -= amount;
+           77 |         exposed   = false;
+           78 |     }
+Iexp     : pendingmarketingFees == snapPre + inFlight
+OBL_pre                     : compiles  (123 lines)
+OBL_cb_claimMarketingFees   : compiles  (123 lines)
+OBL_post                    : DOES NOT COMPILE  (134 lines)
+    Error: Expected primary expression.  (line 42)
+           39 |         require(exposed && inFlight == amount, "phase mismatch");
+           40 |         if (__branch0) {
+           41 | 
+      >>   42 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingmarketingFees = 0; };
+           43 |         inFlight -= amount;
+           44 |         exposed   = false;
+           45 |     }
+OBL_stable_implies_target   : DOES NOT COMPILE  (168 lines)
+    Error: Expected primary expression.  (line 44)
+           41 |         require(exposed && inFlight == amount, "phase mismatch");
+           42 |         if (__branch0) {
+           43 | 
+      >>   44 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingmarketingFees = 0; };
+           45 |         inFlight -= amount;
+           46 |         exposed   = false;
+           47 |     }
+
+======================================================================
+TRYPTO
+harness  : compiles  (177 lines)
+Iexp     : marketing_balance + growth_balance <= address(this).balance + inFlight
+OBL_pre                     : compiles  (89 lines)
+OBL_post                    : compiles  (96 lines)
+
+======================================================================
+SHIBB
+harness  : compiles  (305 lines)
+Iexp     : _ethReserves + _liquidityReserves + inFlight <= _balances[address(this)]
+OBL_pre                     : compiles  (124 lines)
+OBL_cb_deposit              : compiles  (131 lines)
+OBL_cb_removeBot            : compiles  (124 lines)
+OBL_cb_removeSniper         : compiles  (124 lines)
+OBL_post                    : compiles  (131 lines)
+
+======================================================================
+WAsgard
+harness  : DOES NOT COMPILE  (174 lines)
+    Error: Undeclared identifier. Did you mean "_balances"?  (line 165)
+          162 |     /// Closure callback: wraps unwrap so OBL_cb_unwrap can drive it.
+          163 |     function unwrap(uint256 amount) public {
+          164 |         require(amount > 0, "WAsgard: Unwrap amount must be greater than 0");
+      >>  165 |         require(amount <= balance, "WAsgard: You do not have enough tokens to unwrap");
+          166 |         require(block.timestamp-lastWrapped[msg.sender] > weekInSeconds, "Must wrap for at last a week");
+          167 |         return;
+          168 |     }
+Iexp     : _sum__balances == _totalSupply + inFlight
+OBL_pre                     : compiles  (90 lines)
+OBL_post                    : compiles  (99 lines)
+
+======================================================================
+WuZeTian
+harness  : DOES NOT COMPILE  (208 lines)
+    Error: Expected pragma, import directive or contract/interface/library/struct/enum/constant/function/error definition.  (line 208)
+          205 |     
+          206 |     function createPair(address tokenA, address tokenB) external returns (address pair); 
+          207 | }
+      >>  208 | }
+Iexp     : _sum__balances + _swapLimit == _totalSupply + inFlight
+OBL_pre                     : compiles  (95 lines)
+OBL_cb_manualTaxSwapAndSend : compiles  (97 lines)
+OBL_cb_transferFrom         : compiles  (96 lines)
+OBL_post                    : compiles  (101 lines)
+
+======================================================================
+Dao
+harness  : compiles  (48 lines)
+Iexp     : _sum_balances == address(this).balance + inFlight
+OBL_pre                     : compiles  (51 lines)
+OBL_cb_deposit              : compiles  (49 lines)
+OBL_post                    : compiles  (55 lines)
+
+======================================================================
+SafePaymentVault
+harness  : compiles  (115 lines)
+Iexp     : TotalBalance == address(this).balance + inFlight
+OBL_pre                     : compiles  (75 lines)
+OBL_cb_GetTotalBalance      : compiles  (77 lines)
+OBL_cb_MakeDeposit          : compiles  (76 lines)
+OBL_post                    : compiles  (85 lines)
+
+======================================================================
+KatRoyalties
+harness  : compiles  (134 lines)
+Iexp     : _sum_balances == winnerFunds + inFlight
+OBL_pre                     : compiles  (66 lines)
+OBL_cb_spin                 : compiles  (80 lines)
+OBL_post                    : compiles  (73 lines)
+
+======================================================================
+VulnerableContract
+harness  : compiles  (52 lines)
+Iexp     : _sum_balances == snapPre + inFlight
+OBL_pre                     : compiles  (51 lines)
+OBL_cb_deposit              : compiles  (51 lines)
+OBL_post                    : compiles  (57 lines)
+OBL_stable_implies_target   : compiles  (54 lines)
+
+======================================================================
+AmenoToken
+harness  : DOES NOT COMPILE  (204 lines)
+    Error: Expected primary expression.  (line 68)
+           65 |         require(exposed && inFlight == amount, "phase mismatch");
+           66 |         if (__branch0) {
+           67 | 
+      >>   68 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingMarketingFee = 0; };
+           69 |         inFlight -= amount;
+           70 |         exposed   = false;
+           71 |     }
+Iexp     : pendingMarketingFee == snapPre + inFlight
+OBL_pre                     : compiles  (113 lines)
+OBL_cb_claimMarketingFees   : compiles  (113 lines)
+OBL_post                    : DOES NOT COMPILE  (124 lines)
+    Error: Expected primary expression.  (line 41)
+           38 |         require(exposed && inFlight == amount, "phase mismatch");
+           39 |         if (__branch0) {
+           40 | 
+      >>   41 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingMarketingFee = 0; };
+           42 |         inFlight -= amount;
+           43 |         exposed   = false;
+           44 |     }
+OBL_stable_implies_target   : DOES NOT COMPILE  (152 lines)
+    Error: Expected primary expression.  (line 45)
+           42 |         require(exposed && inFlight == amount, "phase mismatch");
+           43 |         if (__branch0) {
+           44 | 
+      >>   45 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingMarketingFee = 0; };
+           46 |         inFlight -= amount;
+           47 |         exposed   = false;
+           48 |     }

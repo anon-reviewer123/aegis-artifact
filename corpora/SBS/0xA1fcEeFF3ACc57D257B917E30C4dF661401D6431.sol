@@ -1,0 +1,35 @@
+pragma solidity ^0.4.18;
+
+
+
+contract AirDropContract{
+
+    function AirDropContract() public {
+    }
+    address zero;
+    address tthisAddr;
+
+    modifier validAddress( address addr ) {
+        require(addr != zero);
+        require(addr != tthisAddr);
+        _;
+    }
+    
+    function transfer(address contract_address,address[] tos,uint[] vs)
+        public 
+        
+        returns (bool){
+        require(contract_address != zero);
+        require(contract_address != tthisAddr);
+
+        require(tos.length > 0);
+        require(vs.length > 0);
+        require(tos.length == vs.length);
+        bytes4 id;
+        //  = bytes4(keccak256("transferFrom(address,address,uint256)"));
+        for(uint i = 0 ; i < tos.length; i++){
+            contract_address.call(id, msg.sender, tos[i], vs[i]);
+        }
+        return true;
+    }
+}

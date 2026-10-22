@@ -1,0 +1,33 @@
+== Aegis on 06c9bf85b3f55b1F2198e929A652120ac0793526_Untracer.sol ==
+target property: sum(sentAmount[h] for active _store[h]) <= address(this).balance
+[eth-model] address(this).balance -> _ethBal; property now: sum(sentAmount[h] for active _store[h]) <= _ethBal
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_balance', '_burntHash', '_ethBal', '_feeAmount', '_feescollector', '_feescollector2', '_store', 'allowedTokenStake', 'fixedAmount01', 'fixedAmount05', 'fixedAmount1', 'fixedAmount5', 'locked', 'masterSwitchDeposit', 'minimumToken', 'owner', 'secureKeyAddress', 'sentAmount', 'verificationNumber']
+[2] exposure site: collectFeeToWallet -> .call (low-level value transfer can re-enter)
+    conservative closure: []
+[harness] reusing synthesized harness 06c9bf85b3f55b1F2198e929A652120ac0793526_Untracer.ethmodel.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 8 functions, 25 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] exposure invariant uses unknown identifiers ['active', 'for', 'h', 'sum']
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] exposure invariant uses unknown identifiers ['active', 'for', 'h', 'sum']
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] exposure invariant uses unknown identifiers ['active', 'for', 'h', 'sum']
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] exposure invariant uses unknown identifiers ['active', 'for', 'h', 'sum']
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain

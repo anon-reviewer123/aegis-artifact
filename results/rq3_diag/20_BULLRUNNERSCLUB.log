@@ -1,0 +1,39 @@
+== Aegis on 1334cbc8883b4f6aa4a77997558e8164e7c9d514_BULLRUNNERSCLUB.sol ==
+target property: team_balance <= address(this).balance
+[eth-model] address(this).balance -> _ethBal; property now: team_balance <= _ethBal
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (regex): storage=['_owners', '_balances', '_tokenApprovals', '_operatorApprovals', 'runpasses', 'addressesMintedBalance', 'WLaddressesMintedBalance', '_value', '_HEX_SYMBOLS', '_ADDRESS_LENGTH', '_ethBal', '_owner', '_name', '_symbol', 'notRevealedUri', 'revealedUri', 'uriMetadataSuffix', 'reveal', 'MAX_SUPPLY', 'mintStatus', 'mintPrice', 'MAX_MINT', 'limitMaxPublicmint', 'premintStatus', 'owner_wallet', 'team_wallet', 'team_price', 'team_balance', 'RUNPASS_CONTRACT_ADDRESS']
+[1] NOTE: regex analyzer used (no working solc AST); soundness claim requires the AST analyzer
+[2] exposure site: withdraw -> .call{value: owner_wallet_value} (low-level call can re-enter)
+    conservative closure: ['mint', 'withdraw']
+[harness] reusing synthesized harness 1334cbc8883b4f6aa4a77997558e8164e7c9d514_BULLRUNNERSCLUB.ethmodel.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 24 functions, 33 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 4 obligations: ['OBL_pre', 'OBL_cb_mint', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types address and uint256.
+      OBL_cb_mint [closure]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types address and uint256.
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types address and uint256.
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Undeclared identifier.
+  [round 1] correct=['protocol', 'ghost_state', 'phases'] in_progress=['closure', 'composition', 'exposure_invariant']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation flagged: ['closure', 'protocol']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation passed
+  [round 1] compiled 3 obligations: ['OBL_pre', 'OBL_cb_mint', 'OBL_post']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types address and uint256.
+      OBL_cb_mint [closure]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types address and uint256.
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Operator += not compatible with types address and uint256.
+  [round 1] correct=['protocol', 'ghost_state', 'phases', 'composition'] in_progress=['closure', 'exposure_invariant']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation flagged: ['closure', 'protocol']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] closure UNSOUND: missing reachable callbacks ['mint'] (conservative=['mint', 'withdraw'])
+  [validator] protocol references non-closure functions ['mint']
+  [validator] closure UNSOUND: missing reachable callbacks ['mint'] (conservative=['mint', 'withdraw'])
+  [validator] protocol references non-closure functions ['mint']

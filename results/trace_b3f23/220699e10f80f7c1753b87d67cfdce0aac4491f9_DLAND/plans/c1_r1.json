@@ -1,0 +1,60 @@
+{
+ "contract": "DLAND",
+ "closure": {
+  "site_function": "retrieve_marketing",
+  "site_call": ".call",
+  "functions": [
+   "transfer",
+   "transferFrom"
+  ],
+  "justification": "These functions interact with _ethBal and the respective balances, which are exposed during the callback in retrieve_marketing."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "transfer",
+   "transferFrom"
+  ],
+  "nesting_bound": {
+   "transfer": 1,
+   "transferFrom": 1
+  }
+ },
+ "phases": {
+  "function": "retrieve_marketing",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before .call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before .call",
+   "to_marker": "after .call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after .call",
+   "to_marker": "exit"
+  },
+  "linearization_point": "after .call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Amount of ETH in-flight during the callback window",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "president_balance + marketing_balance + development_balance + coder_balance <= _ethBal + inFlight",
+  "stable_formula": "president_balance + marketing_balance + development_balance + coder_balance <= _ethBal",
+  "kind": "bounded",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "president_balance + marketing_balance + development_balance + coder_balance <= _ethBal",
+  "rule": "The exposure invariant ensures that the sum of balances does not exceed the ETH balance plus any in-flight amount during the callback."
+ }
+}

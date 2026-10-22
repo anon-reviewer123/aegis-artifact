@@ -1,0 +1,305 @@
+nohup: ignoring input
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'inFlightBalance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'inFlight', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'inFlight', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'inFlightWithdraw', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'inFlight', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'inFlight', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'inFlight', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'inFlight', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant uses unknown identifiers ['address', 'balance', 'this']
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || aum == trackedValue) but invariant is inequality (exposed || aum <= trackedValue + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || aum == trackedValue) but invariant is inequality (exposed || aum <= trackedValue + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || aum == trackedValue) but invariant is inequality (exposed || aum <= trackedValue + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || reserve == supply) but invariant is inequality (exposed || reserve <= supply + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || reserve == supply) but invariant is inequality (exposed || reserve <= supply + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || reserve == supply) but invariant is inequality (exposed || reserve <= supply + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || reserve == supply) but invariant is inequality (exposed || reserve <= supply + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || reserve == supply) but invariant is inequality (exposed || reserve <= supply + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant uses unknown identifiers ['inFlight']
+  [validator] exposure invariant uses unknown identifiers ['inFlight']
+  [validator] exposure invariant uses unknown identifiers ['inFlight']
+  [validator] exposure invariant uses unknown identifiers ['inFlight']
+  [validator] exposure invariant uses unknown identifiers ['inFlight']
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || reserve == supply) but invariant is inequality (exposed || reserve <= supply + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || reserve == supply) but invariant is inequality (exposed || reserve <= supply + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant uses unknown identifiers ['ghost']
+  [validator] exposure invariant TOO WEAK: target is equality (exposed || reserve == supply) but invariant is inequality (exposed && reserve <= supply + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] protocol UNSOUND: closure callbacks ['invariant'] are not admitted by the protocol (under-approximation)
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash && cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant uses unknown identifiers ['inFlight']
+  [validator] exposure invariant uses unknown identifiers ['inFlight']
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlightLoan). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant uses unknown identifiers ['inFlight']
+  [validator] exposure invariant uses unknown identifiers ['inFlightLoans']
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (cash + loans == totalAssets) but invariant is inequality (cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant uses unknown identifiers ['inFlightAssets']
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlightAssets). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant uses unknown identifiers ['inFlight']
+  [validator] exposure invariant uses unknown identifiers ['inFlight']
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['inFlash'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash && cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash || cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (inFlash || cash + loans == totalAssets) but invariant is inequality (inFlash && cash + loans <= totalAssets + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] protocol references non-closure functions ['invariant']
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant uses unknown identifiers ['inFlightRefund']
+  [validator] exposure invariant uses unknown identifiers ['inFlightRefund']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['finalized'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant uses unknown identifiers ['inFlightRefund']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] protocol references non-closure functions ['']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['inFlightRefund']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['inFlightPaid']
+  [validator] exposure invariant uses unknown identifiers ['inFlightPaid']
+  [validator] exposure invariant uses unknown identifiers ['finalized']
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  [validator] exposure invariant TOO WEAK: target is equality (phase != 0 || debit == credit) but invariant is inequality (phase != 0 || debit <= credit + inFlight). REWRITE I_exp using '==' NOT '<='/'>='; the ghost must EXACTLY account for the gap as A == B + ghost (declare the ghost in ghost_state). Do NOT use any inequality operator in the exposure invariant.
+  !! _README: source not found at contracts/corpus/_README, skipping
+  ClassicReentrancy_U01.sol    UNKNOWN   [XX] localized->-  55.2s
+  ClassicReentrancy_S01.sol    UNKNOWN   [XX] localized->-  56.7s
+  ClassicReentrancy_U02.sol    UNKNOWN   [XX] localized->-  55.3s
+  ClassicReentrancy_S02.sol    UNKNOWN   [XX] localized->-  58.1s
+  ClassicReentrancy_U03.sol    UNKNOWN   [XX] localized->-  51.9s
+  ClassicReentrancy_S03.sol    UNKNOWN   [XX] localized->-  55.9s
+  ClassicReentrancy_U04.sol    UNKNOWN   [XX] localized->-  58.7s
+  ClassicReentrancy_S04.sol    UNKNOWN   [XX] localized->-  71.4s
+  ClassicReentrancy_U05.sol    UNKNOWN   [XX] localized->-  54.4s
+  ClassicReentrancy_S05.sol    UNKNOWN   [XX] localized->-  51.7s
+  CrossFunctionDesync_U01.sol  BUG_FOUND [OK] localized->OBL_cb_mintShares  60.1s
+  CrossFunctionDesync_S01.sol  VERIFIED  [OK] localized->-  60.8s
+  CrossFunctionDesync_U02.sol  BUG_FOUND [OK] localized->OBL_cb_mintShares  61.0s
+  CrossFunctionDesync_S02.sol  VERIFIED  [OK] localized->-  68.0s
+  CrossFunctionDesync_U03.sol  BUG_FOUND [OK] localized->OBL_cb_mintShares  61.4s
+  CrossFunctionDesync_S03.sol  VERIFIED  [OK] localized->-  60.6s
+  CrossFunctionDesync_U04.sol  BUG_FOUND [OK] localized->OBL_cb_mintShares  62.6s
+  CrossFunctionDesync_S04.sol  VERIFIED  [OK] localized->-  52.2s
+  CrossFunctionDesync_U05.sol  BUG_FOUND [OK] localized->OBL_cb_mintShares  61.9s
+  CrossFunctionDesync_S05.sol  VERIFIED  [OK] localized->-  56.4s
+  ReadOnlyReentrancy_U01.sol   UNKNOWN   [XX] localized->-  68.8s
+  ReadOnlyReentrancy_S01.sol   UNKNOWN   [XX] localized->-  110.5s
+  ReadOnlyReentrancy_U02.sol   UNKNOWN   [XX] localized->-  69.6s
+  ReadOnlyReentrancy_S02.sol   UNKNOWN   [XX] localized->-  113.7s
+  ReadOnlyReentrancy_U03.sol   UNKNOWN   [XX] localized->-  71.0s
+  ReadOnlyReentrancy_S03.sol   UNKNOWN   [XX] localized->-  120.5s
+  ReadOnlyReentrancy_U04.sol   UNKNOWN   [XX] localized->-  73.6s
+  ReadOnlyReentrancy_S04.sol   UNKNOWN   [XX] localized->-  138.5s
+  TokenHookAccounting_U01.sol  VERIFIED  [XX] localized->-  48.3s
+  TokenHookAccounting_S01.sol  VERIFIED  [OK] localized->-  237.3s
+  TokenHookAccounting_U02.sol  VERIFIED  [XX] localized->-  52.7s
+  TokenHookAccounting_S02.sol  UNKNOWN   [XX] localized->OBL_pre  546.1s
+  TokenHookAccounting_U03.sol  VERIFIED  [XX] localized->-  51.3s
+  TokenHookAccounting_S03.sol  UNKNOWN   [XX] localized->OBL_pre  583.5s
+  TokenHookAccounting_U04.sol  VERIFIED  [XX] localized->-  53.1s
+  TokenHookAccounting_S04.sol  UNKNOWN   [XX] localized->OBL_pre  584.2s
+  FlashLoanCallback_U01.sol    UNKNOWN   [XX] localized->-  78.9s
+  FlashLoanCallback_S01.sol    UNKNOWN   [XX] localized->-  89.0s
+  FlashLoanCallback_U02.sol    UNKNOWN   [XX] localized->-  74.2s
+  FlashLoanCallback_S02.sol    UNKNOWN   [XX] localized->-  101.0s
+  FlashLoanCallback_U03.sol    UNKNOWN   [XX] localized->-  79.8s
+  FlashLoanCallback_S03.sol    UNKNOWN   [XX] localized->-  68.9s
+  ForcedRevertGriefing_U01.sol UNKNOWN   [XX] localized->-  98.1s
+  ForcedRevertGriefing_S01.sol UNKNOWN   [XX] localized->-  71.3s
+  ForcedRevertGriefing_U02.sol UNKNOWN   [XX] localized->-  88.1s
+  ForcedRevertGriefing_S02.sol UNKNOWN   [XX] localized->-  88.4s
+  UnexpectedEOACallback_U01.sol BUG_FOUND [OK] localized->OBL_cb_accrue  64.8s
+  UnexpectedEOACallback_S01.sol UNKNOWN   [XX] localized->-  139.4s
+  PhaseOrderingDesync_U01.sol  UNKNOWN   [XX] localized->-  53.0s
+  PhaseOrderingDesync_S01.sol  UNKNOWN   [XX] localized->-  68.8s
+
+wrote 50 records -> results/aegis_50.json
+oracle: 12/50 correct vs ground truth

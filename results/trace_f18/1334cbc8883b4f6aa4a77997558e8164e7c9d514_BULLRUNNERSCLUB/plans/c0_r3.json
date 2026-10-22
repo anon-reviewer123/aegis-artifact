@@ -1,0 +1,53 @@
+{
+ "contract": "BULLRUNNERSCLUB",
+ "closure": {
+  "site_function": "withdraw",
+  "site_call": ".call",
+  "functions": [],
+  "justification": "public functions sharing exposed accounting state"
+ },
+ "protocol": {
+  "during_phase": "withdraw.exposed",
+  "allowed_callbacks": [],
+  "nesting_bound": {
+   "withdraw": 1
+  }
+ },
+ "phases": {
+  "function": "withdraw",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "quantity committed but not yet settled across the callback window",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_ethBal == team_balance + inFlight",
+  "stable_formula": "_ethBal == team_balance",
+  "kind": "additive",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "team_balance <= _ethBal",
+  "rule": "If pre establishes I_exp, every admissible callback preserves I_exp, the protocol over-approximates concrete callbacks, and post restores I_stable, then the target property holds under adversarial callbacks."
+ }
+}

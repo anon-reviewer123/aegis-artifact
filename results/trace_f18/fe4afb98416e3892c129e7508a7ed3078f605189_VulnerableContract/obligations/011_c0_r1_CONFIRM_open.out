@@ -1,0 +1,15 @@
+status: failed
+
+
+Warning: Return value of low-level calls not used.
+  --> /tmp/tmpessu7ctq/Obligation.sol:24:32:
+   |
+24 |             _ethBal -= amount; payable(msg.sender).call{value: amount}("");
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation happens here.
+ --> /tmp/tmpessu7ctq/Obligation.sol:8:73:
+  |
+8 |     function __aegis_check() public view { require(__aegis_depth == 0); assert(_sum_balances == _ethBal); }
+  |                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,39 @@
+status: failed
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0qfq0h_k/Obligation.sol:24:27:
+   |
+24 |     function __havoc_cfg1(bool __x0, bool __x1, uint256 __x2, uint256 __x3, address __x4) public {
+   |                           ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0qfq0h_k/Obligation.sol:24:38:
+   |
+24 |     function __havoc_cfg1(bool __x0, bool __x1, uint256 __x2, uint256 __x3, address __x4) public {
+   |                                      ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0qfq0h_k/Obligation.sol:24:63:
+   |
+24 |     function __havoc_cfg1(bool __x0, bool __x1, uint256 __x2, uint256 __x3, address __x4) public {
+   |                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0qfq0h_k/Obligation.sol:24:77:
+   |
+24 |     function __havoc_cfg1(bool __x0, bool __x1, uint256 __x2, uint256 __x3, address __x4) public {
+   |                                                                             ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0qfq0h_k/Obligation.sol:45:25:
+   |
+45 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Warning: CHC: Assertion violation happens here.
+   --> /tmp/tmp0qfq0h_k/Obligation.sol:199:13:
+    |
+199 |             assert(v._ethBal() == v.team_balance() + v.inFlight());                // must establish I_exp
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

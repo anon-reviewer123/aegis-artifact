@@ -1,0 +1,111 @@
+status: unknown
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:31:41:
+   |
+31 |     function __havoc_cfg0(uint256 __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, uint8 __x5, address __x6, address __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:31:97:
+   |
+31 |     function __havoc_cfg0(uint256 __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, uint8 __x5, address __x6, address __x7) public {
+   |                                                                                                 ^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:31:123:
+   |
+31 |     function __havoc_cfg0(uint256 __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, uint8 __x5, address __x6, address __x7) public {
+   |                                                                                                                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:39:27:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                           ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:39:38:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                                      ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:39:52:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                                                    ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:39:94:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:39:108:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:39:122:
+   |
+39 |     function __havoc_cfg1(bool __x0, address __x1, address __x2, uint256 __x3, uint256 __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                                                                          ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:44:27:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:44:41:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                                         ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:44:52:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                                                    ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:44:66:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                                                                  ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:44:108:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpuzom8biw/Obligation.sol:44:122:
+   |
+44 |     function __havoc_cfg2(address __x0, bool __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, uint256 __x7) public {
+   |                                                                                                                          ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpuzom8biw/Obligation.sol:282:29:
+    |
+282 |     function __h_isContract(address _addr) internal view returns (bool) {
+    |                             ^^^^^^^^^^^^^
+
+Warning: Function state mutability can be restricted to pure
+   --> /tmp/tmpuzom8biw/Obligation.sol:282:5:
+    |
+282 |     function __h_isContract(address _addr) internal view returns (bool) {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmpuzom8biw/Obligation.sol:341:13:
+    |
+341 |             assert(false);       // must be REFUTED: this state is reachable
+    |             ^^^^^^^^^^^^^
+

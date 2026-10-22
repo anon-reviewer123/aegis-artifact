@@ -1,0 +1,9 @@
+
+======================================================================
+BPYC
+harness  : compiles  (210 lines)
+Iexp     : _sum__rOwned == _totalProportion + inFlight
+OBL_pre                     : compiles  (90 lines)
+OBL_cb_setSwapBackSettings  : compiles  (95 lines)
+OBL_cb_transferFrom         : compiles  (91 lines)
+OBL_post                    : compiles  (102 lines)

@@ -1,0 +1,18 @@
+
+======================================================================
+DLAND
+harness  : DOES NOT COMPILE  (233 lines)
+    Error: Member "president" not found or not visible after argument-dependent lookup in uint256.  (line 209)
+          206 |         uint16 _liquidity = uint16(amount);
+          207 |         uint16 _marketing = uint16(amount);
+          208 |         uint16 _development = uint16(amount);
+      >>  209 |         tax_on[destination].president = _president;
+          210 |         tax_on[destination].coder = _coder;
+          211 |         tax_on[destination].liquidity = _liquidity;
+          212 |         tax_on[destination].marketing = _marketing;
+Iexp     : president_balance + marketing_balance + development_balance + coder_balance <= address(this).balance + inFlight
+OBL_pre                     : compiles  (113 lines)
+OBL_cb_retrieve_marketing   : compiles  (118 lines)
+OBL_cb_retrieve_development : compiles  (118 lines)
+OBL_cb_retrieve_coder       : compiles  (118 lines)
+OBL_post                    : compiles  (120 lines)

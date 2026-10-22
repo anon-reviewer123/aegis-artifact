@@ -1,0 +1,115 @@
+STATUS: VERIFIED
+exposure invariant: marketing_balance + growth_balance <= _ethBal + inFlight && inFlight <= marketing_balance
+candidates tried: 1   repair rounds: 1
+
+[eth-model] address(this).balance -> _ethBal; property now: marketing_balance + growth_balance <= _ethBal
+[1] static analysis (ast): storage=['DEAD', '_allowances', '_balances', '_decimals', '_ethBal', '_isExcludedFromFee', '_maxTxAmount', '_maxWalletSize', '_name', '_previoustaxFee', '_swapTokensAtAmount', '_symbol', '_tFeeTotal', '_taxFee', '_taxFeeOnBuy', '_taxFeeOnSell', 'botRekt', 'bots', 'cooldown', 'growth_balance', 'growth_share', 'inSwap', 'initialSupply', 'is_auth', 'launchBlock', 'liq_share', 'locked', 'marketing_balance', 'marketing_share', 'owner', 'router', 'router_address', 'swapEnabled', 'tradingOpen', 'uniswapV2Pair', 'uniswapV2Router']
+[2] exposure site: take_marketing -> .call (low-level value transfer can re-enter)
+    conservative closure: ['transfer', 'transferFrom']
+[access] outside the closure under the trusted-roles assumption: ['excludeMultipleAccountsFromFees', 'setFee', 'setMaxTxnAmount', 'setMaxWalletSize', 'setMinSwapTokensThreshold', 'setTrading', 'set_authorized', 'set_bot_rekt', 'take_growth', 'take_marketing', 'toggleSwap']
+[harness] reusing synthesized harness 3e8c621d156df0bab305eabb2b22c0f320500c0a_TRYPTO.ethmodel.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 28 functions, 48 public state vars)
+[readonly] 2 exposure site(s) with a window; decomposing each separately
+[readonly] --- site take_marketing.call#0
+[readonly] --- site take_growth.call#0
+[3] decomposing 2 exposure site(s) separately (--sites all)
+[3] --- site take_marketing.call#0
+[3] deterministic candidate -- computed from what the pre-phase moves: marketing_balance + growth_balance <= _ethBal + inFlight && inFlight <= marketing_balance
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_transfer', 'OBL_cb_transferFrom', 'OBL_post', 'OBL_reach_transfer_canary', 'OBL_reach_transferFrom_canary']
+  [round 1] sliced harness: up to 51 state variables -> at most 18 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_transfer [closure]: VERIFIED
+      OBL_cb_transferFrom [closure]: VERIFIED
+      OBL_post [phases]: VERIFIED
+      OBL_reach_transfer_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transferFrom_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'exposure_invariant', 'phases', 'composition'] in_progress=[]
+  [round 1] FIXPOINT -> VERIFIED (real solver)
+Assume-Guarantee specification for TRYPTO
+  target property phi : marketing_balance + growth_balance <= _ethBal
+
+  [A_cb]  ASSUMPTION (assumption)
+          During take_marketing's exposed phase, re-entrant control is confined to the callback closure ['transfer', 'transferFrom']; every such callback is admitted by the protocol, with bounded nesting.
+          formal: admissible_callbacks=['transfer', 'transferFrom'], nesting={'take_marketing': 1}
+          discharged by: ['OBL_closure_soundness']
+
+  [G_pre] GUARANTEE
+          If the stable invariant holds on entry, the pre-phase establishes the exposure invariant before the external call.
+          formal: {marketing_balance + growth_balance <= _ethBal} pre-phase {marketing_balance + growth_balance <= _ethBal + inFlight && inFlight <= marketing_balance}
+          discharged by: ['OBL_pre']
+
+  [G_exp] GUARANTEE
+          Every callback admitted by A_cb preserves the exposure invariant while the contract is externally exposed.
+          formal: forall f in A_cb. {marketing_balance + growth_balance <= _ethBal + inFlight && inFlight <= marketing_balance} f {marketing_balance + growth_balance <= _ethBal + inFlight && inFlight <= marketing_balance}
+          discharged by: ['OBL_cb_transfer', 'OBL_cb_transferFrom']
+
+  [G_post] GUARANTEE
+          When the external call returns, the post-phase restores the stable invariant and fully settles the in-flight ghost state.
+          formal: {marketing_balance + growth_balance <= _ethBal + inFlight && inFlight <= marketing_balance} post-phase {marketing_balance + growth_balance <= _ethBal /\ inFlight==0}
+          discharged by: ['OBL_post']
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => marketing_balance + growth_balance <= _ethBal
+      where callbacks are confined to admissible_callbacks=['transfer', 'transferFrom'], nesting={'take_marketing': 1}
+[3] --- site take_growth.call#0
+[3] deterministic candidate -- computed from what the pre-phase moves: marketing_balance + growth_balance <= _ethBal && inFlight <= marketing_balance
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_transfer', 'OBL_cb_transferFrom', 'OBL_post', 'OBL_reach_transfer_canary', 'OBL_reach_transferFrom_canary']
+  [round 1] sliced harness: up to 51 state variables -> at most 18 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_transfer [closure]: VERIFIED
+      OBL_cb_transferFrom [closure]: VERIFIED
+      OBL_post [phases]: VERIFIED
+      OBL_reach_transfer_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transferFrom_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'exposure_invariant', 'phases', 'composition'] in_progress=[]
+  [round 1] FIXPOINT -> VERIFIED (real solver)
+Assume-Guarantee specification for TRYPTO
+  target property phi : marketing_balance + growth_balance <= _ethBal
+
+  [A_cb]  ASSUMPTION (assumption)
+          During take_growth's exposed phase, re-entrant control is confined to the callback closure ['transfer', 'transferFrom']; every such callback is admitted by the protocol, with bounded nesting.
+          formal: admissible_callbacks=['transfer', 'transferFrom'], nesting={'take_growth': 1}
+          discharged by: ['OBL_closure_soundness']
+
+  [G_pre] GUARANTEE
+          If the stable invariant holds on entry, the pre-phase establishes the exposure invariant before the external call.
+          formal: {marketing_balance + growth_balance <= _ethBal} pre-phase {marketing_balance + growth_balance <= _ethBal && inFlight <= marketing_balance}
+          discharged by: ['OBL_pre']
+
+  [G_exp] GUARANTEE
+          Every callback admitted by A_cb preserves the exposure invariant while the contract is externally exposed.
+          formal: forall f in A_cb. {marketing_balance + growth_balance <= _ethBal && inFlight <= marketing_balance} f {marketing_balance + growth_balance <= _ethBal && inFlight <= marketing_balance}
+          discharged by: ['OBL_cb_transfer', 'OBL_cb_transferFrom']
+
+  [G_post] GUARANTEE
+          When the external call returns, the post-phase restores the stable invariant and fully settles the in-flight ghost state.
+          formal: {marketing_balance + growth_balance <= _ethBal && inFlight <= marketing_balance} post-phase {marketing_balance + growth_balance <= _ethBal /\ inFlight==0}
+          discharged by: ['OBL_post']
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => marketing_balance + growth_balance <= _ethBal
+      where callbacks are confined to admissible_callbacks=['transfer', 'transferFrom'], nesting={'take_growth': 1}
+[3] every site verified (2) -> VERIFIED
+
+obligation files (in order):
+  001_c0_r1_OBL_pre_onestep                            status: verified
+  002_c0_r1_OBL_cb_transfer_onestep                    status: verified
+  003_c0_r1_OBL_cb_transferFrom_onestep                status: verified
+  004_c0_r1_OBL_post_onestep                           status: verified
+  005_c0_r1_OBL_reach_transfer_canary                  status: unknown
+  006_c0_r1_OBL_reach_transfer_canary_onestep          status: failed
+  007_c0_r1_OBL_reach_transferFrom_canary              status: unknown
+  008_c0_r1_OBL_reach_transferFrom_canary_onestep      status: failed
+  009_c0_r1_OBL_pre_onestep                            status: unknown
+  010_c0_r1_OBL_pre                                    status: verified
+  011_c0_r1_OBL_cb_transfer_onestep                    status: verified
+  012_c0_r1_OBL_cb_transferFrom_onestep                status: verified
+  013_c0_r1_OBL_post_onestep                           status: verified
+  014_c0_r1_OBL_reach_transfer_canary                  status: unknown
+  015_c0_r1_OBL_reach_transfer_canary_onestep          status: failed
+  016_c0_r1_OBL_reach_transferFrom_canary              status: unknown
+  017_c0_r1_OBL_reach_transferFrom_canary_onestep      status: failed

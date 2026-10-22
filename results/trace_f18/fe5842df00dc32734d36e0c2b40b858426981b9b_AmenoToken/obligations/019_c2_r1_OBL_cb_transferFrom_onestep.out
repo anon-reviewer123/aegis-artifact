@@ -1,0 +1,122 @@
+status: unknown
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpimm0cd8g/OneStep.sol:30:55:
+   |
+30 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, address __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpimm0cd8g/OneStep.sol:30:111:
+   |
+30 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, address __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpimm0cd8g/OneStep.sol:44:27:
+   |
+44 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpimm0cd8g/OneStep.sol:44:41:
+   |
+44 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                         ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpimm0cd8g/OneStep.sol:44:52:
+   |
+44 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                    ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpimm0cd8g/OneStep.sol:44:66:
+   |
+44 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                  ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpimm0cd8g/OneStep.sol:44:108:
+   |
+44 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpimm0cd8g/OneStep.sol:44:122:
+   |
+44 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                                          ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpimm0cd8g/OneStep.sol:305:52:
+    |
+305 |     function __h_addLiquidity(uint256 tokenAmount, uint256 ethAmount) internal {
+    |                                                    ^^^^^^^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmpimm0cd8g/OneStep.sol:351:17:
+    |
+351 |                 assert(pendingMarketingFee + pendingBurnFee + inFlight <= _balances[address(this)]);            
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: Counterexample:
+   = 456
+  __a12_from = 4
+  __a13_to = 7
+  _allowances[owner][spender] = 295
+  _balances[account] = 204
+  _balances[address(this)] = 113
+  _balances[from] = 204
+  _balances[to] = 0
+  _isBlacklisted[from] = false
+  _isBlacklisted[to] = false
+  _isExcludedFromFees[from] = false
+  _isExcludedFromFees[to] = false
+  _owner = 456
+  _pendingBurnFee = 133
+  account = 4
+  accountBalance = 138
+  address(this).balance = 279
+  amount = 295
+  automatedMarketMakerPairs[from] = true
+  burnFee = 25
+  canSwap = false
+  contractTokenBalanceforlp = 0
+  currentAllowance = 295
+  ethAmount = 135
+  exposed = true
+  fees1 = 120
+  fees2 = 11
+  fees3 = 73
+  from = 4
+  fromBalance = 204
+  half = 106
+  inFlight = 0
+  initialBalance = 94
+  liquidityFee = 41
+  marketingfee = 4
+  maxTxAmount = 295
+  newBalance = 128
+  otherHalf = 124
+  owner = 4
+  pendingBurnFee = 277
+  pendingMarketingFee = 11
+  snapPre = 0
+  spender = 167
+  swapTokensAtAmount = 1
+  swapping = false
+  takeFee = true
+  this = 4
+  to = 7
+  tokenAmount = 90
+  tokens = 123
+  totalfees = 204
+  uniswapV2Router = 6
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

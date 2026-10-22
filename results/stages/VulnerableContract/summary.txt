@@ -1,0 +1,9 @@
+
+======================================================================
+VulnerableContract
+harness  : compiles  (52 lines)
+Iexp     : _sum_balances == snapPre + inFlight
+OBL_pre                     : compiles  (51 lines)
+OBL_cb_deposit              : compiles  (51 lines)
+OBL_post                    : compiles  (57 lines)
+OBL_stable_implies_target   : compiles  (54 lines)

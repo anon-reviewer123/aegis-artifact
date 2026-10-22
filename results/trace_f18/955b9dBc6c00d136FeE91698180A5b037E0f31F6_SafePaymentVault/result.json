@@ -1,0 +1,14 @@
+{
+ "status": "UNKNOWN",
+ "candidates_tried": 0,
+ "repair_rounds": 0,
+ "obligations": [
+  {
+   "obligation": "closure_bounded",
+   "module": "closure",
+   "status": "unknown",
+   "detail": "closure member(s) ['UpdateBranchName'] may write storage no analysis can bound (delegatecall or storage-writing assembly); a callback may call them, so no proof is possible"
+  }
+ ],
+ "exposure_invariant": null
+}

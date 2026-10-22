@@ -1,0 +1,44 @@
+{
+ "status": "UNKNOWN",
+ "candidates_tried": 3,
+ "repair_rounds": 1,
+ "obligations": [
+  {
+   "obligation": "OBL_pre",
+   "module": "phases",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  },
+  {
+   "obligation": "OBL_cb_deposit",
+   "module": "closure",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  },
+  {
+   "obligation": "OBL_cb_withdraw",
+   "module": "closure",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  },
+  {
+   "obligation": "OBL_post",
+   "module": "phases",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  },
+  {
+   "obligation": "OBL_reach_deposit_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  },
+  {
+   "obligation": "OBL_reach_withdraw_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  }
+ ],
+ "exposure_invariant": "_sum_balances == _ethBal + inFlight"
+}

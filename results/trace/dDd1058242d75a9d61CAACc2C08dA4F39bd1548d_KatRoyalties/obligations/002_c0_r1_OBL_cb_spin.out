@@ -1,0 +1,26 @@
+status: unknown
+
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmpy8qzyam3/Obligation.sol:73:9:
+   |
+73 |         uint256 amount = address(this).balance - winnerFunds;
+   |         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpy8qzyam3/Obligation.sol:67:19:
+   |
+67 |     function spin(uint256 amount) public {
+   |                   ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpy8qzyam3/Obligation.sol:67:19:
+   |
+67 |     function spin(uint256 amount) public {
+   |                   ^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmpy8qzyam3/Obligation.sol:118:17:
+    |
+118 |                 assert(v._sum_balances() == v.winnerFunds() && v.amount_pre() == v.balances(address(this)));            // I_exp must still hold
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

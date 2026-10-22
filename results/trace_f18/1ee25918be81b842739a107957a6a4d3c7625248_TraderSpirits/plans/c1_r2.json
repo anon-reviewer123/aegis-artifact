@@ -1,0 +1,57 @@
+{
+ "contract": "TraderSpirits",
+ "closure": {
+  "site_function": "mintByUser",
+  "site_call": ".call",
+  "functions": [
+   "mintByUser"
+  ],
+  "justification": "mintByUser is the only function that writes to publicMinted, which is exposed during the callback."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "mintByUser"
+  ],
+  "nesting_bound": {
+   "mintByUser": 1
+  }
+ },
+ "phases": {
+  "function": "mintByUser",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Number of tokens minted during the callback window",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "publicMinted + inFlight <= publicMintLimit",
+  "stable_formula": "publicMinted <= publicMintLimit",
+  "kind": "bounded",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "publicMinted <= publicMintLimit",
+  "rule": "The exposure invariant ensures that the number of tokens minted, including those in-flight during the callback, does not exceed the public mint limit."
+ }
+}

@@ -1,0 +1,190 @@
+status: verified
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:31:27:
+   |
+31 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:31:41:
+   |
+31 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:31:55:
+   |
+31 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:31:69:
+   |
+31 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:31:80:
+   |
+31 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:31:94:
+   |
+31 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:31:108:
+   |
+31 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:35:27:
+   |
+35 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:35:55:
+   |
+35 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:35:69:
+   |
+35 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:35:83:
+   |
+35 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:35:111:
+   |
+35 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:55:69:
+   |
+55 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, bool __x4, address __x5, address __x6, address __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:55:83:
+   |
+55 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, bool __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                   ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:55:94:
+   |
+55 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, bool __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:55:108:
+   |
+55 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, bool __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:55:122:
+   |
+55 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, bool __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                                          ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:61:27:
+   |
+61 |     function __havoc_arg1(address __x0, address __x1, bool __x2, bytes32 __x3, uint16 __x4, uint16 __x5, uint16 __x6, uint16 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:61:41:
+   |
+61 |     function __havoc_arg1(address __x0, address __x1, bool __x2, bytes32 __x3, uint16 __x4, uint16 __x5, uint16 __x6, uint16 __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpswjxbsnt/OneStep.sol:61:55:
+   |
+61 |     function __havoc_arg1(address __x0, address __x1, bool __x2, bytes32 __x3, uint16 __x4, uint16 __x5, uint16 __x6, uint16 __x7) public {
+   |                                                       ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpswjxbsnt/OneStep.sol:123:26:
+    |
+123 |     function avoid_locks(uint256 amount) public {
+    |                          ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpswjxbsnt/OneStep.sol:151:29:
+    |
+151 |     function retrieve_coder(uint256 amount) public {
+    |                             ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpswjxbsnt/OneStep.sol:159:35:
+    |
+159 |     function retrieve_development(uint256 amount) public {
+    |                                   ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpswjxbsnt/OneStep.sol:167:33:
+    |
+167 |     function retrieve_marketing(uint256 amount) public {
+    |                                 ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpswjxbsnt/OneStep.sol:175:33:
+    |
+175 |     function retrieve_president(uint256 amount) public {
+    |                                 ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpswjxbsnt/OneStep.sol:183:26:
+    |
+183 |     function sell_tokens(uint256 amount) public {
+    |                          ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpswjxbsnt/OneStep.sol:212:25:
+    |
+212 |     function set_tax_on(uint256 amount) public {
+    |                         ^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmpswjxbsnt/OneStep.sol:284:9:
+    |
+284 |         bool is_liquidity_transfer = ((sender == pair && recipient == router_address)
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpswjxbsnt/OneStep.sol:310:55:
+    |
+310 |     function __h_add_liquidity(uint liquidity_to_add, uint liquidity_earnings) internal {
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Function state mutability can be restricted to view
+   --> /tmp/tmpswjxbsnt/OneStep.sol:348:5:
+    |
+348 |     function __aegis_check() public {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpswjxbsnt/OneStep.sol:351:17:
+    |
+351 |                 assert(president_balance + marketing_balance + development_balance + coder_balance <= _ethBal);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

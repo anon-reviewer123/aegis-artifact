@@ -1,0 +1,46 @@
+status: verified
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8n8cjdas/OneStep.sol:21:27:
+   |
+21 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, uint256 __x5, uint256 __x6) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8n8cjdas/OneStep.sol:21:41:
+   |
+21 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, uint256 __x5, uint256 __x6) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8n8cjdas/OneStep.sol:21:55:
+   |
+21 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, uint256 __x5, uint256 __x6) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8n8cjdas/OneStep.sol:21:69:
+   |
+21 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, uint256 __x5, uint256 __x6) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8n8cjdas/OneStep.sol:21:83:
+   |
+21 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, uint256 __x5, uint256 __x6) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8n8cjdas/OneStep.sol:46:25:
+   |
+46 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmp8n8cjdas/OneStep.sol:170:13:
+    |
+170 |             assert(withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]);                
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

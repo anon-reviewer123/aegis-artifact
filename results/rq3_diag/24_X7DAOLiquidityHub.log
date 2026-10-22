@@ -1,0 +1,37 @@
+== Aegis on 7da0a524d323cddaf3d465ba617230f6b91d3ebb_X7DAOLiquidityHub.sol ==
+target property: distributeBalance + auxiliaryBalance + treasuryBalance + liquidityBalance <= address(this).balance
+[eth-model] address(this).balance -> _ethBal; property now: distributeBalance + auxiliaryBalance + treasuryBalance + liquidityBalance <= _ethBal
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (regex): storage=['_ethBal', '_owner', 'offRampPair', 'liquidityTokenReceiver', 'minLiquidityRatioTarget', 'maxLiquidityRatioTarget', 'liquidityRatioTarget', 'minShare', 'maxShare', 'distributeShare', 'liquidityShare', 'auxiliaryShare', 'treasuryShare', 'balanceThreshold', 'distributeBalance', 'auxiliaryBalance', 'treasuryBalance', 'liquidityBalance', 'x7daoLiquidityBalance', 'distributeTarget', 'auxiliaryTarget', 'treasuryTarget', 'distributeTargetFrozen', 'auxiliaryTargetFrozen', 'treasuryTargetFrozen', 'balanceThresholdFrozen']
+[1] NOTE: regex analyzer used (no working solc AST); soundness claim requires the AST analyzer
+[2] exposure site: sendTreasuryBalance -> .call{value: ethToSend} (low-level call can re-enter)
+    conservative closure: ['processFees', 'sendTreasuryBalance']
+[harness] reusing synthesized harness 7da0a524d323cddaf3d465ba617230f6b91d3ebb_X7DAOLiquidityHub.ethmodel.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 17 functions, 31 public state vars)
+[readonly] 3 exposure site(s) with a window; decomposing each separately
+[readonly] --- site sendTreasuryBalance.call{value: ethToSend}#0
+[readonly] --- site sendDistributeBalance.call{value: ethToSend}#0
+[readonly] --- site sendAuxiliaryBalance.call{value: ethToSend}#0
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 4 obligations: ['OBL_pre', 'OBL_cb_processFees', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_cb_processFees [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Expected primary expression.
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Expected primary expression.
+  [round 1] correct=['protocol', 'ghost_state', 'phases'] in_progress=['closure', 'composition', 'exposure_invariant']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation flagged: ['protocol', 'exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['protocol']
+  [round 2] validation flagged: ['protocol']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] protocol UNSOUND: closure callbacks ['sendAuxiliaryBalance', 'sendDistributeBalance'] are not admitted by the protocol (under-approximation)
+  [validator] template 'bounded': bounded template requires the exposure formula to be a single upper bound of the form A <= B + ghost, with the ghost declared in ghost_state
+  [validator] protocol UNSOUND: closure callbacks ['processFees'] are not admitted by the protocol (under-approximation)
+  [validator] protocol references non-closure functions ['sendAuxiliaryBalance']

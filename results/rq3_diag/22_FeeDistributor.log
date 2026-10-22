@@ -1,0 +1,24 @@
+== Aegis on 1d5529855965F350ecf5f9504999BD085f441E16_FeeDistributor.sol ==
+target property: totalDistributed1 == cumulative ETH successfully sent to address1 && totalDistributed2 == cumulative ETH successfully sent to address2
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['address1', 'address2', 'share1', 'share2', 'totalDistributed1', 'totalDistributed2']
+[2] exposure site: distribute -> .call (low-level value transfer can re-enter)
+    conservative closure: ['distribute']
+[harness] reusing synthesized harness 1d5529855965F350ecf5f9504999BD085f441E16_FeeDistributor.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 3 functions, 13 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['ETH', 'cumulative', 'sent', 'successfully', 'to']
+  [validator] exposure invariant uses unknown identifiers ['cumulativeSentToAddress1', 'cumulativeSentToAddress2']
+  [validator] exposure invariant uses unknown identifiers ['inFlight1', 'inFlight2']
+  [validator] exposure invariant uses unknown identifiers ['cumulativeSent1', 'cumulativeSent2', 'inFlight1', 'inFlight2']

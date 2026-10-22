@@ -1,0 +1,6 @@
+contract,path,stage,detail
+SHIBB,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/49/49a9e8198c5aad6ddcf2d5fad8c1ed3feb345b11_SHIBB.sol,harness nonconforming,HARNESS UNSUPPORTED: the exposure call is not in transferFrom itself (reached through a helper)
+WuZeTian,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/5c/5Cb6309cAd696C37B9f27D1fA9C4D99774AEda7e_WuZeTian.sol,VERIFIED,
+Dao,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/66/66f066b9dbd9bee28fbefcdf9d696c770f58f081_Att.sol,harness nonconforming,HARNESS UNSUPPORTED: the exposure call is not in withdraw itself (reached through a helper)
+Ring,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/47/474B3ECf5Ed565866dfe70876Cd194a4300EAEea_Ring.sol,VERIFIED,
+SummoningOfTheWicked,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/96/9620ee7b333341017bab1aee20236450cb7b9d59_SummoningOfTheWicked.sol,VERIFIED,

@@ -1,0 +1,94 @@
+STATUS: BUG_FOUND
+exposure invariant: _ethBal == distributeBalance + treasuryBalance + liquidityBalance + inFlight
+candidates tried: 2   repair rounds: 1
+
+[eth-model] address(this).balance -> _ethBal; property now: distributeBalance + treasuryBalance + liquidityBalance <= _ethBal
+[1] static analysis (ast): storage=['_ethBal', '_owner', 'balanceThreshold', 'balanceThresholdFrozen', 'distributeBalance', 'distributeShare', 'distributeTarget', 'distributeTargetFrozen', 'liquidityBalance', 'liquidityRatioTarget', 'liquidityShare', 'liquidityTokenReceiver', 'maxLiquidityRatioTarget', 'maxShare', 'minLiquidityRatioTarget', 'minShare', 'offRampPair', 'router', 'treasuryBalance', 'treasuryShare', 'treasuryTarget', 'treasuryTargetFrozen', 'x7r', 'x7rLiquidityBalance']
+[2] exposure site: sendTreasuryBalance -> .call (low-level value transfer can re-enter)
+    conservative closure: ['<fallback>', 'processFees', 'sendDistributeBalance', 'sendTreasuryBalance']
+[access] outside the closure under the trusted-roles assumption: ['freezeBalanceThreshold', 'freezeDistributeTarget', 'freezeTreasuryTarget', 'renounceOwnership', 'setBalanceThreshold', 'setDistributionTarget', 'setLiquidityRatioTarget', 'setLiquidityTokenReceiver', 'setOffRampPair', 'setRouter', 'setShares', 'setTreasuryTarget', 'transferOwnership']
+[harness] cached 712a166e741405fcb9815aa5c3442f2cd3328ebb_X7RLiquidityHub.ethmodel.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 712a166e741405fcb9815aa5c3442f2cd3328ebb_X7RLiquidityHub.ethmodel.harness.sol (13562 chars)
+[harness] conforms to interface (found 32 functions, 39 public state vars)
+[readonly] 2 exposure site(s) with a window; decomposing each separately
+[readonly] --- site sendTreasuryBalance.call#0
+[readonly] --- site sendDistributeBalance.call#1
+[3] decomposing 2 exposure site(s) separately (--sites all)
+[3] --- site sendTreasuryBalance.call#0
+[3] deterministic candidate -- computed from what the pre-phase moves: distributeBalance + treasuryBalance + liquidityBalance <= _ethBal && ethToSend == treasuryBalance
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 10 obligations: ['OBL_pre', 'OBL_cb___fallback', 'OBL_cb_processFees', 'OBL_cb_sendDistributeBalance', 'OBL_cb_sendTreasuryBalance', 'OBL_post', 'OBL_reach___fallback_canary', 'OBL_reach_processFees_canary', 'OBL_reach_sendDistributeBalance_canary', 'OBL_reach_sendTreasuryBalance_canary']
+  [round 1] sliced harness: up to 39 state variables -> at most 18 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb___fallback [closure]: VERIFIED
+      OBL_cb_processFees [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_cb_sendDistributeBalance [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_cb_sendTreasuryBalance [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_post [phases]: VERIFIED
+      OBL_reach___fallback_canary [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_reach_processFees_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_sendDistributeBalance_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_sendTreasuryBalance_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 1] every open obligation is undecided; the plan is not repairable -- moving to the next candidate
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 1 --
+  [round 1] validation passed
+  [round 1] compiled 11 obligations: ['OBL_pre', 'OBL_cb___fallback', 'OBL_cb_processFees', 'OBL_cb_sendDistributeBalance', 'OBL_cb_sendTreasuryBalance', 'OBL_post', 'OBL_reach___fallback_canary', 'OBL_reach_processFees_canary', 'OBL_reach_sendDistributeBalance_canary', 'OBL_reach_sendTreasuryBalance_canary', 'OBL_stable_implies_target']
+  [round 1] sliced harness: up to 39 state variables -> at most 38 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb___fallback [closure]: FAILED :: SMTChecker found an assertion violation
+      OBL_cb_processFees [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_cb_sendDistributeBalance [closure]: VERIFIED
+      OBL_cb_sendTreasuryBalance [closure]: VERIFIED
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_reach___fallback_canary [phases]: FAILED :: SMTChecker found an assertion violation
+      OBL_reach_processFees_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_sendDistributeBalance_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_sendTreasuryBalance_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_stable_implies_target [composition]: VERIFIED
+[confirm] callbacks may re-enter: undecided
+  [round 1] candidate via OBL_cb___fallback: undecided -- open run undecided: SMTChecker could not prove (timeout/unsupported)
+  [round 1] confirmation undecided; OBL_pre verified, so the refutation is reported
+  [round 1] BUG_FOUND via OBL_cb___fallback
+[3] refuted at site sendTreasuryBalance.call#0
+
+obligation files (in order):
+  001_c0_r1_OBL_pre_onestep                            status: unknown
+  002_c0_r1_OBL_pre                                    status: verified
+  003_c0_r1_OBL_cb___fallback_onestep                  status: verified
+  004_c0_r1_OBL_cb_processFees_onestep                 status: unknown
+  005_c0_r1_OBL_cb_processFees                         status: unknown
+  006_c0_r1_OBL_cb_sendDistributeBalance_onestep       status: unknown
+  007_c0_r1_OBL_cb_sendDistributeBalance               status: unknown
+  008_c0_r1_OBL_cb_sendTreasuryBalance_onestep         status: unknown
+  009_c0_r1_OBL_cb_sendTreasuryBalance                 status: unknown
+  010_c0_r1_OBL_post_onestep                           status: verified
+  011_c0_r1_OBL_reach___fallback_canary                status: failed
+  012_c0_r1_OBL_reach_processFees_canary               status: unknown
+  013_c0_r1_OBL_reach_processFees_canary_onestep       status: failed
+  014_c0_r1_OBL_reach_sendDistributeBalance_canary     status: unknown
+  015_c0_r1_OBL_reach_sendDistributeBalance_canary_onestep status: failed
+  016_c0_r1_OBL_reach_sendTreasuryBalance_canary       status: unknown
+  017_c0_r1_OBL_reach_sendTreasuryBalance_canary_onestep status: failed
+  018_c1_r1_OBL_pre_onestep                            status: unknown
+  019_c1_r1_OBL_pre                                    status: verified
+  020_c1_r1_OBL_cb___fallback_onestep                  status: unknown
+  021_c1_r1_OBL_cb___fallback                          status: failed
+  022_c1_r1_OBL_cb_processFees_onestep                 status: unknown
+  023_c1_r1_OBL_cb_processFees                         status: unknown
+  024_c1_r1_OBL_cb_sendDistributeBalance_onestep       status: unknown
+  025_c1_r1_OBL_cb_sendDistributeBalance               status: verified
+  026_c1_r1_OBL_cb_sendTreasuryBalance_onestep         status: unknown
+  027_c1_r1_OBL_cb_sendTreasuryBalance                 status: verified
+  028_c1_r1_OBL_post_onestep                           status: unknown
+  029_c1_r1_OBL_post                                   status: unknown
+  030_c1_r1_OBL_reach___fallback_canary                status: failed
+  031_c1_r1_OBL_reach_processFees_canary               status: unknown
+  032_c1_r1_OBL_reach_processFees_canary_onestep       status: failed
+  033_c1_r1_OBL_reach_sendDistributeBalance_canary     status: unknown
+  034_c1_r1_OBL_reach_sendDistributeBalance_canary_onestep status: failed
+  035_c1_r1_OBL_reach_sendTreasuryBalance_canary       status: unknown
+  036_c1_r1_OBL_reach_sendTreasuryBalance_canary_onestep status: failed
+  037_c1_r1_OBL_stable_implies_target_onestep          status: verified
+  038_c1_r1_CONFIRM_open                               status: unknown

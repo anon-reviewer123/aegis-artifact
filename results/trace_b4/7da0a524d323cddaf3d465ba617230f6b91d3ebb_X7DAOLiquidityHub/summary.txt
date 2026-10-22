@@ -1,0 +1,14 @@
+STATUS: HARNESS_NONCONFORMING
+exposure invariant: None
+candidates tried: 0   repair rounds: 0
+
+[eth-model] address(this).balance -> _ethBal; property now: distributeBalance + auxiliaryBalance + treasuryBalance + liquidityBalance <= _ethBal
+[1] static analysis (ast): storage=['_ethBal', '_owner', 'auxiliaryBalance', 'auxiliaryShare', 'auxiliaryTarget', 'auxiliaryTargetFrozen', 'balanceThreshold', 'balanceThresholdFrozen', 'distributeBalance', 'distributeShare', 'distributeTarget', 'distributeTargetFrozen', 'liquidityBalance', 'liquidityRatioTarget', 'liquidityShare', 'liquidityTokenReceiver', 'maxLiquidityRatioTarget', 'maxShare', 'minLiquidityRatioTarget', 'minShare', 'offRampPair', 'router', 'treasuryBalance', 'treasuryShare', 'treasuryTarget', 'treasuryTargetFrozen', 'x7dao', 'x7daoLiquidityBalance']
+[2] exposure site: processFees -> .call (low-level value transfer can re-enter via sendAuxiliaryBalance)
+    conservative closure: ['<fallback>', 'processFees', 'sendDistributeBalance', 'sendTreasuryBalance']
+[access] outside the closure under the trusted-roles assumption: ['freezeAuxiliaryTarget', 'freezeBalanceThreshold', 'freezeDistributeTarget', 'freezeTreasuryTarget', 'renounceOwnership', 'setAuxiliaryTarget', 'setBalanceThreshold', 'setDistributionTarget', 'setLiquidityRatioTarget', 'setLiquidityTokenReceiver', 'setOffRampPair', 'setRouter', 'setShares', 'setTreasuryTarget', 'transferOwnership']
+[harness] cached 7da0a524d323cddaf3d465ba617230f6b91d3ebb_X7DAOLiquidityHub.ethmodel.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 7da0a524d323cddaf3d465ba617230f6b91d3ebb_X7DAOLiquidityHub.ethmodel.harness.sol (15417 chars)
+[!] HARNESS UNSUPPORTED: the exposure call is not in processFees itself (reached through a helper)
+
+obligation files (in order):

@@ -1,0 +1,80 @@
+status: unknown
+
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:84:9:
+   |
+84 |         uint256 ethToSend = treasuryBalance;
+   |         ^^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:27:5:
+   |
+27 |     uint256 public ethToSend;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:19:27:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:19:41:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:19:55:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:19:69:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:19:83:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:19:97:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:19:111:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:39:25:
+   |
+39 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl_jx_xsw/Obligation.sol:80:34:
+   |
+80 |     function sendTreasuryBalance(uint256 amount) public {
+   |                                  ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpl_jx_xsw/Obligation.sol:132:24:
+    |
+132 |     function __preBody(uint256 amount) internal {
+    |                        ^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmpl_jx_xsw/Obligation.sol:153:17:
+    |
+153 |                 assert(v.distributeBalance() + v.treasuryBalance() + v.liquidityBalance() <= v._ethBal() && v.ethToSend() == v.treasuryBalance());            // I_exp must still ho ...
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

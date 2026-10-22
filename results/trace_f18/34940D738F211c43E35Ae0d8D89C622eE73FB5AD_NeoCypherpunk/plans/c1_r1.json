@@ -1,0 +1,60 @@
+{
+ "contract": "NeoCypherpunk",
+ "closure": {
+  "site_function": "feeClaim",
+  "site_call": ".call",
+  "functions": [
+   "transfer",
+   "transferFrom"
+  ],
+  "justification": "These functions interact with pendingmarketingFees and are reachable during the callback."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "transfer",
+   "transferFrom"
+  ],
+  "nesting_bound": {
+   "transfer": 1,
+   "transferFrom": 1
+  }
+ },
+ "phases": {
+  "function": "feeClaim",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before .call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before .call",
+   "to_marker": "after .call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after .call",
+   "to_marker": "exit"
+  },
+  "linearization_point": "after .call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Amount of pendingmarketingFees in-flight during the callback window",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "pendingmarketingFees == snapPre + inFlight",
+  "stable_formula": "pendingmarketingFees == snapPre",
+  "kind": "conserve",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "pendingmarketingFees <= _balances[address(this)]",
+  "rule": "The exposure invariant ensures pendingmarketingFees is conserved across the callback window, allowing the target property to hold."
+ }
+}

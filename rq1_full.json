@@ -1,0 +1,1075 @@
+{
+ "_README": "Combined RQ1 manifest: general-arm twins from benchmark_50.json and fixed-form twins from rq1_twins.json, tagged by paper family.",
+ "contracts/corpus/ClassicReentrancy_S01.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_S01.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "address(this).balance >= totalDeposits"
+ },
+ "contracts/corpus/ClassicReentrancy_S02.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_S02.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "address(this).balance >= totalDeposits"
+ },
+ "contracts/corpus/ClassicReentrancy_S03.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_S03.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "address(this).balance >= totalDeposits"
+ },
+ "contracts/corpus/ClassicReentrancy_S04.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_S04.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "address(this).balance >= totalDeposits"
+ },
+ "contracts/corpus/ClassicReentrancy_S05.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_S05.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "address(this).balance >= totalDeposits"
+ },
+ "contracts/corpus/ClassicReentrancy_S06.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_S06.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "totalDeposits == backing"
+ },
+ "contracts/corpus/ClassicReentrancy_S07.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_S07.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "totalHeld == reserves"
+ },
+ "contracts/corpus/ClassicReentrancy_S08.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_S08.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "totalOwed == funded"
+ },
+ "contracts/corpus/ClassicReentrancy_S09.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_S09.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "totalStaked == bonded"
+ },
+ "contracts/corpus/ClassicReentrancy_S10.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_S10.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "totalEscrowed == custody"
+ },
+ "contracts/corpus/ClassicReentrancy_U01.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_U01.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "address(this).balance >= totalDeposits"
+ },
+ "contracts/corpus/ClassicReentrancy_U02.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_U02.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "address(this).balance >= totalDeposits"
+ },
+ "contracts/corpus/ClassicReentrancy_U03.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_U03.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "address(this).balance >= totalDeposits"
+ },
+ "contracts/corpus/ClassicReentrancy_U04.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_U04.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "address(this).balance >= totalDeposits"
+ },
+ "contracts/corpus/ClassicReentrancy_U05.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_U05.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "address(this).balance >= totalDeposits"
+ },
+ "contracts/corpus/ClassicReentrancy_U06.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_U06.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "totalDeposits == backing"
+ },
+ "contracts/corpus/ClassicReentrancy_U07.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_U07.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "totalHeld == reserves"
+ },
+ "contracts/corpus/ClassicReentrancy_U08.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_U08.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "totalOwed == funded"
+ },
+ "contracts/corpus/ClassicReentrancy_U09.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_U09.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "totalStaked == bonded"
+ },
+ "contracts/corpus/ClassicReentrancy_U10.sol": {
+  "pair": "classic_reentrancy:ClassicReentrancy_U10.sol",
+  "pattern": "classic_reentrancy",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "totalEscrowed == custody"
+ },
+ "contracts/corpus/CrossFunctionDesync_S01.sol": {
+  "pair": "cross_function:CrossFunctionDesync_S01.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "exposed || aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_S02.sol": {
+  "pair": "cross_function:CrossFunctionDesync_S02.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "exposed || aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_S03.sol": {
+  "pair": "cross_function:CrossFunctionDesync_S03.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "exposed || aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_S04.sol": {
+  "pair": "cross_function:CrossFunctionDesync_S04.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "exposed || aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_S05.sol": {
+  "pair": "cross_function:CrossFunctionDesync_S05.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "exposed || aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_S06.sol": {
+  "pair": "cross_function:CrossFunctionDesync_S06.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_S07.sol": {
+  "pair": "cross_function:CrossFunctionDesync_S07.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "pool == booked"
+ },
+ "contracts/corpus/CrossFunctionDesync_S08.sol": {
+  "pair": "cross_function:CrossFunctionDesync_S08.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "assets == tracked"
+ },
+ "contracts/corpus/CrossFunctionDesync_S09.sol": {
+  "pair": "cross_function:CrossFunctionDesync_S09.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "backing == issued"
+ },
+ "contracts/corpus/CrossFunctionDesync_S10.sol": {
+  "pair": "cross_function:CrossFunctionDesync_S10.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "reserve == recorded"
+ },
+ "contracts/corpus/CrossFunctionDesync_U01.sol": {
+  "pair": "cross_function:CrossFunctionDesync_U01.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_U02.sol": {
+  "pair": "cross_function:CrossFunctionDesync_U02.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_U03.sol": {
+  "pair": "cross_function:CrossFunctionDesync_U03.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_U04.sol": {
+  "pair": "cross_function:CrossFunctionDesync_U04.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_U05.sol": {
+  "pair": "cross_function:CrossFunctionDesync_U05.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_U06.sol": {
+  "pair": "cross_function:CrossFunctionDesync_U06.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "aum == trackedValue"
+ },
+ "contracts/corpus/CrossFunctionDesync_U07.sol": {
+  "pair": "cross_function:CrossFunctionDesync_U07.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "pool == booked"
+ },
+ "contracts/corpus/CrossFunctionDesync_U08.sol": {
+  "pair": "cross_function:CrossFunctionDesync_U08.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "assets == tracked"
+ },
+ "contracts/corpus/CrossFunctionDesync_U09.sol": {
+  "pair": "cross_function:CrossFunctionDesync_U09.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "backing == issued"
+ },
+ "contracts/corpus/CrossFunctionDesync_U10.sol": {
+  "pair": "cross_function:CrossFunctionDesync_U10.sol",
+  "pattern": "cross_function",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "reserve == recorded"
+ },
+ "contracts/corpus/FlashLoanCallback_S01.sol": {
+  "pair": "flash_loan:FlashLoanCallback_S01.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "inFlash || cash + loans == totalAssets"
+ },
+ "contracts/corpus/FlashLoanCallback_S02.sol": {
+  "pair": "flash_loan:FlashLoanCallback_S02.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "inFlash || cash + loans == totalAssets"
+ },
+ "contracts/corpus/FlashLoanCallback_S03.sol": {
+  "pair": "flash_loan:FlashLoanCallback_S03.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "inFlash || cash + loans == totalAssets"
+ },
+ "contracts/corpus/FlashLoanCallback_S04.sol": {
+  "pair": "flash_loan:FlashLoanCallback_S04.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "cash + loans == totalAssets"
+ },
+ "contracts/corpus/FlashLoanCallback_S05.sol": {
+  "pair": "flash_loan:FlashLoanCallback_S05.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "idle + lent == poolSize"
+ },
+ "contracts/corpus/FlashLoanCallback_S06.sol": {
+  "pair": "flash_loan:FlashLoanCallback_S06.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "liquid + borrowed == bookValue"
+ },
+ "contracts/corpus/FlashLoanCallback_U01.sol": {
+  "pair": "flash_loan:FlashLoanCallback_U01.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "cash + loans == totalAssets"
+ },
+ "contracts/corpus/FlashLoanCallback_U02.sol": {
+  "pair": "flash_loan:FlashLoanCallback_U02.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "cash + loans == totalAssets"
+ },
+ "contracts/corpus/FlashLoanCallback_U03.sol": {
+  "pair": "flash_loan:FlashLoanCallback_U03.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "cash + loans == totalAssets"
+ },
+ "contracts/corpus/FlashLoanCallback_U04.sol": {
+  "pair": "flash_loan:FlashLoanCallback_U04.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "cash + loans == totalAssets"
+ },
+ "contracts/corpus/FlashLoanCallback_U05.sol": {
+  "pair": "flash_loan:FlashLoanCallback_U05.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "idle + lent == poolSize"
+ },
+ "contracts/corpus/FlashLoanCallback_U06.sol": {
+  "pair": "flash_loan:FlashLoanCallback_U06.sol",
+  "pattern": "flash_loan",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "liquid + borrowed == bookValue"
+ },
+ "contracts/corpus/ForcedRevertGriefing_S01.sol": {
+  "pair": "forced_revert_loop:ForcedRevertGriefing_S01.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "finalized"
+ },
+ "contracts/corpus/ForcedRevertGriefing_S02.sol": {
+  "pair": "forced_revert_loop:ForcedRevertGriefing_S02.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "finalized"
+ },
+ "contracts/corpus/ForcedRevertGriefing_U01.sol": {
+  "pair": "forced_revert_loop:ForcedRevertGriefing_U01.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "finalized"
+ },
+ "contracts/corpus/ForcedRevertGriefing_U02.sol": {
+  "pair": "forced_revert_loop:ForcedRevertGriefing_U02.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "finalized"
+ },
+ "contracts/corpus/PhaseOrderingDesync_S01.sol": {
+  "pair": "phase_ordering:PhaseOrderingDesync_S01.sol",
+  "pattern": "phase_ordering",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "phase != 0 || debit == credit"
+ },
+ "contracts/corpus/PhaseOrderingDesync_S02.sol": {
+  "pair": "phase_ordering:PhaseOrderingDesync_S02.sol",
+  "pattern": "phase_ordering",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "debit == credit"
+ },
+ "contracts/corpus/PhaseOrderingDesync_S03.sol": {
+  "pair": "phase_ordering:PhaseOrderingDesync_S03.sol",
+  "pattern": "phase_ordering",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "charged == settled"
+ },
+ "contracts/corpus/PhaseOrderingDesync_S04.sol": {
+  "pair": "phase_ordering:PhaseOrderingDesync_S04.sol",
+  "pattern": "phase_ordering",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "billed == cleared"
+ },
+ "contracts/corpus/PhaseOrderingDesync_S05.sol": {
+  "pair": "phase_ordering:PhaseOrderingDesync_S05.sol",
+  "pattern": "phase_ordering",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "drawn == repaid"
+ },
+ "contracts/corpus/PhaseOrderingDesync_U01.sol": {
+  "pair": "phase_ordering:PhaseOrderingDesync_U01.sol",
+  "pattern": "phase_ordering",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "phase != 0 || debit == credit"
+ },
+ "contracts/corpus/PhaseOrderingDesync_U02.sol": {
+  "pair": "phase_ordering:PhaseOrderingDesync_U02.sol",
+  "pattern": "phase_ordering",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "debit == credit"
+ },
+ "contracts/corpus/PhaseOrderingDesync_U03.sol": {
+  "pair": "phase_ordering:PhaseOrderingDesync_U03.sol",
+  "pattern": "phase_ordering",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "charged == settled"
+ },
+ "contracts/corpus/PhaseOrderingDesync_U04.sol": {
+  "pair": "phase_ordering:PhaseOrderingDesync_U04.sol",
+  "pattern": "phase_ordering",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "billed == cleared"
+ },
+ "contracts/corpus/PhaseOrderingDesync_U05.sol": {
+  "pair": "phase_ordering:PhaseOrderingDesync_U05.sol",
+  "pattern": "phase_ordering",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "drawn == repaid"
+ },
+ "contracts/corpus/TokenHookAccounting_S01.sol": {
+  "pair": "token_hook:TokenHookAccounting_S01.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "credits == liabilities"
+ },
+ "contracts/corpus/TokenHookAccounting_S02.sol": {
+  "pair": "token_hook:TokenHookAccounting_S02.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "credits == liabilities"
+ },
+ "contracts/corpus/TokenHookAccounting_S03.sol": {
+  "pair": "token_hook:TokenHookAccounting_S03.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "credits == liabilities"
+ },
+ "contracts/corpus/TokenHookAccounting_S04.sol": {
+  "pair": "token_hook:TokenHookAccounting_S04.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "credits == liabilities"
+ },
+ "contracts/corpus/TokenHookAccounting_S05.sol": {
+  "pair": "token_hook:TokenHookAccounting_S05.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "credits == liabilities"
+ },
+ "contracts/corpus/TokenHookAccounting_S06.sol": {
+  "pair": "token_hook:TokenHookAccounting_S06.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "vouchers == owedTotal"
+ },
+ "contracts/corpus/TokenHookAccounting_S07.sol": {
+  "pair": "token_hook:TokenHookAccounting_S07.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "notes == obligations"
+ },
+ "contracts/corpus/TokenHookAccounting_S08.sol": {
+  "pair": "token_hook:TokenHookAccounting_S08.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "coupons == dues"
+ },
+ "contracts/corpus/TokenHookAccounting_U01.sol": {
+  "pair": "token_hook:TokenHookAccounting_U01.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "credits == liabilities"
+ },
+ "contracts/corpus/TokenHookAccounting_U02.sol": {
+  "pair": "token_hook:TokenHookAccounting_U02.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "credits == liabilities"
+ },
+ "contracts/corpus/TokenHookAccounting_U03.sol": {
+  "pair": "token_hook:TokenHookAccounting_U03.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "credits == liabilities"
+ },
+ "contracts/corpus/TokenHookAccounting_U04.sol": {
+  "pair": "token_hook:TokenHookAccounting_U04.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "credits == liabilities"
+ },
+ "contracts/corpus/TokenHookAccounting_U05.sol": {
+  "pair": "token_hook:TokenHookAccounting_U05.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "credits == liabilities"
+ },
+ "contracts/corpus/TokenHookAccounting_U06.sol": {
+  "pair": "token_hook:TokenHookAccounting_U06.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "vouchers == owedTotal"
+ },
+ "contracts/corpus/TokenHookAccounting_U07.sol": {
+  "pair": "token_hook:TokenHookAccounting_U07.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "notes == obligations"
+ },
+ "contracts/corpus/TokenHookAccounting_U08.sol": {
+  "pair": "token_hook:TokenHookAccounting_U08.sol",
+  "pattern": "token_hook",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "coupons == dues"
+ },
+ "contracts/corpus/UnexpectedEOACallback_S01.sol": {
+  "pair": "eoa_assumption:UnexpectedEOACallback_S01.sol",
+  "pattern": "eoa_assumption",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "rewardDebt == _sum_reward"
+ },
+ "contracts/corpus/UnexpectedEOACallback_S02.sol": {
+  "pair": "eoa_assumption:UnexpectedEOACallback_S02.sol",
+  "pattern": "eoa_assumption",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "rewardDebt == accruedTotal"
+ },
+ "contracts/corpus/UnexpectedEOACallback_S03.sol": {
+  "pair": "eoa_assumption:UnexpectedEOACallback_S03.sol",
+  "pattern": "eoa_assumption",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "bonusDebt == bonusTotal"
+ },
+ "contracts/corpus/UnexpectedEOACallback_S04.sol": {
+  "pair": "eoa_assumption:UnexpectedEOACallback_S04.sol",
+  "pattern": "eoa_assumption",
+  "arm": "general",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "rebateDebt == rebateTotal"
+ },
+ "contracts/corpus/UnexpectedEOACallback_U01.sol": {
+  "pair": "eoa_assumption:UnexpectedEOACallback_U01.sol",
+  "pattern": "eoa_assumption",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "rewardDebt == _sum_reward"
+ },
+ "contracts/corpus/UnexpectedEOACallback_U02.sol": {
+  "pair": "eoa_assumption:UnexpectedEOACallback_U02.sol",
+  "pattern": "eoa_assumption",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "rewardDebt == accruedTotal"
+ },
+ "contracts/corpus/UnexpectedEOACallback_U03.sol": {
+  "pair": "eoa_assumption:UnexpectedEOACallback_U03.sol",
+  "pattern": "eoa_assumption",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "bonusDebt == bonusTotal"
+ },
+ "contracts/corpus/UnexpectedEOACallback_U04.sol": {
+  "pair": "eoa_assumption:UnexpectedEOACallback_U04.sol",
+  "pattern": "eoa_assumption",
+  "arm": "general",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "rebateDebt == rebateTotal"
+ },
+ "loop_twins/dividend_safe.sol": {
+  "pair": "forced_revert_loop:dividend_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "pool >= 0"
+ },
+ "loop_twins/dividend_unsafe.sol": {
+  "pair": "forced_revert_loop:dividend_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "pool >= 0"
+ },
+ "loop_twins/griefing_safe.sol": {
+  "pair": "forced_revert_loop:griefing_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "owed[address(0)] >= 0"
+ },
+ "loop_twins/griefing_unsafe.sol": {
+  "pair": "forced_revert_loop:griefing_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "owed[address(0)] >= 0"
+ },
+ "loop_twins/refund_safe.sol": {
+  "pair": "forced_revert_loop:refund_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "totalOwed >= 0"
+ },
+ "loop_twins/refund_unsafe.sol": {
+  "pair": "forced_revert_loop:refund_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "totalOwed >= 0"
+ },
+ "loop_twins_v2/airdrop_safe.sol": {
+  "pair": "forced_revert_loop:airdrop_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "loop_twins_v2/airdrop_unsafe.sol": {
+  "pair": "forced_revert_loop:airdrop_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ },
+ "loop_twins_v2/batch_payout_safe.sol": {
+  "pair": "forced_revert_loop:batch_payout_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "loop_twins_v2/batch_payout_unsafe.sol": {
+  "pair": "forced_revert_loop:batch_payout_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ },
+ "loop_twins_v2/escrow_release_safe.sol": {
+  "pair": "forced_revert_loop:escrow_release_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "loop_twins_v2/escrow_release_unsafe.sol": {
+  "pair": "forced_revert_loop:escrow_release_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ },
+ "loop_twins_v2/fee_split_safe.sol": {
+  "pair": "forced_revert_loop:fee_split_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "loop_twins_v2/fee_split_unsafe.sol": {
+  "pair": "forced_revert_loop:fee_split_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ },
+ "loop_twins_v2/queue_drain_safe.sol": {
+  "pair": "forced_revert_loop:queue_drain_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "loop_twins_v2/queue_drain_unsafe.sol": {
+  "pair": "forced_revert_loop:queue_drain_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ },
+ "loop_twins_v2/vesting_claim_safe.sol": {
+  "pair": "forced_revert_loop:vesting_claim_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "loop_twins_v2/vesting_claim_unsafe.sol": {
+  "pair": "forced_revert_loop:vesting_claim_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ },
+ "ro_twins_v2/amm_safe.sol": {
+  "pair": "read_only:amm_safe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "reserveTotal == activeLots"
+ },
+ "ro_twins_v2/amm_unsafe.sol": {
+  "pair": "read_only:amm_unsafe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "reserveTotal == activeLots"
+ },
+ "ro_twins_v2/backing_safe.sol": {
+  "pair": "read_only:backing_safe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "backingTotal == openClaims"
+ },
+ "ro_twins_v2/backing_unsafe.sol": {
+  "pair": "read_only:backing_unsafe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "backingTotal == openClaims"
+ },
+ "ro_twins_v2/escrow_safe.sol": {
+  "pair": "read_only:escrow_safe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "totalEscrowed == openEscrows"
+ },
+ "ro_twins_v2/escrow_unsafe.sol": {
+  "pair": "read_only:escrow_unsafe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "totalEscrowed == openEscrows"
+ },
+ "ro_twins_v2/feesplit_safe.sol": {
+  "pair": "read_only:feesplit_safe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "feeTotal == openPayees"
+ },
+ "ro_twins_v2/feesplit_unsafe.sol": {
+  "pair": "read_only:feesplit_unsafe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "feeTotal == openPayees"
+ },
+ "ro_twins_v2/lending_safe.sol": {
+  "pair": "read_only:lending_safe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "debtTotal == openLoans"
+ },
+ "ro_twins_v2/lending_unsafe.sol": {
+  "pair": "read_only:lending_unsafe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "debtTotal == openLoans"
+ },
+ "ro_twins_v2/lpvault_safe.sol": {
+  "pair": "read_only:lpvault_safe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "poolValue == lpHolders"
+ },
+ "ro_twins_v2/lpvault_unsafe.sol": {
+  "pair": "read_only:lpvault_unsafe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "poolValue == lpHolders"
+ },
+ "ro_twins_v2/pullpayment_safe.sol": {
+  "pair": "read_only:pullpayment_safe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "creditTotal == openCredits"
+ },
+ "ro_twins_v2/pullpayment_unsafe.sol": {
+  "pair": "read_only:pullpayment_unsafe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "creditTotal == openCredits"
+ },
+ "ro_twins_v2/staking_safe.sol": {
+  "pair": "read_only:staking_safe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "rewardPool == stakerCount"
+ },
+ "ro_twins_v2/staking_unsafe.sol": {
+  "pair": "read_only:staking_unsafe.sol",
+  "pattern": "read_only",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "rewardPool == stakerCount"
+ },
+ "stress_twins/depth_streak_safe.sol": {
+  "pair": "forced_revert_loop:depth_streak_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "stress_twins/depth_streak_unsafe.sol": {
+  "pair": "forced_revert_loop:depth_streak_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ },
+ "stress_twins/depth_tier_safe.sol": {
+  "pair": "forced_revert_loop:depth_tier_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "stress_twins/depth_tier_unsafe.sol": {
+  "pair": "forced_revert_loop:depth_tier_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ },
+ "stress_twins/nonlinear_rate_safe.sol": {
+  "pair": "forced_revert_loop:nonlinear_rate_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "stress_twins/nonlinear_rate_unsafe.sol": {
+  "pair": "forced_revert_loop:nonlinear_rate_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ },
+ "stress_twins/widening_accum_safe.sol": {
+  "pair": "forced_revert_loop:widening_accum_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "stress_twins/widening_accum_unsafe.sol": {
+  "pair": "forced_revert_loop:widening_accum_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ },
+ "stress_twins/widening_ledger_safe.sol": {
+  "pair": "forced_revert_loop:widening_ledger_safe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "safe",
+  "expected": "VERIFIED",
+  "property": "true"
+ },
+ "stress_twins/widening_ledger_unsafe.sol": {
+  "pair": "forced_revert_loop:widening_ledger_unsafe.sol",
+  "pattern": "forced_revert_loop",
+  "arm": "fixed",
+  "label": "unsafe",
+  "expected": "BUG_FOUND",
+  "property": "true"
+ }
+}

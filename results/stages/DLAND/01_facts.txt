@@ -1,0 +1,57 @@
+analyzer : ast
+target   : president_balance + marketing_balance + development_balance + coder_balance <= address(this).balance
+
+  Dead                             address
+  InitialSupply                    uint256
+  UniswapRouter                    address
+  _allowances                      mapping(address => mapping(address => uint256))
+  _balances                        mapping(address => uint256)
+  _circulatingSupply               uint256
+  _decimals                        uint8
+  _name                            string
+  _symbol                          string
+  anti_bot                         bool
+  bot_crash                        bool
+  coder_balance                    uint256
+  coder_eth_balance                uint256
+  coder_wallet                     address
+  development_balance              uint256
+  development_eth_balance          uint256
+  development_wallet               address
+  initial_max_tx                   uint256
+  is_auth                          mapping(address => bool)
+  is_tax_free                      mapping(address => bool)
+  liquidity_balance                uint256
+  liquidity_eth_balance            uint256
+  locked                           bool
+  marketing_balance                uint256
+  marketing_eth_balance            uint256
+  marketing_wallet                 address
+  max_supply                       uint256
+  max_tx                           uint256
+  origin_time                      uint256
+  owner                            address
+  pair                             address
+  pair_contract                    contract IUniswapV2Pair
+  president_balance                uint256
+  president_eth_balance            uint256
+  president_wallet                 address
+  router                           contract IUniswapRouter02
+  router_address                   address
+  router_contract                  contract IUniswapRouter02
+  swap_treshold                    uint256
+  tax_on                           mapping(bytes32 => struct DLAND.tax)
+  trade_enabled                    bool
+
+sites:
+  retrieve_president.call#0 before=[] after=['president_balance']
+  retrieve_marketing.call#0 before=[] after=['marketing_balance']
+  retrieve_development.call#0 before=[] after=['development_balance']
+  retrieve_coder.call#0 before=[] after=['coder_balance']
+  rescue.transfer#0 before=[] after=[]
+  get_weth_price_impact.getPair#0 before=[] after=[]
+  create_weth_pair.createPair#0 before=[] after=[]
+  avoid_locks.call#0 before=[] after=[]
+  add_liquidity.addLiquidityETH#0 before=[] after=[]
+
+closure : ['retrieve_president', 'transfer', 'transferFrom']

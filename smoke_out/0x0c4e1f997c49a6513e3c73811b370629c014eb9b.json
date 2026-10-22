@@ -1,0 +1,14 @@
+{
+ "contract": "/home/kartik/Downloads/census_out/contracts/0x0c4e1f997c49a6513e3c73811b370629c014eb9b.sol",
+ "status": "UNKNOWN",
+ "backend": "smtchecker",
+ "candidates_tried": 4,
+ "repair_rounds": 8,
+ "total_repairs": 8,
+ "obligations": [],
+ "ablate": "none",
+ "repair_strategy": "cegar-reuse",
+ "smtchecker_calls": 0,
+ "reuse_hits": 0,
+ "wall_clock_sec": 0.86
+}

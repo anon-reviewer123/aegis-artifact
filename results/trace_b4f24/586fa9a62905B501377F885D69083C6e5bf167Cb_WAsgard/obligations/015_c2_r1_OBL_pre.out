@@ -1,0 +1,103 @@
+status: failed
+
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:99:41:
+   |
+99 |     function __h_withdrawableDividendOf(address _owner) internal view returns (uint256) {
+   |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+ --> /tmp/tmppfgfw7ed/Obligation.sol:9:5:
+  |
+9 |     address public _owner;
+  |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmppfgfw7ed/Obligation.sol:128:41:
+    |
+128 |     function __h_accumulativeDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+ --> /tmp/tmppfgfw7ed/Obligation.sol:9:5:
+  |
+9 |     address public _owner;
+  |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:11:27:
+   |
+11 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:11:41:
+   |
+11 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:11:69:
+   |
+11 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:11:83:
+   |
+11 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:11:97:
+   |
+11 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:17:41:
+   |
+17 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:17:55:
+   |
+17 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:17:69:
+   |
+17 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:17:83:
+   |
+17 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:17:97:
+   |
+17 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:17:111:
+   |
+17 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmppfgfw7ed/Obligation.sol:17:125:
+   |
+17 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                                             ^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation happens here.
+   --> /tmp/tmppfgfw7ed/Obligation.sol:170:13:
+    |
+170 |             assert(v._sum__balances() == v._totalSupply() + v.inFlight());                // must establish I_exp
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,8 @@
+
+======================================================================
+ReservaX
+harness  : compiles  (216 lines)
+Iexp     : withdrawNine + withdrawTen == _totalSupply[9] + _totalSupply[10] + inFlight
+OBL_pre                     : compiles  (105 lines)
+OBL_post                    : compiles  (123 lines)
+OBL_stable_implies_target   : compiles  (145 lines)

@@ -1,0 +1,80 @@
+status: unknown
+
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmpmcwc7jcv/Obligation.sol:135:9:
+    |
+135 |         address owner,
+    |         ^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:17:5:
+   |
+17 |     address public owner;
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:20:27:
+   |
+20 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:20:41:
+   |
+20 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                         ^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:20:53:
+   |
+20 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:20:67:
+   |
+20 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:20:81:
+   |
+20 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:20:95:
+   |
+20 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:26:27:
+   |
+26 |     function __havoc_cfg2(address __x0, address __x1, bool __x2, bool __x3, address __x4, address __x5) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:26:41:
+   |
+26 |     function __havoc_cfg2(address __x0, address __x1, bool __x2, bool __x3, address __x4, address __x5) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:26:55:
+   |
+26 |     function __havoc_cfg2(address __x0, address __x1, bool __x2, bool __x3, address __x4, address __x5) public {
+   |                                                       ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpmcwc7jcv/Obligation.sol:26:66:
+   |
+26 |     function __havoc_cfg2(address __x0, address __x1, bool __x2, bool __x3, address __x4, address __x5) public {
+   |                                                                  ^^^^^^^^^
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmpmcwc7jcv/Obligation.sol:222:13:
+    |
+222 |             assert(false);       // must be REFUTED: this state is reachable
+    |             ^^^^^^^^^^^^^
+

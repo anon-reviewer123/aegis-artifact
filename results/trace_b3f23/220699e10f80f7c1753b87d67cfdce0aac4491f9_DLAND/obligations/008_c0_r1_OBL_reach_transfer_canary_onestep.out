@@ -1,0 +1,168 @@
+status: failed
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:30:27:
+   |
+30 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:30:41:
+   |
+30 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:30:55:
+   |
+30 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:30:69:
+   |
+30 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:30:80:
+   |
+30 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:30:94:
+   |
+30 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:30:108:
+   |
+30 |     function __havoc_cfg1(address __x0, uint256 __x1, uint256 __x2, bool __x3, address __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:34:27:
+   |
+34 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:34:55:
+   |
+34 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:34:69:
+   |
+34 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:34:83:
+   |
+34 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:34:111:
+   |
+34 |     function __havoc_cfg2(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, uint256 __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp__r3nzer/OneStep.sol:46:27:
+   |
+46 |     function __havoc_arg2(uint16 __x0, address __x1, address __x2, address __x3) public {
+   |                           ^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmp__r3nzer/OneStep.sol:200:9:
+    |
+200 |         bool is_liquidity_transfer = ((sender == pair && recipient == router_address)
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp__r3nzer/OneStep.sol:226:55:
+    |
+226 |     function __h_add_liquidity(uint liquidity_to_add, uint liquidity_earnings) internal {
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmp__r3nzer/OneStep.sol:270:13:
+    |
+270 |             assert(false);       
+    |             ^^^^^^^^^^^^^
+Note: Counterexample:
+   = 1000
+  __a17_recipient = 10
+  __a18_sender = 0
+  __a19_recipient = 0
+  _allowances[_owner][spender] = 0
+  _balances[address(this)] = 7
+  _balances[recipient] = 114
+  _balances[sender] = 110
+  _balances[who] = 110
+  _coder = 998
+  _development = 1000
+  _ethBal = 1
+  _liquidity = 996
+  _marketing = 997
+  _owner = 1
+  _president = 999
+  _taxed_ = 0
+  amount = 0
+  coder_balance = 0
+  coder_share = 0
+  coder_tokens = 0
+  current_time = 3599
+  destination = 0x73656c6c5F6265666F72655f6F6E655f686F7572 * 2**96
+  development_balance = 0
+  development_share = 0
+  development_tokens = 0
+  earned = 0
+  exposed = true
+  inFlight = 0
+  isBuy = false
+  isSell = true
+  is_liquidity_transfer = false
+  liquidity_balance = 265
+  liquidity_earnings = 0
+  liquidity_share = 0
+  liquidity_to_add = 133
+  liquidity_to_sell = 132
+  liquidity_tokens = 0
+  marketing_balance = 0
+  marketing_share = 100
+  marketing_tokens = 0
+  new_balance = 1
+  origin_time = 0
+  pair = 10
+  president_balance = 0
+  president_share = 0
+  president_tokens = 0
+  previous_balance = 1
+  recipient = 10
+  router_address = 3
+  sell_size = 0
+  sender = 2
+  snapPre = 0
+  spender = 3
+  swap_treshold = 7
+  tax_taken = 0
+  taxed_amount = 0
+  this = 1
+  time_diff = 3599
+  token_to_sell = 0
+  total_shares = 0
+  who = 2
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

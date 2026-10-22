@@ -1,0 +1,282 @@
+file,contract,function,kind,call,pragma,writes_before,writes_after,shape,hash
+../scs-eth/contracts/mainnet/00/00000000000001ad428e4906aE43D8F9852d0dD6_Seaport.sol,TestContractOffererNativeToken,previewOrder,readonly,generateOrder,0.8,,fulfilled,view_reads_desynced,9b79072401c114e7511bc62e0882a334e9f8b0ef
+../scs-eth/contracts/mainnet/00/00000000000001ad428e4906aE43D8F9852d0dD6_Seaport.sol,TestContractOffererNativeToken,getInventory,readonly,generateOrder,0.8,,fulfilled,view_reads_desynced,9b79072401c114e7511bc62e0882a334e9f8b0ef
+../scs-eth/contracts/mainnet/00/0000000000001b6ce5744c85c1756959a5deb163_SmartWallet.sol,SmartWallet,_execute,loop,".call{
+        value: ui",0.8,,,no_effect,0a8de6580d98729e322caa11690fe8014b075abc
+../scs-eth/contracts/mainnet/00/0000000000001b6ce5744c85c1756959a5deb163_SmartWallet.sol,SmartWallet,_executeAdvanced,loop,.call{value: callValue}(,0.8,,,no_effect,0a8de6580d98729e322caa11690fe8014b075abc
+../scs-eth/contracts/mainnet/00/0000000000001b6ce5744c85c1756959a5deb163_SmartWallet.sol,SmartWallet,_simulate,loop,".call{
+        value: ui",0.8,,,no_effect,0a8de6580d98729e322caa11690fe8014b075abc
+../scs-eth/contracts/mainnet/00/0000000000001b6ce5744c85c1756959a5deb163_SmartWallet.sol,SmartWallet,_simulateAdvanced,loop,.call{value: callValue}(,0.8,,,no_effect,0a8de6580d98729e322caa11690fe8014b075abc
+../scs-eth/contracts/mainnet/00/000000000000774D54F4064ec64bEaAdeF498Ae8_PPAgentV2.sol,PPAgentV2,getKeeper,readonly,execute_44g58pv,0.8,,compensations,view_reads_desynced,0a81e58d739abc0946ec8d480f3493d625ab0921
+../scs-eth/contracts/mainnet/00/00000000008d4f01d63beee04b849eff60de7517_Multicall.sol,Multicall,multicall,loop,.call{gas: gasLimit}(cal,0.8,,gasUsed|returnData,effect_after_call,5a1b215e7af7ecf64671844469f9bb02bdc1ccae
+../scs-eth/contracts/mainnet/00/0000000001474228ae1223661ef7Ab0d89773B0A_AutoSniper.sol,AutoSniper,solSnatch,loop,.call{value: values[i]}(,0.8,,,no_effect,f1b9e0144dd2873dd420a66387da176ff0608119
+../scs-eth/contracts/mainnet/00/0000000001474228ae1223661ef7Ab0d89773B0A_AutoSniper.sol,AutoSniper,_claimAndTransferClaimableAssets,loop,.call(claim.claimData);,0.8,,,no_effect,f1b9e0144dd2873dd420a66387da176ff0608119
+../scs-eth/contracts/mainnet/00/005098056a837c2c4F99C7eCeE976F8D90bdFFF8_DAO.sol,DAO,execute,loop,.call{value: _actions[i],0.8,,,no_effect,b68e12078d8ce0d0aa7dc9e547340d6a32871cb9
+../scs-eth/contracts/mainnet/00/0070ea4d5f5568e4058011b0dbb98b94a9cc8003_OswapCoreV1.sol,OswapCoreV1,_erc20TranasferHelper,loop,".call(
+                a",0.8,,,no_effect,bf919f63c857c6b115cdfba32d7532ee6bb2922e
+../scs-eth/contracts/mainnet/00/0070ea4d5f5568e4058011b0dbb98b94a9cc8003_OswapCoreV1.sol,OswapCoreV1,_trade,loop,.call{value: _orderDetai,0.8,,,no_effect,bf919f63c857c6b115cdfba32d7532ee6bb2922e
+../scs-eth/contracts/mainnet/00/0070ea4d5f5568e4058011b0dbb98b94a9cc8003_OswapCoreV1.sol,OswapCoreV1,_localTrade,loop,.call{value: _orderDetai,0.8,,,no_effect,bf919f63c857c6b115cdfba32d7532ee6bb2922e
+../scs-eth/contracts/mainnet/00/0070ea4d5f5568e4058011b0dbb98b94a9cc8003_OswapCoreV1.sol,OswapCoreV1,_returnLocalDust,loop,.call(,0.8,,,no_effect,bf919f63c857c6b115cdfba32d7532ee6bb2922e
+../scs-eth/contracts/mainnet/00/00A3173DB1c2383a7736914DCE23b00865C54980_CNPES.sol,ERC721Psi,_checkOnERC721Received,loop,.onERC721Received(_msgSe,0.8,,,no_effect,bb3f440b485c9e07c8081606f8dfb56c53e479b1
+../scs-eth/contracts/mainnet/00/00BD22D2cE75422E7B16351F72524174672D5D64_BaalSummoner.sol,Baal,state,readonly,submitProposal,0.8,,proposals,view_reads_desynced,d9d4a3558bd9af4ef74ef4e316ce4620438aea26
+../scs-eth/contracts/mainnet/00/00BD22D2cE75422E7B16351F72524174672D5D64_BaalSummoner.sol,Baal,getProposalStatus,readonly,submitProposal,0.8,,proposals,view_reads_desynced,d9d4a3558bd9af4ef74ef4e316ce4620438aea26
+../scs-eth/contracts/mainnet/00/00CB1fce3fAeB702a3EC8c8E1946D3fc252c11Ad_Vault.sol,Vault,getClaimedRewardsTotal,readonly,claimFees,0.8,,totalDistributed,view_reads_desynced,89feda4eaee3d74c9648672417835bbdc146806a
+../scs-eth/contracts/mainnet/00/00CB1fce3fAeB702a3EC8c8E1946D3fc252c11Ad_Vault.sol,Vault,getClaimedRewards,readonly,claimFees,0.8,,totalRewardsToVoter,view_reads_desynced,89feda4eaee3d74c9648672417835bbdc146806a
+../scs-eth/contracts/mainnet/00/00DE4CE3BB5cD878971B5866E1e0851dBB2c6c81_MightyLlamaGenesis.sol,ERC721Psi,_checkOnERC721Received,loop,.onERC721Received(_msgSe,0.8,,,no_effect,0ca21e28b4e6e95c0a3eeb5f9534a67a7b77e6a5
+../scs-eth/contracts/mainnet/00/00d66DB8a34d69EDCa9304Af898ea44f23C42C5d_NFTSales.sol,NFTSales,distributeETH,loop,".call{value: amount}("""")",0.8,,,no_effect,6710342b2b13b0972cc8c8401c330c536d6e866a
+../scs-eth/contracts/mainnet/01/011e5846975c6463a8c6337EECF3cbF64e328884_UnionGovernor.sol,Governor,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,dc9a1b80494455be668c27559f9203e4b2add949
+../scs-eth/contracts/mainnet/01/013c6d01aC343652066a6649d6e446d16dA428d8_BabylonMisfits.sol,BabylonMisfits,withdraw,loop,.call{value: (balance *,0.8,,,no_effect,1fdd7261d471f92f613b3978e50da2782f856e79
+../scs-eth/contracts/mainnet/01/014Af5AEDcDaA8fA1453E619c6E6C54671273Ee0_ChelseaDAO.sol,Governor,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,de67ee5105a79d4821b088d3ef2a3f722ccb4afe
+../scs-eth/contracts/mainnet/01/0169f434435c0176ac85b7c6e5d9dfdb4d0c5935_ERC721Matcha.sol,ERC721Matcha,canSell,readonly,bid,0.8,,auctions,view_reads_desynced,eeee9acf9113cb14f3af3586bc9555789251a69d
+../scs-eth/contracts/mainnet/01/0169f434435c0176ac85b7c6e5d9dfdb4d0c5935_ERC721Matcha.sol,ERC721Matcha,getPrice,readonly,buy,0.8,,sellBidPrice|soldFor,view_reads_desynced,eeee9acf9113cb14f3af3586bc9555789251a69d
+../scs-eth/contracts/mainnet/01/0169f434435c0176ac85b7c6e5d9dfdb4d0c5935_ERC721Matcha.sol,ERC721Matcha,canBuy,readonly,buy,0.8,,sellBidPrice,view_reads_desynced,eeee9acf9113cb14f3af3586bc9555789251a69d
+../scs-eth/contracts/mainnet/01/0169f434435c0176ac85b7c6e5d9dfdb4d0c5935_ERC721Matcha.sol,ERC721Matcha,canAuction,readonly,buy,0.8,,sellBidPrice,view_reads_desynced,eeee9acf9113cb14f3af3586bc9555789251a69d
+../scs-eth/contracts/mainnet/01/0169f434435c0176ac85b7c6e5d9dfdb4d0c5935_ERC721Matcha.sol,ERC721Matcha,canBid,readonly,bid,0.8,,auctions,view_reads_desynced,eeee9acf9113cb14f3af3586bc9555789251a69d
+../scs-eth/contracts/mainnet/01/0169f434435c0176ac85b7c6e5d9dfdb4d0c5935_ERC721Matcha.sol,ERC721Matcha,canWithdraw,readonly,bid,0.8,,auctions,view_reads_desynced,eeee9acf9113cb14f3af3586bc9555789251a69d
+../scs-eth/contracts/mainnet/01/0169f434435c0176ac85b7c6e5d9dfdb4d0c5935_ERC721Matcha.sol,ERC721Matcha,canFinalize,readonly,bid,0.8,,auctions,view_reads_desynced,eeee9acf9113cb14f3af3586bc9555789251a69d
+../scs-eth/contracts/mainnet/01/0169f434435c0176ac85b7c6e5d9dfdb4d0c5935_ERC721Matcha.sol,ERC721Matcha,highestBidder,readonly,bid,0.8,,auctions,view_reads_desynced,eeee9acf9113cb14f3af3586bc9555789251a69d
+../scs-eth/contracts/mainnet/01/0169f434435c0176ac85b7c6e5d9dfdb4d0c5935_ERC721Matcha.sol,ERC721Matcha,highestBid,readonly,bid,0.8,,auctions,view_reads_desynced,eeee9acf9113cb14f3af3586bc9555789251a69d
+../scs-eth/contracts/mainnet/01/0193B85c38337EB90338Ed8660810ba66c548b62_AsterFi.sol,AsterFi,adminFullBalance,readonly,withdraw,0.8,,AdminBalance,view_reads_desynced,927d6d25d5e09ed6536c98110c02514e11a482cf
+../scs-eth/contracts/mainnet/01/0195B0856c212759bf51E74679227539004601D7_Shares.sol,Shares,mintManyAndCall,loop,.onTokenTransfer(target[,0.8,,,no_effect,34571c1c3c1e0ec63e911466a33ede18e6564ef9
+../scs-eth/contracts/mainnet/02/025E1a27D5f70b8AD5432d948d066B63f5972496_GemSwap.sol,GemSwap,_transferFromHelper,loop,.call(abi.encodeWithSele,0.8,,,no_effect,4868192011432c11ef5552d09325f40532c7bef0
+../scs-eth/contracts/mainnet/02/025E1a27D5f70b8AD5432d948d066B63f5972496_GemSwap.sol,GemSwap,_trade,loop,.call{value:_tradeDetail,0.8,,,no_effect,4868192011432c11ef5552d09325f40532c7bef0
+../scs-eth/contracts/mainnet/02/025E1a27D5f70b8AD5432d948d066B63f5972496_GemSwap.sol,GemSwap,_returnDust,loop,.call(abi.encodeWithSele,0.8,,,no_effect,4868192011432c11ef5552d09325f40532c7bef0
+../scs-eth/contracts/mainnet/02/025E1a27D5f70b8AD5432d948d066B63f5972496_GemSwap.sol,GemSwap,batchBuyFromOpenSea,loop,.call{value:openseaTrade,0.8,,,no_effect,4868192011432c11ef5552d09325f40532c7bef0
+../scs-eth/contracts/mainnet/02/025E1a27D5f70b8AD5432d948d066B63f5972496_GemSwap.sol,GemSwap,batchBuyWithERC20s,loop,.call(abi.encodeWithSele,0.8,,,no_effect,4868192011432c11ef5552d09325f40532c7bef0
+../scs-eth/contracts/mainnet/02/025aC173Fe1DdD43E435fd190334DEAA2249d3E2_LiquidityMiningManager.sol,LiquidityMiningManager,distributeRewards,loop,.call(abi.encodeWithSele,0.8,,,no_effect,c5e58a690867580f9e75089a888a4feb8a0faadb
+../scs-eth/contracts/mainnet/02/02a7EBb3Fc749feE552bAE21469746f6289943f1_TokenVaultGovernor.sol,GovernorUpgradeable,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,d49c5977482cae459040c6389ff3db9bf87a95d2
+../scs-eth/contracts/mainnet/02/02c93FBc7595f18AcA3B98E48A5d4B4B6975c419_RewardV2.sol,RewardV2,buyNFT,loop,.call{value: price}(data,0.8,,,no_effect,6919ea38d116572c9b5a60a3d5b6daa1c5bb8a02
+../scs-eth/contracts/mainnet/03/03081Efecb9357446947803bE3b1311130c40bcE_BattleGrowlies.sol,BattleGrowlies,withdrawAll,loop,".call{value: _amount}(""""",0.8,,,no_effect,f8ee3be3e0c104c63b6e69db12ddc7e01923a1fa
+../scs-eth/contracts/mainnet/03/031b8D7bB9b55570b08f2400b4636DB24902Df89_GHGRootTunnel.sol,GHGRootTunnel,_processMessageFromChild,loop,.call(calls[i]);,0.8,,,no_effect,69eed4d820272d8c8c182e7944175119b612f503
+../scs-eth/contracts/mainnet/03/036d5E237EfBdb1583c29B8648f637812A94cdF2_PledgeMint.sol,PledgeMint,_refundPhase,loop,.call{,0.8,pledges,,effect_before_call,4cac9f115282bc703177a44976eb970c08bd3ebb
+../scs-eth/contracts/mainnet/03/036d5E237EfBdb1583c29B8648f637812A94cdF2_PledgeMint.sol,PledgeMint,emergencyRefund,loop,.call{value: _phase.mint,0.8,,,no_effect,4cac9f115282bc703177a44976eb970c08bd3ebb
+../scs-eth/contracts/mainnet/03/039A3aab5820d1293369EC93109C9e1929A5aF9a_CNft.sol,CNft,mint,loop,.call(data);,0.8,,,no_effect,520b53b642e4e95c74b6f57c338153e87cfd0d52
+../scs-eth/contracts/mainnet/03/039A3aab5820d1293369EC93109C9e1929A5aF9a_CNft.sol,CNft,redeem,loop,.call(data);,0.8,,,no_effect,520b53b642e4e95c74b6f57c338153e87cfd0d52
+../scs-eth/contracts/mainnet/03/03AE0cadF76F76019290B2a6B267B13E63f95073_Multidrop.sol,Multidrop,sendETH,loop,.call{value: values[i]}(,0.8,,,no_effect,d61898ad57c8102b24b788b3be869fde884f4064
+../scs-eth/contracts/mainnet/03/03AE0cadF76F76019290B2a6B267B13E63f95073_Multidrop.sol,Multidrop,withdraw,loop,.call{value: amount[i]}(,0.8,,,no_effect,d61898ad57c8102b24b788b3be869fde884f4064
+../scs-eth/contracts/mainnet/03/03f1222e05bb52b6a018713d15d2e4a419483550_StructuredPortfolio.sol,StructuredPortfolio,start,loop,.onPortfolioStart();,0.8,,,no_effect,0be73e996ad39cd8d37f29418c5fac014a86a404
+../scs-eth/contracts/mainnet/04/046688068a38e5DF1717e30AE192C761c873df60_OneMintRegistry.sol,OneMintRegistry,isMappingApproved,readonly,setApprovalMapping,0.8,,_addonApprovals,view_reads_desynced,55cf6ad715a9321bf75e19060405d049b528c8a0
+../scs-eth/contracts/mainnet/04/04a7307e94fd83b2fe88537729640ea7a0ad376b_OperatorResolver.sol,FeeSplitter,releaseTokens,loop,".call{ value: amount }(""",0.8,,,no_effect,b5b7e883726ec3ce990b905241725fbf710a8b91
+../scs-eth/contracts/mainnet/05/053abB888946d56635f795DDA97e6a7fF6217Fd5_NFTSales.sol,NFTSales,distributeETH,loop,".call{value: amount}("""")",0.8,,,no_effect,fa3b57e90dc0a9ed8f66a6dda956ec6400b1140b
+../scs-eth/contracts/mainnet/05/05C9FdF7E1A40F56482A9BCd02F52664356e4f0F_BatchDistributor.sol,BatchDistributor,distributeEther,loop,".call{
+                v",0.8,,,no_effect,bc5fd8dddca6ef6b3b86e4ce2b1537a71f7087a2
+../scs-eth/contracts/mainnet/05/05EEcC1924186aFB5E59ca31904753B6997369d2_NeuronPool.sol,GaugesDistributor,distribute,loop,.notifyRewardAmount(_rew,0.8,,,no_effect,85775d4ae975c476a43d8eeedeef153f949eda18
+../scs-eth/contracts/mainnet/05/05FC702E8234a83e068948b51DCA568a19074095_SeggzCoin.sol,SeggzCoin,splitTaxes,loop,.call{,0.8,,,no_effect,3012964774fc630ab513fcf9bbf797aa29ebbee0
+../scs-eth/contracts/mainnet/05/05a1578c4cc7478c3A66a83FdE5F36f77bB93a99_HelixNFTBridge.sol,HelixNFTBridge,isBridged,readonly,wrap,0.8,,_wrappedNftIDs,view_reads_desynced,2bd1972ceeb0392ced86874017552d4406523990
+../scs-eth/contracts/mainnet/05/05daeacE2257De1633cb809E2A23387a2742535c_CollectionBatchBuyCrowdfund.sol,Crowdfund,batchContributeFor,loop,.call{ value: values[i],0.8,,,no_effect,8fa12ec4bebcfd8103082204945b8486caf393d3
+../scs-eth/contracts/mainnet/06/06005fd505b752797a99392908efe67721c26683_OtoCoGovernor.sol,GovernorNoEIP712NoName,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,a0b13e2b17d0c516e02d336ea140848de1212e74
+../scs-eth/contracts/mainnet/06/062bcFd4beca3205F358d3e38dC4139a46110838_CreatorID.sol,Splitter,split,loop,".call{value: amount}("""")",0.8,,,no_effect,26abef966231b1799ffe9258a32c41c3c5fd1b03
+../scs-eth/contracts/mainnet/06/062bcFd4beca3205F358d3e38dC4139a46110838_CreatorID.sol,Splitter,referralSplit,loop,".call{value: amount}("""")",0.8,,,no_effect,26abef966231b1799ffe9258a32c41c3c5fd1b03
+../scs-eth/contracts/mainnet/06/0634db834043922D8907eDBF588AA57e42eB01a3_Settlement.sol,Settlement,fillOrderInteraction,loop,.call(calldatas[i]);,0.8,,,no_effect,4c2dfd671ae050364b1a402b9a24bc03effdea33
+../scs-eth/contracts/mainnet/06/06794903AD4358a18ad2F54347223331015A2DAa_OkxNFTMarketAggregator.sol,OkxNFTMarketAggregator,trade,loop,.call{value: ethValue}(t,0.8,,,no_effect,32b65eac18bf6f4b6cf1775abe8478c1df0b8706
+../scs-eth/contracts/mainnet/06/06794903AD4358a18ad2F54347223331015A2DAa_OkxNFTMarketAggregator.sol,OkxNFTMarketAggregator,tradeV2,loop,.call{value: tradeDetail,0.8,,,no_effect,32b65eac18bf6f4b6cf1775abe8478c1df0b8706
+../scs-eth/contracts/mainnet/06/06Ba94E75F411e36ec195b5Cd359b4b8E75B6676_DexAdapterCore.sol,DexAdapterCore,swapUndelyingsToETH,loop,.call{value: underlyingA,0.8,,,no_effect,ecfcfce06d3f29507a994e4dac325bc3c624f66f
+../scs-eth/contracts/mainnet/06/06C1F0e18B33500c17eeeD1317d7456f8AA2dFBC_ABDropManagerV2.sol,L1CrossDomainMessenger,xDomainMessageSender,readonly,relayMessage,0.8,,xDomainMsgSender,view_reads_desynced,0c26368dbe7b03bd5a0bd19551b2c2fcc3cb7a84
+../scs-eth/contracts/mainnet/06/06FCCE1304dB9D3c635c0310d5E9CE822f0680Ee_FayreNFTSwapperLite.sol,FayreNFTSwapperLite,_transferAsset,loop,.call{value: assetData[i,0.8,,,no_effect,ca3b610e54a131129451b7d467df5001ce2b7d7d
+../scs-eth/contracts/mainnet/07/0701Db1378A98fC8F454995d9D2e9f3Eb60901dd_CreativeFriendz.sol,CreativeFriendz,withdraw,loop,".call{value: _each}("""");",0.8,,,no_effect,d2c4c8d1a003c8c3dfc6ef966d4e6fbdaffa4c1c
+../scs-eth/contracts/mainnet/07/070781dd99118884e246d0d865e784b2fbcbe8d6_KWWVaultEth.sol,KWWVaultEth,boatAvailableToWithdraw,readonly,withdrawBoatFees,0.8,,boatsWithdrawAmount,view_reads_desynced,8682f60a8ce26a79bb59d0cdd24e50413f74cb5e
+../scs-eth/contracts/mainnet/07/070781dd99118884e246d0d865e784b2fbcbe8d6_KWWVaultEth.sol,KWWVaultEth,landAvailableToWithdraw,readonly,withdrawLandFees,0.8,,landsWithdrawAmount,view_reads_desynced,8682f60a8ce26a79bb59d0cdd24e50413f74cb5e
+../scs-eth/contracts/mainnet/07/070781dd99118884e246d0d865e784b2fbcbe8d6_KWWVaultEth.sol,KWWVaultEth,teamAvailableToWithdraw,readonly,withdrawFeesTeam,0.8,,teamWithdraw,view_reads_desynced,8682f60a8ce26a79bb59d0cdd24e50413f74cb5e
+../scs-eth/contracts/mainnet/07/0754700C66f0E9778D6e04420A37f0305f5fc05f_WalletFactory.sol,WalletSimple,batchTransfer,loop,.call{ value: values[i],0.8,,,no_effect,42d2f7deb4b69e86c30cf340f4fe97dad92703f8
+../scs-eth/contracts/mainnet/07/076e1cdb6b40c1751f35466bfbc3d0aea4afb691_Governor.sol,Treasury,execute,loop,.call{ value: _values[i],0.8,,,no_effect,a3c16d82f967743d2b417de3efd3c0413c71ab86
+../scs-eth/contracts/mainnet/07/07E9801e48d74bE5bc8577f2BEcd8B6e9bF49192_Minter.sol,Minter,multicall,loop,.call{value: address(thi,0.8,,,no_effect,7df64810e801f1ae628974f6b7a36deecfa3fbb4
+../scs-eth/contracts/mainnet/07/07a5ef24a330dfa01657dfe3f5db128d0c9c5cf6_Mevbot.sol,Mevbot,resolver,loop,.call(_payloads[i]);,0.8,,,no_effect,770e13e67de482ca79b41b768d3e5286a78112ad
+../scs-eth/contracts/mainnet/07/07ec822ed7a30c55467ccbbbac0838567f629bbf_GenericHandlerUpgradeable.sol,GenericHandlerUpgradeable,fetchExecuteRecord,readonly,executeProposal,0.8,,_executeRecords,view_reads_desynced,4b82bc05e06ca2c952e9717a8292a7751acd8623
+../scs-eth/contracts/mainnet/08/0833799677181d1D909D30e92Dd8ccc5ab950561_BadgerTBTCCrvPlus.sol,Plus,rebase,loop,.call(transaction.data);,0.8,,,no_effect,f3e81f837cd0732fc15190f8bb5466db08182842
+../scs-eth/contracts/mainnet/08/08403C04FD7163e59a71dD237A4Ea33d8A9f821B_OrbitalGovernor.sol,Governor,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,8e4a461c217baaf67e8a2fb3857ad3ed7c79d287
+../scs-eth/contracts/mainnet/08/0844a08659afe5c6e456e327c2c090496cbeb65a_XRaver.sol,XRaver,withdraw,loop,".call{
+                v",0.8,,,no_effect,550929945f93cce2735504bc035862736b8a33b4
+../scs-eth/contracts/mainnet/08/08613bff1268dc9b0928f760b86f520fb3727c5c_derpyapemfers.sol,derpyapemfers,releaseFunds,loop,.call{value: _balance*_p,0.8,,,no_effect,3f1dbd7a2bee06b844b822da770919dd286dbb05
+../scs-eth/contracts/mainnet/08/08d230517e1708F6771660ee8CC286F8882275b6_ReferrioEscrow.sol,ReferrioEscrow,getBalanceByOpportunity,readonly,pay,0.8,,amount,view_reads_desynced,888210407970c4695068785a45633cc3444cb256
+../scs-eth/contracts/mainnet/08/08d230517e1708F6771660ee8CC286F8882275b6_ReferrioEscrow.sol,ReferrioEscrow,getAnyBalanceByOpportunity,readonly,pay,0.8,,amount,view_reads_desynced,888210407970c4695068785a45633cc3444cb256
+../scs-eth/contracts/mainnet/08/08d230517e1708F6771660ee8CC286F8882275b6_ReferrioEscrow.sol,ReferrioEscrow,getOpportunityLock,readonly,cancel,0.8,,balances,view_reads_desynced,888210407970c4695068785a45633cc3444cb256
+../scs-eth/contracts/mainnet/08/08d230517e1708F6771660ee8CC286F8882275b6_ReferrioEscrow.sol,ReferrioEscrow,getAnyOpportunityLock,readonly,cancel,0.8,,balances,view_reads_desynced,888210407970c4695068785a45633cc3444cb256
+../scs-eth/contracts/mainnet/08/08d230517e1708F6771660ee8CC286F8882275b6_ReferrioEscrow.sol,ReferrioEscrow,getOpportunityHasDeposited,readonly,cancel,0.8,,balances,view_reads_desynced,888210407970c4695068785a45633cc3444cb256
+../scs-eth/contracts/mainnet/08/08d230517e1708F6771660ee8CC286F8882275b6_ReferrioEscrow.sol,ReferrioEscrow,getAnyOpportunityHasDeposited,readonly,cancel,0.8,,balances,view_reads_desynced,888210407970c4695068785a45633cc3444cb256
+../scs-eth/contracts/mainnet/08/08f0f711d51d8e6f900ad4168f13b90f502be625_Atomicizer.sol,Atomicizer,_transferFromHelper,loop,".call(
+                a",0.8,,,no_effect,4d87e41782771787a4691362d3041ca08ea0825c
+../scs-eth/contracts/mainnet/08/08f0f711d51d8e6f900ad4168f13b90f502be625_Atomicizer.sol,Atomicizer,_trade,loop,.call{value: _tradeDetai,0.8,,,no_effect,4d87e41782771787a4691362d3041ca08ea0825c
+../scs-eth/contracts/mainnet/08/08f0f711d51d8e6f900ad4168f13b90f502be625_Atomicizer.sol,Atomicizer,_returnDust,loop,.call(,0.8,,,no_effect,4d87e41782771787a4691362d3041ca08ea0825c
+../scs-eth/contracts/mainnet/08/08f0f711d51d8e6f900ad4168f13b90f502be625_Atomicizer.sol,Atomicizer,batchBuyWithERC20s,loop,".call(
+                a",0.8,,,no_effect,4d87e41782771787a4691362d3041ca08ea0825c
+../scs-eth/contracts/mainnet/09/09dcdeeD84106f894412228479CAfFC3dD70199F_FeeSplitter.sol,FeeSplitter,distribute,loop,".call{
+                v",0.8,,,no_effect,0bd157dd0fb303c9644f5b596ec798a8097fdef7
+../scs-eth/contracts/mainnet/0a/0A73e46485fe6634F616a9baB930522712Cf4e1a_Lock.sol,Lock,spottingInBatch,loop,.call{value: multipleTok,0.8,,multipleToken,effect_after_call,aa1e109fc649b36bff539d69af97489459cfa1f6
+../scs-eth/contracts/mainnet/0a/0a1618a6f0b9d3e37dc673ab1cd67471760bc06a_ShellzOrbV2.sol,ERC721PsiUpgradeable,_checkOnERC721Received,loop,.onERC721Received(_msgSe,0.8,,,no_effect,9c516f7d5b1584caa852c27ca4812fdeb298d951
+../scs-eth/contracts/mainnet/0a/0a267cF51EF038fC00E71801F5a524aec06e4f07_GenieSwap.sol,GenieSwap,_trade,loop,.call{value:_tradeDetail,0.8,,,no_effect,fe0a45822c3839848e090100ba3959fadc103e3a
+../scs-eth/contracts/mainnet/0a/0a267cF51EF038fC00E71801F5a524aec06e4f07_GenieSwap.sol,GenieSwap,_tradeSponsored,loop,.call{value:_tradeDetail,0.8,,,no_effect,fe0a45822c3839848e090100ba3959fadc103e3a
+../scs-eth/contracts/mainnet/0a/0a2bccfeec28459E4bf1Ff1cFb2deAA74126e63F_OptimismValidator.sol,VRFCoordinatorV2Mock,getSubscription,readonly,fulfillRandomWords,0.8,,s_subscriptions,view_reads_desynced,66a63cd59c178b5d0b1a9ddd9330a67fd7ad4e41
+../scs-eth/contracts/mainnet/0a/0af54C813AD6126F6428D9c9238c7877C087B69B_NiftyOrderbook.sol,NiftyOrderbook,_trade,loop,.call{value: tradeDetail,0.8,,,no_effect,b7cb0e8d7903d607d8582dc74aa1f5f98703401b
+../scs-eth/contracts/mainnet/0b/0BFD16C26053950703072Be5F35D429BA9982119_KartoCarsNFT.sol,KartoCarsNFT,internalWithdrawal,loop,.call{value: _amount * s,0.8,,,no_effect,4a49fa81201b0922abf3d60984c0d6a8b890866d
+../scs-eth/contracts/mainnet/0b/0b55E9fDCD068fD8018023e56f03A893A6AEb340_KpiOptionsFinancialProductLibrary.sol,GenericHandler,getDepositRecord,readonly,deposit,0.8,,_depositRecords,view_reads_desynced,a6ab2247fb245d8ddca72fbd3e3ec1921b38f494
+../scs-eth/contracts/mainnet/0b/0bef27feb58e857046d630b2c03dfb7bae567494_FeiDAO.sol,Governor,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,f76787dff667c1c9f15147fa8ca253dd7f531dd3
+../scs-eth/contracts/mainnet/0c/0C5569aE88bad82F25B5F7681637E52C6226F281_OwnableSmartWallet.sol,LiquidStakingManager,mintDerivatives,loop,.onMintDerivatives(_blsP,0.8,,stakedKnotsOfSmartWallet,effect_after_call,d6a07eacc28e800e89c64a08c5b9a46cd20eb519
+../scs-eth/contracts/mainnet/0c/0c342c3aab1c9e2b6e727a8fb33dbdbefe26b237_VaultManager.sol,Vault,disperse,loop,".call{value: share}("""");",0.8,,,no_effect,c00f10a4e8b9e9bbf3dba435b67b2a285eff328c
+../scs-eth/contracts/mainnet/0c/0c9C4CC14E0C487ef44fA23630A69A06b8b75A91_SandboxLimitOrderBook.sol,SandboxLimitOrderRouter,sandboxRouterCallback,loop,.call(sandBoxCall.callDa,0.8,,,no_effect,dfdad353d286c07f7bb554d810db22490ea2afba
+../scs-eth/contracts/mainnet/0d/0D11f76D6125FA3b64F02e616E35F888192f12a2_FNDMiddleware.sol,FNDMiddleware,probeNFT,loop,".call{ value: 1_000, gas",0.8,,,no_effect,cbfcb2500f265343e71401b5b79a532631514b2f
+../scs-eth/contracts/mainnet/0d/0Dc71D22bDD4a9EB4b422A5FA0Fffa772ea38434_WLTEarlyAdopter.sol,Shareholders,payout,loop,".call{
+                v",0.8,,,no_effect,37a7d6780e7a1f3ce8b816293d019c67f2576df0
+../scs-eth/contracts/mainnet/0d/0d3568f4033a5f711430f3c0886561d7c6b89ac0_AzuGoal.sol,AzuGoal,getCash,readonly,claimCash,0.8,,cashReady,view_reads_desynced,67cfcccc0aaa2bafa711d90faac53661a34d947f
+../scs-eth/contracts/mainnet/0d/0d3568f4033a5f711430f3c0886561d7c6b89ac0_AzuGoal.sol,AzuGoal,getBigWinnerCash,readonly,bet,0.8,,pool,view_reads_desynced,67cfcccc0aaa2bafa711d90faac53661a34d947f
+../scs-eth/contracts/mainnet/0d/0d3568f4033a5f711430f3c0886561d7c6b89ac0_AzuGoal.sol,AzuGoal,getPool,readonly,bet,0.8,,pool,view_reads_desynced,67cfcccc0aaa2bafa711d90faac53661a34d947f
+../scs-eth/contracts/mainnet/0d/0d43279F70212acE98e837aFA807fd5eCB32c1d4_RangoOptimismBridgeFacet.sol,LibSwapper,callSwapsAndFees,loop,.call{value : calls[i].a,0.8,,,no_effect,d292e7b7c2b73a1d963a493828da211728c3cf22
+../scs-eth/contracts/mainnet/0d/0d7d3a744Da812C51B489e0b2E5b88fc38a84256_CSKNFT.sol,CSKNFT,checkFlagStatus,readonly,updateFlagStatus,0.8,,tokenInfo,view_reads_desynced,b9b631fbf7b60008cd9be3e7aca9b66b0752b928
+../scs-eth/contracts/mainnet/0d/0d7d3a744Da812C51B489e0b2E5b88fc38a84256_CSKNFT.sol,CSKNFT,checkMetadata,readonly,updateFlagStatus,0.8,,tokenInfo,view_reads_desynced,b9b631fbf7b60008cd9be3e7aca9b66b0752b928
+../scs-eth/contracts/mainnet/0d/0d7d3a744Da812C51B489e0b2E5b88fc38a84256_CSKNFT.sol,CSKNFT,getUserTokenAndInfos,readonly,updateFlagStatus,0.8,,tokenInfo,view_reads_desynced,b9b631fbf7b60008cd9be3e7aca9b66b0752b928
+../scs-eth/contracts/mainnet/0d/0dF64f2a52DCc61028945bb6EFaE601fD43E9d33_VaultImplV1.sol,VaultImplV1,withdraw,loop,".call{value: amount}("""")",0.8,,,no_effect,7a6130e55ca4d40692438b20d6b35b15ac3b6b40
+../scs-eth/contracts/mainnet/0d/0da509a51de6a05c917891ba3a8536a9d469ab20_ClusterToken.sol,ClusterToken,_swapEthToUnderlyings,loop,.call{value: ethPortion[,0.8,,,no_effect,81942971cdba08a494cb07e852f338fd7f167a0b
+../scs-eth/contracts/mainnet/0e/0E423505A4EB417a75b21f7A35E84ae378e665b9_RevenueSplitBuyBack.sol,EmissionsController,distributeRewards,loop,.notifyRewardAmount(,0.8,,,no_effect,98fa62d1db9c6834aa495252f9c8a1f66be3ad71
+../scs-eth/contracts/mainnet/0e/0E7cacc6C2A22Aa2D97a42a8C82edaF9F9eac259_PendleMulticall.sol,PendleMulticall,aggregate,loop,.call(call.callData);,0.8,,,no_effect,15025287ae12f7481058276167c6cbe5bbf158e9
+../scs-eth/contracts/mainnet/0e/0ED2C0d3Ccda5786F18Ec8e765851D0bA61dA15A_CEFeeCollector.sol,CEFeeCollector,claim,loop,".call{value: amount}("""")",0.8,,,no_effect,d1a844da3021e526512d13b863ff5480f4e67c68
+../scs-eth/contracts/mainnet/0e/0Efc943dBC6F9467Cf1Df7Cb92162A8EF9De26f3_RewardsDistributor.sol,MockOwnableAdapter,getMaturityBounds,readonly,openSponsorWindow,0.8,,open,view_reads_desynced,9567620e226221654ecf1e82db04bf94f6b729ab
+../scs-eth/contracts/mainnet/0e/0Efc943dBC6F9467Cf1Df7Cb92162A8EF9De26f3_RewardsDistributor.sol,OwnableWstETHAdapter,getMaturityBounds,readonly,openSponsorWindow,0.8,,open,view_reads_desynced,d7b98449d312af38d79386f94d2b7d6d39b8f669
+../scs-eth/contracts/mainnet/0e/0Efc943dBC6F9467Cf1Df7Cb92162A8EF9De26f3_RewardsDistributor.sol,OwnableERC4626Adapter,getMaturityBounds,readonly,openSponsorWindow,0.8,,open,view_reads_desynced,0af8fd70e202de95088ad12c256568afd657cb99
+../scs-eth/contracts/mainnet/0e/0Efc943dBC6F9467Cf1Df7Cb92162A8EF9De26f3_RewardsDistributor.sol,OwnableERC4626CropAdapter,getMaturityBounds,readonly,openSponsorWindow,0.8,,open,view_reads_desynced,87ebacf35375df422d68a945581eb22001e9c21f
+../scs-eth/contracts/mainnet/0e/0e342814164EF60f5e3c32FaF3F819c595101cbB_NFTStoreFront.sol,NFTStoreFront,royaltyInfo,readonly,mintToken,0.8,,royaltyPercents,view_reads_desynced,b0992fc022019dde385bb5cf0a90447a33544933
+../scs-eth/contracts/mainnet/0e/0ec271d3bdb1a723088d1dcef6b7ebf9c1b0d377_InterestStrategy.sol,InterestStrategy,availableAmount,readonly,swapAndwithdrawFees,0.8,,pendingFeeEarned,view_reads_desynced,2f5b09ce0c7b6442a05b31bfee960559da743a9e
+../scs-eth/contracts/mainnet/0f/0F01dAf6270e7E205e5D057a40578689531828D6_stagecleared.sol,stagecleared,multicall,loop,.call{ value: _values[i],0.8,,,no_effect,74637d1edbbdee2fb0e631ec12c48d39acb0fbe7
+../scs-eth/contracts/mainnet/0f/0f3f79941df580885DF7Fcd8cDE564E1741c3E42_FlashBotsMultiCall.sol,FlashBotsMultiCall,uniswapWeth,loop,.call(_payloads[i]);,0.8,,,no_effect,ea437ca954cfd134084d1923a49f8bc39a573c8c
+../scs-eth/contracts/mainnet/0f/0f88130d3A638bACE612Ca21b2916a62ad9a0B3d_MagicFolkItems.sol,MagicFolkItems,withdraw,loop,.call{,0.8,,,no_effect,60c3fcaafd1464d7daada36056f73e5ff30dd90d
+../scs-eth/contracts/mainnet/10/1004e05ce6Aa6382721558522d4c6F53Cc493E02_BlueChipmunks.sol,BlueChipmunks,mintRef,loop,.call{,0.8,,,no_effect,b115dbcb6a7d9dbe4f1e013bdee88ee30aa91e03
+../scs-eth/contracts/mainnet/10/1046D4D30a357c61e674038d8344Dd70c0327896_GenericHandlerUpgradeable.sol,GenericHandlerUpgradeable,fetchExecuteRecord,readonly,executeProposal,0.8,,_executeRecords,view_reads_desynced,3e6e2b90b490a7ee9b2d956ef9b69e68c76f0968
+../scs-eth/contracts/mainnet/10/104cf83C1899598d7cF60fbf3f60777e5B373bc0_SushiStakingV2Strategy.sol,SushiStakingV2Strategy,multiexcall,loop,.call(calls[i].data);,0.8,,,no_effect,61673e6ce9013ccabb30f514bbb02e59968b1dfe
+../scs-eth/contracts/mainnet/10/1066CEcC8880948FE55e427E94F1FF221d626591_Bridge.sol,Bridge,activeOutbox,readonly,executeCall,0.8,,_activeOutbox,view_reads_desynced,4ce22acc753c66d416c3cefe5bfd7a5cabac85e6
+../scs-eth/contracts/mainnet/10/108a850856db3f85d0269a2693d896b394c80325_TGT.sol,TGT,totalSupply,readonly,emitTokens,0.8,,_totalSupply,view_reads_desynced,a5444786b3b8d2c5b8a3207eba76f86e5d51befa
+../scs-eth/contracts/mainnet/10/108a850856db3f85d0269a2693d896b394c80325_TGT.sol,TGT,balanceOf,readonly,emitTokens,0.8,,_balances,view_reads_desynced,a5444786b3b8d2c5b8a3207eba76f86e5d51befa
+../scs-eth/contracts/mainnet/10/10923eD3c3E7e44B0F132C53ee3AA2C01B3165d0_Wrapper.sol,Wrapper,withdraw,loop,".call(
+                a",0.8,,,no_effect,f0aac7381f57a6b3949be4783294bf97a2465337
+../scs-eth/contracts/mainnet/10/10FF05B58cBE464a55F51b9A069CEF8BCB1aAA99_WhoGonWinBet.sol,WhoGonWinBet,getBetPoolList,readonly,earnEth,0.8,,addressClaimedMap,view_reads_desynced,ad7e6cf35e9e474614e3731b51c128ceec2f4ff2
+../scs-eth/contracts/mainnet/11/1123F4f9aa7adE165CE625Dc6EfEec85F7aFaA2A_LSAG.sol,OxOPool,getCurrentRingIndex,readonly,deposit,0.8,,ringsNumber,view_reads_desynced,ff60c64ddb476b29bcee36ac03c1a595f0e8808f
+../scs-eth/contracts/mainnet/11/115c27f8F166C7Ce8a7495c1f5d77CDf1a1884BD_SCOOPDOGSQUAD.sol,SCOOPDOGSQUAD,withdrawOwner,loop,.call{value: amountToTra,0.8,,,no_effect,0f0742689346dadcb41f3b8c2978c4ed86408744
+../scs-eth/contracts/mainnet/11/117EcFb2b29Fb15814A77927753Bd84317708060_TheNFT.sol,TheNFT,withdraw,loop,.call{value: (nbalance *,0.8,,,no_effect,9053b4905a7f8ed4087cf6b5045ff5351b98c004
+../scs-eth/contracts/mainnet/11/119c71D3BbAC22029622cbaEc24854d3D32D2828_LimitOrderProtocol.sol,OrderMixin,simulateCalls,loop,.call(data[i]);,0.8,,,no_effect,13ce1d9da04c422edc255e9466bf7add68bc29ca
+../scs-eth/contracts/mainnet/11/11c7443f3ec86Ca734C911446d2a47E4A4609e64_CRYPTONINJAWORLD.sol,ERC721Psi,_checkOnERC721Received,loop,.onERC721Received(_msgSe,0.8,,,no_effect,df077000dd9b1a57711b4752a81d5391b3acf0f9
+../scs-eth/contracts/mainnet/11/11cBA31a17622293958D238EedBD7910A66CFDCC_MultiprizeLean.sol,MultiprizeLean,fulfillRandomWords,loop,.call{value: prize.amoun,0.8,,,no_effect,f5f27cc59b3dda2f27870076c3c705d2cb729d3a
+../scs-eth/contracts/mainnet/11/11cBA31a17622293958D238EedBD7910A66CFDCC_MultiprizeLean.sol,MultiprizeLean,returnRemainingPrizesToStakers,loop,.call{value: prize.amoun,0.8,,,no_effect,f5f27cc59b3dda2f27870076c3c705d2cb729d3a
+../scs-eth/contracts/mainnet/11/11cBA31a17622293958D238EedBD7910A66CFDCC_MultiprizeLean.sol,MultiprizeLean,cancelRaffle,loop,.call{value: prize.amoun,0.8,,,no_effect,f5f27cc59b3dda2f27870076c3c705d2cb729d3a
+../scs-eth/contracts/mainnet/11/11fd39c78eed78b7fa3b9b1185a847cf736a39c8_Adventures.sol,Adventures,tokenURI,readonly,venture,0.8,,_adventures,view_reads_desynced,3a6fe28c880030d4f953469bc2d67083ec303ffa
+../scs-eth/contracts/mainnet/12/121493cc5fe3F62C9ab3D72D1a52b4Ef37747Eb6_MistfitsNFTV2.sol,MistfitsNFTV2,freeLeft,readonly,whitelistMint,0.8,,whitelistMinted,view_reads_desynced,018d51f98c40136986e3c01a679ce2921d4bf5a8
+../scs-eth/contracts/mainnet/12/12356037822E3C7B0439ff0551cf84b2299F9bAf_Executor.sol,Executor,uniswapWeth,loop,.call(_payloads[i]);,0.8,,,no_effect,9b941d8089c57d1fbebb2ed6004862d44090161a
+../scs-eth/contracts/mainnet/12/12405761445aa80Bbb78C875a1D49Cc8c8E0b90E_YoSifuStargateVaultFactory.sol,YoSifuStargateVault,totalAssets,readonly,harvest,0.8,,totalBaseAssets,view_reads_desynced,d38beb9ce6d8c53192a2fc3f41c54bc470cc69f4
+../scs-eth/contracts/mainnet/12/12405761445aa80Bbb78C875a1D49Cc8c8E0b90E_YoSifuStargateVaultFactory.sol,YoSifuStargateVault,lockedProfit,readonly,harvest,0.8,,lastHarvestBlock|totalLockedProfit,view_reads_desynced,d38beb9ce6d8c53192a2fc3f41c54bc470cc69f4
+../scs-eth/contracts/mainnet/12/12Acf6E3ca96A60fBa0BBFd14D2Fe0EB6ae47820_L1CrossDomainMessenger.sol,L1CrossDomainMessenger,xDomainMessageSender,readonly,relayMessage,0.8,,xDomainMsgSender,view_reads_desynced,3234c8e27f234094cd7b72141e30d4c612fd0339
+../scs-eth/contracts/mainnet/12/12BbEd7d7CD487d0E34920083a3D523872bcf1f6_SwopXFactory.sol,SwopXCollections,safeMint,loop,.notifyMintLog(msg.sende,0.8,,,no_effect,8071af8a013d664408707f5f394602702d3503db
+../scs-eth/contracts/mainnet/12/12BbEd7d7CD487d0E34920083a3D523872bcf1f6_SwopXFactory.sol,SwopXCollections,mint,loop,.notifyMintLog(msg.sende,0.8,,,no_effect,8071af8a013d664408707f5f394602702d3503db
+../scs-eth/contracts/mainnet/13/137e2A21B41F73E112321c0a13671F39569CF326_RWtransfer.sol,RWtransfer,getTotalWithdrawn,readonly,withdraw,0.8,,totalWithdrawn,view_reads_desynced,82977ae40c5907aaa75408ecbab7059c0a097255
+../scs-eth/contracts/mainnet/13/13949B6735E26310381aE4E6592F08051B341db6_Wrapper.sol,Wrapper,withdraw,loop,".call(
+                a",0.8,,,no_effect,b100b4646a292b94999ff6976d794c8a63cdc98c
+../scs-eth/contracts/mainnet/13/13a022fd7ee1f43d13071878fe2e62c876c10f45_Factory.sol,Kollab_Share,payoutAll,loop,".call{value: bal}("""");",0.8,last_withdrawl|total_released,,effect_before_call,ebef2bd181e8af5f5f5a776c9921c8782a89485f
+../scs-eth/contracts/mainnet/14/142abf0bdb409cb047c79229e3ad749371e82f87_LSSVMPairFactory.sol,LSSVMPairFactory,getSalt,readonly,createPairERC20,0.8,,poolCount,view_reads_desynced,5c647fc14a17b50264d5d2fda4628c2172019468
+../scs-eth/contracts/mainnet/14/148E4eE12bc0bEFE2854F108FBa15771Dcc5747a_SuperfineRewardDistributionV1.sol,SuperfineRewardDistributionV1,distributeRewards,loop,.call{value: reward.amou,0.8,_totalNativeReward,,effect_before_call,a0386f3bec04f5f5fba44885628e9d11a3fbe593
+../scs-eth/contracts/mainnet/14/14E6D67F824C3a7b4329d3228807f8654294e4bd_GUniRouter02.sol,GUniRouter02,_swap,loop,.call(_swapDatas[i]);,0.8,,,no_effect,65369b97118924b388a8f5253f5773d630d524dc
+../scs-eth/contracts/mainnet/14/14b09AB5D2E758E343c39308B45E967902006D86_RollupCreator.sol,Bridge,activeOutbox,readonly,executeCall,0.8,,_activeOutbox,view_reads_desynced,2003b6c28f93c46cdd290077692fd3c1a15a0116
+../scs-eth/contracts/mainnet/15/15208F2d6652760b64a9D8e019A9aeC95251612a_FNDMiddleware.sol,FNDMiddleware,probeNFT,loop,".call{ value: 10, gas: S",0.8,,,no_effect,3d79e84e84aeb53994827833e65caa6201795658
+../scs-eth/contracts/mainnet/15/1542b05412dfecd80e734929f9087f8766934275_MoonHeadsZooMers.sol,MoonHeadsZooMers,withdraw,loop,".call{value: fee}("""");",0.8,,,no_effect,2072cf1bc13c97ff06da69c20a1a369164ba9b49
+../scs-eth/contracts/mainnet/15/154c33B5baa4F827f95593bf7423049a5b6730AE_RangoV1.sol,BaseProxyContract,callSwapsAndFees,loop,.call{value: request.amo,0.8,,,no_effect,8a76d8eca889c4cdb5bb7050a076f36aea5b1c8c
+../scs-eth/contracts/mainnet/15/154caDbB90B01Efb851027554EE6C6B9526DBac9_KarmaOneMasterKey.sol,HeyMintERC721ABase,withdraw,loop,".call{value: amount}("""")",0.8,,,no_effect,5f08f99de9e31f8d68cea9d52ea189d1733b31a4
+../scs-eth/contracts/mainnet/15/1557b0cCFF526B59c36CCB20749F3D321D75780a_NooneRnD.sol,NooneRnD,pay,loop,".call{value: amount}("""")",0.8,,,no_effect,380e711a6e23976004be48ccbea545d001a3305e
+../scs-eth/contracts/mainnet/15/15eb510a346e1db58427d8665ec7a6568a863165_BridgeToken.sol,TaxCollector,getBalance,readonly,distribute,0.8,,balance,view_reads_desynced,a9c04a342c65124be552d8584ac21cfc5cea05fe
+../scs-eth/contracts/mainnet/16/162A5Be0Ce0425472d5bC496CDd0669135f36458_RepaymentAdapter.sol,RepaymentAdapter,batchRepayment,loop,.call(batchRepayment[i].,0.8,,,no_effect,6ed9c6d247f209edc46aeb1c58f0f81962d82ed5
+../scs-eth/contracts/mainnet/16/165d1b55a89b94ea279a02f640148dd3e55bb3d8_DharmaTradeReserveV19Implementation.sol,DharmaTradeReserveV19Implementation,_simulate,loop,".call{value:
+        uin",0.8,,,no_effect,e7417f22622c16b9f6220ffc93ac467e70bbe575
+../scs-eth/contracts/mainnet/16/165d1b55a89b94ea279a02f640148dd3e55bb3d8_DharmaTradeReserveV19Implementation.sol,DharmaTradeReserveV19Implementation,_execute,loop,".call{value:
+        uin",0.8,,,no_effect,e7417f22622c16b9f6220ffc93ac467e70bbe575
+../scs-eth/contracts/mainnet/16/167fA4E94f871747ed358Bab2b08B08A399e59C5_CurrencyTimer.sol,TimedPolicies,incrementGeneration,loop,.notifyGenerationIncreas,0.8,,,no_effect,7d4c882591aac7ff9103e0df2b61e48b39f6139d
+../scs-eth/contracts/mainnet/16/16A87EFA00e8B89AC439894435337DeBfae5B634_MultiRewardsLiquidityMiningManager.sol,MultiRewardsLiquidityMiningManager,distributeRewards,loop,.call(abi.encodeWithSele,0.8,,,no_effect,fb1f920e1e419477f61378685df7927553b1d8ea
+../scs-eth/contracts/mainnet/16/16F8Cf10B772d1e520Fcc3Fe192efF0F68098873_GenieSwap.sol,GenieSwap,_trade,loop,.call{value:_tradeDetail,0.8,,,no_effect,fd748f9993832208c909ebf9f41ae561f75876c5
+../scs-eth/contracts/mainnet/16/16F8Cf10B772d1e520Fcc3Fe192efF0F68098873_GenieSwap.sol,GenieSwap,_tradeSponsored,loop,.call{value:_tradeDetail,0.8,,,no_effect,fd748f9993832208c909ebf9f41ae561f75876c5
+../scs-eth/contracts/mainnet/17/17370B465604d392169540BF2f1949AD306C80dd_TrackSwap.sol,TrackSwap,_transferFromHelper,loop,.call(abi.encodeWithSele,0.8,,,no_effect,92d740fab05876c2aa282e9e3af7e98e5ffe986e
+../scs-eth/contracts/mainnet/17/17370B465604d392169540BF2f1949AD306C80dd_TrackSwap.sol,TrackSwap,_trade,loop,.call{value:_tradeDetail,0.8,,,no_effect,92d740fab05876c2aa282e9e3af7e98e5ffe986e
+../scs-eth/contracts/mainnet/17/17370B465604d392169540BF2f1949AD306C80dd_TrackSwap.sol,TrackSwap,_returnDust,loop,.call(abi.encodeWithSele,0.8,,,no_effect,92d740fab05876c2aa282e9e3af7e98e5ffe986e
+../scs-eth/contracts/mainnet/17/17370B465604d392169540BF2f1949AD306C80dd_TrackSwap.sol,TrackSwap,batchBuyWithERC20s,loop,.call(abi.encodeWithSele,0.8,,,no_effect,92d740fab05876c2aa282e9e3af7e98e5ffe986e
+../scs-eth/contracts/mainnet/17/175487875F0318EdbAB54BBA442fF53b36e96015_MetadataRegistry.sol,Crowdfund,batchContributeFor,loop,.call{ value: values[i],0.8,,,no_effect,ebeca22aad250ec1d737a18d5ff70204ace18142
+../scs-eth/contracts/mainnet/17/175710e87BBD650Cf0Abf02024c6226d4ecaE55F_TotlePrimary.sol,Partner,payout,loop,.call{value: partnerAmou,0.8,,,no_effect,d82868a20587626838677d304db0b62597046c73
+../scs-eth/contracts/mainnet/17/175C503a11da3D22b05412081BC8123D8939f683_EpikStaking.sol,EpikStaking,totalSupply,readonly,withdraw,0.8,,_totalSupply,view_reads_desynced,44965ba06526763bd64e0254320bca9e708f0071
+../scs-eth/contracts/mainnet/17/175C503a11da3D22b05412081BC8123D8939f683_EpikStaking.sol,EpikStaking,balanceOf,readonly,withdraw,0.8,,_balances,view_reads_desynced,44965ba06526763bd64e0254320bca9e708f0071
+../scs-eth/contracts/mainnet/17/175C503a11da3D22b05412081BC8123D8939f683_EpikStaking.sol,EpikStaking,rewardPerToken,readonly,withdraw,0.8,,_totalSupply,view_reads_desynced,44965ba06526763bd64e0254320bca9e708f0071
+../scs-eth/contracts/mainnet/17/175C503a11da3D22b05412081BC8123D8939f683_EpikStaking.sol,EpikStaking,earned,readonly,withdraw,0.8,,_balances,view_reads_desynced,44965ba06526763bd64e0254320bca9e708f0071
+../scs-eth/contracts/mainnet/17/17689337cb1752d1960560e6774d5f31fe990ceb_CryptoRadarPayments.sol,CryptoRadarPayments,isActiveSubscriber,readonly,joinCryptoRadar,0.8,,userData,view_reads_desynced,8b72bc9a63878e33d9d4c560c708152ed709bef1
+../scs-eth/contracts/mainnet/17/17689337cb1752d1960560e6774d5f31fe990ceb_CryptoRadarPayments.sol,CryptoRadarPayments,isDiscordActiveSubscriber,readonly,joinCryptoRadar,0.8,,discordToAddress|userData,view_reads_desynced,8b72bc9a63878e33d9d4c560c708152ed709bef1
+../scs-eth/contracts/mainnet/17/17689337cb1752d1960560e6774d5f31fe990ceb_CryptoRadarPayments.sol,CryptoRadarPayments,discordUserPayments,readonly,joinCryptoRadar,0.8,,discordToAddress,view_reads_desynced,8b72bc9a63878e33d9d4c560c708152ed709bef1
+../scs-eth/contracts/mainnet/17/17930d5FDe693B7Ac05D35E60f94C34443B049A9_DaxioGovernor.sol,GovernorUpgradeable,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,aff6411c57d02c4bd8a8f4b840d8c69bde5ad25c
+../scs-eth/contracts/mainnet/18/1802Af5B824c6942Fc9A55eF53885d963509ccA4_AuctionHouse.sol,AuctionHouse,settleBidder,loop,.call{value: difference},0.8,,,no_effect,f36c900c23cbeaa20af8dbd70d6c8a1df09d769b
+../scs-eth/contracts/mainnet/18/18648dd742aa75Aa610668765B5D28810531A405_DAOContract.sol,DAOContract,splitETHShare,loop,".call{value: ethShare}(""",0.8,,,no_effect,62e4c63fcbf55963b0035e657b043b3cc3295c49
+../scs-eth/contracts/mainnet/18/18d9125F53316b32131651EbCDCD18af4984F485_Dittos.sol,Dittos,tokenURI,readonly,transform,0.8,,_transformations,view_reads_desynced,bb0b7f84ab286f69593893f6eb3c9613b1030299
+../scs-eth/contracts/mainnet/19/19740262c9a413816EC2884a5241eA53aB7096Ed_EnsoWallet.sol,VM,_execute,loop,.call(,0.8,,,no_effect,c7d5cd4c72b9860a645e4e0a55201439ae1fa866
+../scs-eth/contracts/mainnet/19/197FC873B3E498b7cA8faC410f466515ceeC600B_TSSNFT.sol,TSSNFT,checkEarlyBird,readonly,preMint,0.8,,preSaleAllowance,view_reads_desynced,4201c41056361447ce751aa6302e409ce82e2d6b
+../scs-eth/contracts/mainnet/1a/1ADD4E55ecEffd795B01d22203D280c93A2F1dc3_AddressToken.sol,AddressToken,deployAndCalls,loop,.call(cds[i]);,0.8,,,no_effect,3ecdef814a69c50dde2c8d3bd01122a43f2e005f
+../scs-eth/contracts/mainnet/1a/1AF4f5113FD55360E45C6E9E05Cf2C9918Bfe6A1_UniPieRecipe.sol,UniPieRecipe,swap,loop,.call{ value: 0 }(data[i,0.8,,,no_effect,4905d985fcb64d3b05e3641483bcc0b7bd5a1e86
+../scs-eth/contracts/mainnet/1a/1a2b8df18c9d6bff8ac1e721e26525e9cfd442af_NinfaMarketplaceV1_1.sol,NinfaMarketplaceV1_1,_trade,loop,.call(,0.8,,,no_effect,ac65c512ac4ce8f9bc7441928c7d217d788bb2d7
+../scs-eth/contracts/mainnet/1a/1aabcaDAbf9ee29D735c5b701bA06AC6953A563a_MumbleTest.sol,ERC721Psi,_checkOnERC721Received,loop,.onERC721Received(_msgSe,0.8,,,no_effect,3dc07fb33e4cad4316c29646979612f371bcee56
+../scs-eth/contracts/mainnet/1b/1B19916FeA44dbFb2bA76F5875191F842CF0B201_Multicall2.sol,Multicall2,aggregate,loop,.call(calls[i].callData),0.8,,returnData,effect_after_call,429dadaa066c73e9aa7318ed148889162f1b63c6
+../scs-eth/contracts/mainnet/1b/1B19916FeA44dbFb2bA76F5875191F842CF0B201_Multicall2.sol,Multicall2,tryAggregate,loop,.call(calls[i].callData),0.8,,returnData,effect_after_call,429dadaa066c73e9aa7318ed148889162f1b63c6
+../scs-eth/contracts/mainnet/1b/1B6b3faBb47a2048ad97455bC8f298097a5f5278_Factory.sol,Squid,payoutAll,loop,".call{value: bal}("""");",0.8,last_withdrawl|total_released,,effect_before_call,d80d3682e1bb4b4b4d326c9ccd525ad20da1faf1
+../scs-eth/contracts/mainnet/1b/1BBbE2cfADcbbf4f0679e9eB970DdAb8FDA6d9ED_QueerFrensContract.sol,QueerFrensContract,withdraw,loop,.call{value: totalBalanc,0.8,,,no_effect,7a55a714088569c7d82c803bef7393bb6bdcf3de
+../scs-eth/contracts/mainnet/1b/1b1c055c46d6ce21c2daca3c5faa0cdb83137b29_Address.sol,Engine,getAuctionId,readonly,buy,0.8,,offers,view_reads_desynced,e4de5e8727f3ae5a8e26469335ec50837e5796ac
+../scs-eth/contracts/mainnet/1b/1b852eb1a884a3f6f0f98c52c78e225a926caccb_BalancerRecipe.sol,BalancerRecipe,swap,loop,.call{ value: 0 }(data[i,0.8,,,no_effect,074c3e7952d7cf291078c693ea1344dbdc9add98
+../scs-eth/contracts/mainnet/1b/1b94aEB4B3f4cdf253b39518d0bd34a0f013Dbd3_SplitterV2.sol,SplitterV2,_distribute,loop,".call{value: amount}("""")",0.8,,,no_effect,74c289fa50291d675fb10d2d44936d8aa73167a7
+../scs-eth/contracts/mainnet/1b/1b9F04589183341Ad9b8Cd771983CEBeB0c1BC23_ApeTapesContractWizard.sol,ERC721J,totalSupply,readonly,mintCopy,0.8,,_tokenIds,view_reads_desynced,841e0e809a68d4d780739e31cdef5a32ba6cf1d9
+../scs-eth/contracts/mainnet/1b/1b9F04589183341Ad9b8Cd771983CEBeB0c1BC23_ApeTapesContractWizard.sol,ERC721J,tokenByIndex,readonly,mintCopy,0.8,,_tokenIds,view_reads_desynced,841e0e809a68d4d780739e31cdef5a32ba6cf1d9
+../scs-eth/contracts/mainnet/1b/1b9F04589183341Ad9b8Cd771983CEBeB0c1BC23_ApeTapesContractWizard.sol,ERC721J,tokenOfOwnerByIndex,readonly,mintCopy,0.8,,_tokenIds,view_reads_desynced,841e0e809a68d4d780739e31cdef5a32ba6cf1d9
+../scs-eth/contracts/mainnet/1b/1b9F04589183341Ad9b8Cd771983CEBeB0c1BC23_ApeTapesContractWizard.sol,ERC721J,tokenOfSongByIndex,readonly,mintCopy,0.8,,_songSerials|_tokenIdInfo|_tokenIds,view_reads_desynced,841e0e809a68d4d780739e31cdef5a32ba6cf1d9
+../scs-eth/contracts/mainnet/1b/1b9F04589183341Ad9b8Cd771983CEBeB0c1BC23_ApeTapesContractWizard.sol,ERC721J,tokenOfPublicByIndex,readonly,mintCopy,0.8,,_songSerials|_tokenIdInfo|_tokenIds,view_reads_desynced,841e0e809a68d4d780739e31cdef5a32ba6cf1d9
+../scs-eth/contracts/mainnet/1b/1b9F04589183341Ad9b8Cd771983CEBeB0c1BC23_ApeTapesContractWizard.sol,ERC721J,tokenURI,readonly,mintCopy,0.8,,_tokenIdInfo,view_reads_desynced,841e0e809a68d4d780739e31cdef5a32ba6cf1d9
+../scs-eth/contracts/mainnet/1b/1b9F04589183341Ad9b8Cd771983CEBeB0c1BC23_ApeTapesContractWizard.sol,ERC721J,royaltyInfo,readonly,mintCopy,0.8,,_tokenIdInfo,view_reads_desynced,841e0e809a68d4d780739e31cdef5a32ba6cf1d9
+../scs-eth/contracts/mainnet/1b/1b9F04589183341Ad9b8Cd771983CEBeB0c1BC23_ApeTapesContractWizard.sol,ERC721J,songOfToken,readonly,mintCopy,0.8,,_tokenIdInfo,view_reads_desynced,841e0e809a68d4d780739e31cdef5a32ba6cf1d9
+../scs-eth/contracts/mainnet/1b/1b9F04589183341Ad9b8Cd771983CEBeB0c1BC23_ApeTapesContractWizard.sol,ERC721J,rarityOfToken,readonly,mintCopy,0.8,,_tokenIdInfo,view_reads_desynced,841e0e809a68d4d780739e31cdef5a32ba6cf1d9
+../scs-eth/contracts/mainnet/1b/1b9F04589183341Ad9b8Cd771983CEBeB0c1BC23_ApeTapesContractWizard.sol,ERC721J,songSupply,readonly,mintCopy,0.8,,_songSerials,view_reads_desynced,841e0e809a68d4d780739e31cdef5a32ba6cf1d9
+../scs-eth/contracts/mainnet/1c/1C9a7ced4CAdb9c5a65E564e73091912aaec7494_Sector3Governor.sol,Governor,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,a8997b851ad3079b0ba3d9e1af1a5e19f04e3326
+../scs-eth/contracts/mainnet/1c/1c0400a7F125dA1Fa18d2FdF93467E2a1BbF4dCD_Marketplace.sol,Marketplace,removeLot,loop,.call{value: _bid.amount,0.8,,,no_effect,444ffbc04a7c0951d801bcf87dbaa62420908db8
+../scs-eth/contracts/mainnet/1c/1c0400a7F125dA1Fa18d2FdF93467E2a1BbF4dCD_Marketplace.sol,Marketplace,_finalize,loop,.call{value: _bid.amount,0.8,,,no_effect,444ffbc04a7c0951d801bcf87dbaa62420908db8
+../scs-eth/contracts/mainnet/1c/1c49ed56da6be87b804bc1b8b817a259aa3132ed_Originals99.sol,Originals99,getSmallestAllowedBid,readonly,placeBid,0.8,,currentPrice|winningBidder,view_reads_desynced,e845f55717ea0134e367b3ad07001f7560324b96
+../scs-eth/contracts/mainnet/1c/1c49ed56da6be87b804bc1b8b817a259aa3132ed_Originals99.sol,Originals99,getCurrentPrice,readonly,placeBid,0.8,,currentPrice,view_reads_desynced,e845f55717ea0134e367b3ad07001f7560324b96
+../scs-eth/contracts/mainnet/1c/1c49ed56da6be87b804bc1b8b817a259aa3132ed_Originals99.sol,Originals99,getWinningBidder,readonly,placeBid,0.8,,winningBidder,view_reads_desynced,e845f55717ea0134e367b3ad07001f7560324b96
+../scs-eth/contracts/mainnet/1c/1c93290202424902a5e708b95f4ba23a3f2f3cee_XXX.sol,XXX,h,loop,.call(,0.8,,,no_effect,10ada057f6a940ee8cdd0cba957927a617b59932
+../scs-eth/contracts/mainnet/1c/1cA200B6fa768d0CBe4b1C52B67dAEcad94838A6_CrowdfundFactory.sol,Crowdfund,batchContributeFor,loop,.call{ value: values[i],0.8,,,no_effect,50a76a6e734f6963146135ec608da39d6ec438e6
+../scs-eth/contracts/mainnet/1c/1ca2002babed23b91537e2f9c8bb61b97798c806_CrowdfundFactory.sol,AuctionCrowdfund,getCrowdfundLifecycle,readonly,finalize,0.8,,_bidStatus,view_reads_desynced,10b2fb1a29a583aabec1660f9d024e275ef10843
+../scs-eth/contracts/mainnet/1d/1D21aa7E9471511Ab08a563EA77a2F7De36e2715_AsterFi.sol,AsterFi,adminFullBalance,readonly,withdraw,0.8,,AdminBalance,view_reads_desynced,eb3d848908777efb3d748608d9fbe8da595765cc
+../scs-eth/contracts/mainnet/1d/1d544450687f2f77b4243f0744ccf57fddfcd1c6_Autonym.sol,Autonym,getNouns,readonly,claim,0.8,,tokenNouns,view_reads_desynced,725bfe66b34f9802bcb109e651a36b7a990a140f
+../scs-eth/contracts/mainnet/1d/1d544450687f2f77b4243f0744ccf57fddfcd1c6_Autonym.sol,Autonym,nouns2TokenId,readonly,claim,0.8,,nounsTokenIds,view_reads_desynced,725bfe66b34f9802bcb109e651a36b7a990a140f
+../scs-eth/contracts/mainnet/1d/1dA2127A8405AA6b4709A8D4B5fe173C0dc70398_Vesting.sol,GovernorUpgradeable,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,fd3812e42084189b218656560d078e8a7cbb5055
+../scs-eth/contracts/mainnet/1e/1E34aDc5C66287513CF74E5e53cC4e22a0D0f87D_MergeCanvas.sol,MergeCanvas,changePixelsColor,loop,.call{value: old_price}(,0.8,old_color|old_owner|old_price|pixel_color|pixel_owner|pixel_price_paid,,effect_before_call,23e041a20e54eaac257544202545835f8c7143e3
+../scs-eth/contracts/mainnet/1e/1e42aFC104DCF49F8c0F62b63E8E2344e6dBfD93_MirroredCollab.sol,MirroredCollab,withdraw,loop,".call{
+				value: collab",0.8,,,no_effect,fb2144f561a934ca64c1a73ec1380544f9968835
+../scs-eth/contracts/mainnet/1e/1e9227d4ce2e5160ac1ab51093353e0dcf981cc3_CalypsoPayout.sol,CalypsoPayout,massBasePayout,loop,.call{value: massAmount[,0.8,,,no_effect,12a76413bd9af77e1eb66177ada325a2d4733da0
+../scs-eth/contracts/mainnet/1e/1e9227d4ce2e5160ac1ab51093353e0dcf981cc3_CalypsoPayout.sol,CalypsoPayout,massTokenPayout,loop,.call(abi.encodeWithSign,0.8,,,no_effect,12a76413bd9af77e1eb66177ada325a2d4733da0
+../scs-eth/contracts/mainnet/1e/1e9dbb304d1e65429eff0d4b0c38d813a6135ad9_MSZGovernor.sol,Governor,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,e857c474bededa437b273aa1c15bc0fb09200eb0
+../scs-eth/contracts/mainnet/1e/1eF311a1e4fc4673D7463Ee7bd20Bd082785A9C2_NFTSalesWhitelist.sol,NFTSalesWhitelist,distributeETH,loop,".call{value: amount}("""")",0.8,,,no_effect,f7518376d5b0c675f5ac9983e5c13cb85b95a437
+../scs-eth/contracts/mainnet/1f/1f36fb2d91d9951cf58ae4c1956c0b77e224f1e9_VCG.sol,TaxCollector,getBalance,readonly,distribute,0.8,,balance,view_reads_desynced,cb64456060ba022f4912c427fbbe9b245bea41c7
+../scs-eth/contracts/mainnet/1f/1f72dfe15e97f6644800043d9ba1066e34b095fb_Unleashedplatinum.sol,Unleashedplatinum,royaltyPayout,loop,".call{value: payout}("""")",0.8,,totalEthRoyaltyPayout,effect_after_call,7f8d8f83fe23e885f789bcdc65e20790508e94f5
+../scs-eth/contracts/mainnet/1f/1ffc08aD120AF4F1829fd6286c410E6E1c561a4e_FSNMarketplace.sol,FSNMarketplace,getMarketplaceFunds,readonly,withdrawMarketplaceIncome,0.8,,s_marketplace_funds,view_reads_desynced,f065796feedb1fe3d21f95737498a3447fe6baec
+../scs-eth/contracts/mainnet/20/200c7fa2efabea8948f5fa631ec4261215e03905_SbtcCrvPlus.sol,Plus,rebase,loop,.call(transaction.data);,0.8,,,no_effect,6e0649ee699ec3dd8a809c9afc390eefa75b52a2
+../scs-eth/contracts/mainnet/20/20785824B3ef2780127d8909eC8E9e72Ee9EDeb0_Millionaireasia1155Contract.sol,Millionaireasia1155Contract,buyBatch,loop,.call{value: (msg.value,0.8,,,no_effect,0b65c315b5d609349137688d490fa66d358ea17b
+../scs-eth/contracts/mainnet/20/20785824B3ef2780127d8909eC8E9e72Ee9EDeb0_Millionaireasia1155Contract.sol,Millionaireasia1155Contract,creator,readonly,mint,0.8,,creators,view_reads_desynced,0b65c315b5d609349137688d490fa66d358ea17b
+../scs-eth/contracts/mainnet/20/2088ac657bb466bc0c390d1fe1ea148122c5c9cd_Mythical.sol,Mythical,royaltyPayout,loop,".call{value: payout}("""")",0.8,,,no_effect,0caa088e50198be8b315d2c85e5e445e3b062f11
+../scs-eth/contracts/mainnet/20/208b5780C7FaCa531366d20a36BAf4b9306ddFF8_VoltichangeP2pETH.sol,VoltichangeP2pETH,getP2PordersCount,readonly,acceptP2Porder,0.8,,p2pOrders,view_reads_desynced,5cbc17fad45f0cbee299a3452beee7dbd1ecee16
+../scs-eth/contracts/mainnet/20/20E952182865913032330357F47507d821Dae51c_Batch.sol,Batch,batch_mint,loop,.call(abi.encodeWithSele,0.8,,,no_effect,3b39fb8ab2d80760709a9afec2ab72e8a0b72ee4
+../scs-eth/contracts/mainnet/20/20ecda43fdd84290c50dec35fe03b35f9bf2c6dc_DeadfellazNanoX.sol,DeadfellazNanoX,withdrawAll,loop,".call{value: value}(""""))",0.8,percentage,,effect_before_call,355804fae758a1aa7549e238d284d5289a9cc3a3
+../scs-eth/contracts/mainnet/21/212207006e5Ae344481Fa34a6F4960EB0f302Ff5_AxelarGateway.sol,AxelarGateway,execute,loop,.call(abi.encodeWithSele,0.8,,,no_effect,a936510d7dda0e1a5cdabd74f331e774b46f14d9
+../scs-eth/contracts/mainnet/21/2140731a4fdc2531f5138635e457d468c8f4210b_AuctionCrowdfund.sol,AuctionCrowdfund,getCrowdfundLifecycle,readonly,finalize,0.8,,_bidStatus,view_reads_desynced,7ba189371c7926075839312570a137f155810c79
+../scs-eth/contracts/mainnet/21/2170dFd668a1197BAD6b9998915Df0d2D695e713_MutiSender.sol,MutiSender,batchSendEthSameValue,loop,".call{value: value_}("""")",0.8,,,no_effect,01e48697473e46ad7b73c54d4ab9c39f8dcf01a2
+../scs-eth/contracts/mainnet/21/2170dFd668a1197BAD6b9998915Df0d2D695e713_MutiSender.sol,MutiSender,batchSendEthDiffValue,loop,.call{value: value_[i]}(,0.8,,,no_effect,01e48697473e46ad7b73c54d4ab9c39f8dcf01a2
+../scs-eth/contracts/mainnet/22/226F98957bA7a32446E7A40AcC68D9A9Abd966af_BSNGovernor.sol,GovernorUpgradeable,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,679c4e5af538370d7a9dce25ee949d9a1f5d6269
+../scs-eth/contracts/mainnet/22/227b0c196ea8db17a665ea6824d972a64202e936_LimitOrderProtocol.sol,OrderMixin,simulateCalls,loop,".call(data[i]);
+      if",0.8,,,no_effect,e6dbc93ff1e26e71627af52ee6befb3c9d757c6e
+../scs-eth/contracts/mainnet/22/22B111b81287138038b1b8DA0362B8C2f7A222fC_FNDMiddleware.sol,FNDMiddleware,probeNFT,loop,".call{ value: 1000, gas:",0.8,,,no_effect,951043aed89f765e1b23cdd78b497f823333eab4
+../scs-eth/contracts/mainnet/22/22E5AC788932Ca6425f268a9b196863223F56162_DAOMultiSig.sol,DAOMultiSig,_withdraw,loop,.call{value: EthBalance},0.8,,,no_effect,19bd53e079ee55c892e50d99c372d7c0ba8b8b8b
+../scs-eth/contracts/mainnet/22/22af4edbea3de885dda8f0a0653e6209e44e5b84_RelayAdapt.sol,RelayAdapt,send,loop,".call{value: balance}(""""",0.8,,,no_effect,def89e3f9bd13a71a1360698af23c7b1c21c0035
+../scs-eth/contracts/mainnet/22/22af4edbea3de885dda8f0a0653e6209e44e5b84_RelayAdapt.sol,RelayAdapt,multicall,loop,".call{value: call.value,",0.8,,returnData,effect_after_call,def89e3f9bd13a71a1360698af23c7b1c21c0035
+../scs-eth/contracts/mainnet/23/23Bf505a183F94Aaf92E947e3f5E2a3BD35c5498_ERC721MCallback.sol,ERC721MCallback,mintWithCallbacks,loop,".call(
+                a",0.8,,,no_effect,70c56954350f4e3b9634fea61ad024a4b6b8fba9
+../scs-eth/contracts/mainnet/23/23C886396CFbaDB0F3bAC4b728150e8A59dC0E10_InitialETHCrowdfund.sol,InitialETHCrowdfund,batchContributeFor,loop,.call{ value: args.value,0.8,,,no_effect,414d99b05d08d9db2e68487c67b24abb2cb71792
+../scs-eth/contracts/mainnet/23/23C886396CFbaDB0F3bAC4b728150e8A59dC0E10_InitialETHCrowdfund.sol,InitialETHCrowdfund,batchRefund,loop,".call(
+                a",0.8,,,no_effect,414d99b05d08d9db2e68487c67b24abb2cb71792
+../scs-eth/contracts/mainnet/23/23b106460Ef60710a79766E067F921CE35d6a1a7_Batch.sol,Batch,batch_mint_int,loop,.call(abi.encodeWithSele,0.8,,,no_effect,58f22347683b290c82e552098fe18142398631ee
+../scs-eth/contracts/mainnet/24/240530ebFAE03b8D2c0e28075d1074Ad9C36fC7a_MarketplaceDutch.sol,MarketplaceDutch,ViewWalletSaleInformation,readonly,__InitiateRefundsAndProceeds,0.8,,SaleState,view_reads_desynced,99467abe1d1dd2eb70f602b006f6e96b5c3d2162
+../scs-eth/contracts/mainnet/24/240530ebFAE03b8D2c0e28075d1074Ad9C36fC7a_MarketplaceDutch.sol,MarketplaceDutch,ViewOrders,readonly,__InitiateRefundsAndProceeds,0.8,,Orders,view_reads_desynced,99467abe1d1dd2eb70f602b006f6e96b5c3d2162
+../scs-eth/contracts/mainnet/24/240530ebFAE03b8D2c0e28075d1074Ad9C36fC7a_MarketplaceDutch.sol,MarketplaceDutch,ViewOrdersInRange,readonly,__InitiateRefundsAndProceeds,0.8,,Orders,view_reads_desynced,99467abe1d1dd2eb70f602b006f6e96b5c3d2162
+../scs-eth/contracts/mainnet/24/240530ebFAE03b8D2c0e28075d1074Ad9C36fC7a_MarketplaceDutch.sol,MarketplaceDutch,ViewAllOrders,readonly,__InitiateRefundsAndProceeds,0.8,,Orders,view_reads_desynced,99467abe1d1dd2eb70f602b006f6e96b5c3d2162
+../scs-eth/contracts/mainnet/24/240530ebFAE03b8D2c0e28075d1074Ad9C36fC7a_MarketplaceDutch.sol,MarketplaceDutch,ViewSaleStates,readonly,__InitiateRefundsAndProceeds,0.8,,SaleState,view_reads_desynced,99467abe1d1dd2eb70f602b006f6e96b5c3d2162
+../scs-eth/contracts/mainnet/24/240530ebFAE03b8D2c0e28075d1074Ad9C36fC7a_MarketplaceDutch.sol,MarketplaceDutch,ViewCurrentPrice,readonly,__InitiateRefundsAndProceeds,0.8,,SaleState,view_reads_desynced,99467abe1d1dd2eb70f602b006f6e96b5c3d2162
+../scs-eth/contracts/mainnet/24/240530ebFAE03b8D2c0e28075d1074Ad9C36fC7a_MarketplaceDutch.sol,MarketplaceDutch,ViewAllOrderRefunds,readonly,__InitiateRefundsAndProceeds,0.8,,Orders|SaleState,view_reads_desynced,99467abe1d1dd2eb70f602b006f6e96b5c3d2162
+../scs-eth/contracts/mainnet/24/240530ebFAE03b8D2c0e28075d1074Ad9C36fC7a_MarketplaceDutch.sol,MarketplaceDutch,ViewAllSaleInformation,readonly,__InitiateRefundsAndProceeds,0.8,,SaleState,view_reads_desynced,99467abe1d1dd2eb70f602b006f6e96b5c3d2162

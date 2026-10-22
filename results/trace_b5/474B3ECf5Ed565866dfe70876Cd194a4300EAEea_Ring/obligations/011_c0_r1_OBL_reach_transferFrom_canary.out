@@ -1,0 +1,89 @@
+status: unknown
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:37:93:
+   |
+37 |     function __havoc_cfg0(uint8 __x0, uint8 __x1, address __x2, address __x3, address __x4, address __x5, uint8 __x6, address __x7) public {
+   |                                                                                             ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:37:119:
+   |
+37 |     function __havoc_cfg0(uint8 __x0, uint8 __x1, address __x2, address __x3, address __x4, address __x5, uint8 __x6, address __x7) public {
+   |                                                                                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:46:27:
+   |
+46 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                           ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:46:53:
+   |
+46 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                                                     ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:46:121:
+   |
+46 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                                                                                                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:54:27:
+   |
+54 |     function __havoc_cfg2(address __x0, uint8 __x1, uint8 __x2, uint8 __x3, uint8 __x4) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:66:27:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                           ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:66:82:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                  ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:66:96:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:66:110:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:66:124:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp08epydno/Obligation.sol:84:25:
+   |
+84 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp08epydno/Obligation.sol:166:54:
+    |
+166 |     function __h__addLiquidity(uint256 _tokenAmount, uint256 _ethAmountWei, bool autoburn) internal {
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: SMTChecker: 1 unsupported language feature(s). Enable the model checker option "show unsupported" to see all of them.
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmp08epydno/Obligation.sol:307:13:
+    |
+307 |             assert(false);       // must be REFUTED: this state is reachable
+    |             ^^^^^^^^^^^^^
+

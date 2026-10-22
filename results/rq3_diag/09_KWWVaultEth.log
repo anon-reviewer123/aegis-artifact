@@ -1,0 +1,26 @@
+== Aegis on 070781dd99118884e246d0d865e784b2fbcbe8d6_KWWVaultEth.sol ==
+target property: teamWithdraw <= teamMaxWithdraw
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_owner', 'boatsMaxWithdraw', 'boatsWithdrawAmount', 'gameManager', 'landsMaxWithdraw', 'landsWithdrawAmount', 'teamMaxWithdraw', 'teamPercent', 'teamWithdraw']
+[2] exposure site: withdrawFeesTeam -> .call (low-level value transfer can re-enter)
+    conservative closure: ['withdrawFeesTeam']
+[harness] reusing synthesized harness 070781dd99118884e246d0d865e784b2fbcbe8d6_KWWVaultEth.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 13 functions, 13 public state vars)
+[readonly] 1 public view(s) admitted by the footprint premise on the window opened by withdrawFeesTeam
+      OBL_view_teamAvailableToWithdraw: CANARY DID NOT FIRE (status unknown); harness did not compile -- reporting UNKNOWN for this view :: solc compile error: Error: Undeclared identifier.
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

@@ -1,0 +1,17 @@
+contract,family,arm,label,expected,status,outcome,seconds,reason
+FlashLoanCallback_S01.sol,flash_loan,general,safe,VERIFIED,BUG_FOUND,FP,146.0,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S02.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,64.6,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S03.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,60.6,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+ForcedRevertGriefing_S01.sol,forced_revert_loop,general,safe,VERIFIED,UNKNOWN,NV,62.7,[loop] loop verification: UNKNOWN | [3] sampling 4 candidate MCVPs (openai)
+ForcedRevertGriefing_S02.sol,forced_revert_loop,general,safe,VERIFIED,UNKNOWN,NV,66.3,[loop] loop verification: UNKNOWN | [3] sampling 4 candidate MCVPs (openai)
+ForcedRevertGriefing_U01.sol,forced_revert_loop,general,unsafe,BUG_FOUND,UNKNOWN,NV,68.4,[loop] loop verification: UNKNOWN | [3] sampling 4 candidate MCVPs (openai)
+ForcedRevertGriefing_U02.sol,forced_revert_loop,general,unsafe,BUG_FOUND,UNKNOWN,NV,54.8,[loop] loop verification: UNKNOWN | [3] sampling 4 candidate MCVPs (openai)
+TokenHookAccounting_S01.sol,token_hook,general,safe,VERIFIED,TIMEOUT,NV,300.1,per-contract budget
+TokenHookAccounting_S02.sol,token_hook,general,safe,VERIFIED,TIMEOUT,NV,300.1,per-contract budget
+TokenHookAccounting_S03.sol,token_hook,general,safe,VERIFIED,TIMEOUT,NV,300.1,per-contract budget
+TokenHookAccounting_S04.sol,token_hook,general,safe,VERIFIED,TIMEOUT,NV,300.1,per-contract budget
+TokenHookAccounting_U01.sol,token_hook,general,unsafe,BUG_FOUND,VERIFIED,FN,65.8,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U02.sol,token_hook,general,unsafe,BUG_FOUND,VERIFIED,FN,65.9,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U03.sol,token_hook,general,unsafe,BUG_FOUND,VERIFIED,FN,62.4,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+TokenHookAccounting_U04.sol,token_hook,general,unsafe,BUG_FOUND,VERIFIED,FN,60.5,"[readonly] invariant: rule inapplicable -- closure member claim writes footprint credits,liabilities; falling  | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_S01.sol,eoa_assumption,general,safe,VERIFIED,UNKNOWN,NV,102.4,[3] sampling 4 candidate MCVPs (openai)

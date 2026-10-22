@@ -1,0 +1,117 @@
+status: unknown
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:29:27:
+   |
+29 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, bool __x4, bool __x5, uint256 __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:29:41:
+   |
+29 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, bool __x4, bool __x5, uint256 __x6, uint256 __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:29:55:
+   |
+29 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, bool __x4, bool __x5, uint256 __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:29:69:
+   |
+29 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, bool __x4, bool __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:29:83:
+   |
+29 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, bool __x4, bool __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                   ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:29:94:
+   |
+29 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, bool __x4, bool __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                              ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:34:77:
+   |
+34 |     function __havoc_cfg1(uint256 __x0, bool __x1, uint256 __x2, bool __x3, bool __x4, uint256 __x5) public {
+   |                                                                             ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:34:88:
+   |
+34 |     function __havoc_cfg1(uint256 __x0, bool __x1, uint256 __x2, bool __x3, bool __x4, uint256 __x5) public {
+   |                                                                                        ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:43:41:
+   |
+43 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, bool __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:43:55:
+   |
+43 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, bool __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:43:69:
+   |
+43 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:43:83:
+   |
+43 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:43:97:
+   |
+43 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:43:111:
+   |
+43 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxbcf76t/Obligation.sol:43:125:
+   |
+43 |     function __havoc_arg0(address __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, bool __x7) public {
+   |                                                                                                                             ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmprxbcf76t/Obligation.sol:296:74:
+    |
+296 |     function __h_splitSignature(bytes memory sig) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
+    |                                                                          ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmprxbcf76t/Obligation.sol:296:85:
+    |
+296 |     function __h_splitSignature(bytes memory sig) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
+    |                                                                                     ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmprxbcf76t/Obligation.sol:296:96:
+    |
+296 |     function __h_splitSignature(bytes memory sig) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
+    |                                                                                                ^^^^^^^
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmprxbcf76t/Obligation.sol:334:13:
+    |
+334 |             assert(false);       // must be REFUTED: this state is reachable
+    |             ^^^^^^^^^^^^^
+

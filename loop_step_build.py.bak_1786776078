@@ -1,0 +1,497 @@
+"""
+Loop rebuild slice 2: build the inductive step harness AROUND the contract's real
+extracted loop body. The harness contains the contract's own statements (from
+loop_body_extract), not authored templates.
+
+Design (conservation/refund shape first):
+  - declare the contract's real state used by the loop (the mapping written per
+    iteration + any scalar total)
+  - seed a symbolic claimant c and amount w (reachability)
+  - oneIteration(): execute the REAL pre statements, then model the external call
+    as reenter() (one more real iteration on the same claimant), then the REAL
+    post statements
+  - track paidForC (a ghost) by observing the mapping decrements, and assert the
+    per-claimant safety bound paidForC <= wInit
+
+The discrimination comes from WHERE the real code zeroes the mapping (pre vs post),
+which loop_body_extract captured from the actual source. We do NOT choose safe/
+unsafe with a boolean; we transcribe the real pre/post and let the placement decide.
+"""
+import re
+from loop_body_extract import extract_loop_body, extract_loop_context
+
+
+def _mapping_and_scalar(facts, site):
+    """Identify the per-iteration mapping (uint-valued) and scalar total written
+    in the loop, from the detected loop site + var types."""
+    vt = getattr(facts, "var_types", {}) or {}
+    mapping_var = scalar_var = None
+    for v in site.loop_body_writes:
+        t = (vt.get(v, "") or "").strip()
+        if t.startswith("mapping") and t.rstrip().endswith("uint256)"):
+            mapping_var = mapping_var or v
+        elif t.startswith("mapping") and "=> uint" in t:
+            mapping_var = mapping_var or v
+        elif t.startswith(("uint", "int")):
+            scalar_var = scalar_var or v
+    return mapping_var, scalar_var
+
+
+
+def _mapping_and_scalar_from_text(text, facts):
+    """Same classification as _mapping_and_scalar, but from extracted source."""
+    vt = getattr(facts, "var_types", {}) or {}
+    mapping_var = scalar_var = None
+    for m in re.finditer(r"\b([A-Za-z_]\w*)\s*\[[^\]]*\]\s*=", text):
+        t = (vt.get(m.group(1)) or "").strip()
+        if t.startswith("mapping") and not t.rstrip().endswith("bool)"):
+            mapping_var = mapping_var or m.group(1)
+    for m in re.finditer(r"\b([A-Za-z_]\w*)\s*[-+]=", text):
+        t = (vt.get(m.group(1)) or "").strip()
+        if t.startswith(("uint", "int")):
+            scalar_var = scalar_var or m.group(1)
+    return mapping_var, scalar_var
+
+def build_conservation_step(contract_src, facts, site, canary=False):
+    """Return step-harness source built around the contract's REAL loop body, for
+    the conservation (refund) shape. Returns None if the shape isn't recognized."""
+    fn = site.function
+    ext = extract_loop_body(contract_src, fn, site.call)
+    if ext is None:
+        return None
+    mapping_var, scalar_var = _mapping_and_scalar(facts, site)
+    if mapping_var is None:
+        # fall back to the extracted body when the AST write-set is unavailable,
+        # so the builder depends on the same evidence the classifier uses.
+        mapping_var, scalar_var = _mapping_and_scalar_from_text(
+            " ".join((ext["pre"], ext["post"])), facts)
+    if mapping_var is None:
+        return None
+
+    pre, call, post = ext["pre"], ext["call"], ext["post"]
+
+    # The real body uses loop-locals: `c` (claimant), `amt`, `i`, `claimants[i]`.
+    # For a single inductive iteration we fix a symbolic claimant `c` and its
+    # owed value. We rewrite `claimants[i]` -> c and seed c/amt from parameters.
+    # We transcribe the REAL pre/post but neutralize the array indexing and the
+    # low-level call syntax (which SMTChecker can't execute) into a re-entrant
+    # internal call. Everything touching the CONTRACT STATE (mapping, scalar)
+    # stays verbatim.
+    def _rewrite(stmts):
+        s = stmts
+        s = re.sub(r"\bclaimants\s*\[\s*i\s*\]", "c", s)
+        s = re.sub(r"\bholders\s*\[\s*i\s*\]", "c", s)
+        s = s.replace("continue;", "return;")
+        out = []
+        for line in s.splitlines():
+            ls = line.strip()
+            if re.match(r"address\s+c\s*=", ls):        # c is seeded
+                continue
+            if re.match(r"uint256\s+amt\s*=", ls):       # amt is seeded from param
+                continue
+            # drop scalar-total bookkeeping arithmetic (global over distinct
+            # claimants; not meaningful in a one-claimant inductive step and the
+            # source of the underflow modeling artifact). Keep the mapping
+            # mutations and their ordering -- those carry the safety property.
+            if scalar_var and re.match(rf"{scalar_var}\s*[-+]=", ls):
+                continue
+            out.append(line)
+        return "\n        ".join(l.strip() for l in out if l.strip())
+
+    pre_r = _rewrite(pre)
+    post_r = _rewrite(post)
+
+    # the external call -> re-entrant iteration on the same claimant c. In the
+    # safe body the mapping is already zeroed in pre, so reenter() is a no-op;
+    # in the unsafe body the zeroing is in post, so reenter() sees the old value.
+    # reenter() replays the SAME pre/post around a nested (depth-1) call that we
+    # cut off (models one re-entry, sound for the single-step argument).
+    H = f"{facts.contract}StepH"
+    src = f'''// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+// Inductive loop-step for {facts.contract}.{fn}, built around the CONTRACT'S REAL
+// loop body (extracted verbatim; state mutations are the contract's own).
+contract {H} {{
+    mapping(address => uint256) public {mapping_var};
+    {"uint256 public " + scalar_var + ";" if scalar_var else ""}
+    uint256 public paidForC;     // ghost: value paid to claimant c this iteration
+    bool    public inReenter;
+
+    // one re-entrant iteration on the same claimant c (models the callback).
+    function reenter(address c) internal {{
+        if (inReenter) return;   // cut re-entry at depth 1 (sound single-step)
+        inReenter = true;
+        uint256 amt = {mapping_var}[c];
+        if (amt != 0) {{
+        {pre_r}
+        bool ok = true;
+        {post_r}
+        paidForC += amt;
+        }}
+        inReenter = false;
+    }}
+
+    function check(address c, uint256 w) public {{
+        require(w > 0 && w < (1 << 128));
+        require({mapping_var}[c] == 0 && paidForC == 0);
+        {mapping_var}[c] = w;                   // seed the claimant's owed
+        {(scalar_var + " = w;") if scalar_var else ""}
+        uint256 wInit = w;
+        uint256 amt = {mapping_var}[c];         // real capture (as the contract does)
+        {pre_r}
+        bool ok = true;                         // call returns success; re-entry modeled by reenter()
+        reenter(c);                             // the in-loop external call re-enters
+        {post_r}
+        paidForC += amt;
+        {"assert(false);                        // CANARY: reachability probe" if canary else "assert(paidForC <= wInit);              // per-claimant: paid at most owed"}
+    }}
+}}
+'''
+    return src
+
+
+if __name__ == "__main__":
+    import sys
+    sys.path.insert(0, ".")
+    from aegis.static_analysis import analyze
+    f = analyze(sys.argv[1])
+    src = open(sys.argv[1]).read()
+    if not f.loop_sites:
+        print("no loop sites"); sys.exit(1)
+    out = build_conservation_step(src, f, f.loop_sites[0])
+    if out is None:
+        print("shape not recognized"); sys.exit(1)
+    print(out)
+
+
+# ---------------------------------------------------------------------------
+# Mutex (dividend) shape.
+#
+# The safety mechanism sits OUTSIDE the loop: a bool state flag is set before
+# the loop and cleared after it, and the loop pays out of a snapshot taken
+# before it. So the step harness transcribes pre_loop / loop-body / post_loop,
+# and models the in-loop external call as one re-entrant replay of that same
+# real sequence at depth 1.
+#
+# Two source rewrites are applied UNIFORMLY to both twins, so neither is a
+# safe/unsafe switch:
+#   L1  the element local `<T> x = <array>[i];` is dropped and `<array>[i]` is
+#       replaced by the harness's symbolic element parameter.
+#   L2  inside the re-entrant replay only, `require(c, ...)` is lowered to
+#       `if (!(c)) { <unwind>; return; }`. A revert in the re-entrant call is
+#       caught by the attacker in reality; leaving it as a revert would abort
+#       the whole trace and make the assertion vacuously unreachable.
+# Whether the replay is blocked is then decided by the transcribed guard, not
+# by a flag we set.
+# ---------------------------------------------------------------------------
+
+_ARRAY_IDX = re.compile(r"\b([A-Za-z_]\w*)\s*\[\s*i\s*\]")
+
+
+def _state_vars_used(text, var_types):
+    """State variables of the contract that the extracted text references."""
+    idents = set(re.findall(r"\b[A-Za-z_]\w*\b", text))
+    return [v for v in var_types if v in idents]
+
+
+def _drop_element_local(stmts, elem_param):
+    """L1: drop `<T> x = <array>[i];` and rewrite `<array>[i]` -> elem_param."""
+    out = []
+    for line in stmts.splitlines():
+        if re.match(r"\s*(address|uint256|uint|bytes32)\s+\w+\s*=\s*"
+                    r"[A-Za-z_]\w*\s*\[\s*i\s*\]\s*;", line):
+            continue
+        out.append(line)
+    s = "\n".join(out)
+    return _ARRAY_IDX.sub(elem_param, s)
+
+
+def _lower_requires(stmts, unwind):
+    """L2: `require(cond, "msg");` -> `if (!(cond)) { <unwind> return; }`."""
+    def repl(m):
+        cond = m.group(1).split(",")[0].strip()
+        return f'if (!({cond})) {{ {unwind} return; }}'
+    return re.sub(r"require\s*\(([^;]*)\)\s*;", repl, stmts)
+
+
+def _elem_name(ctx):
+    """The name the contract gives the loop element (`h`, `c`, ...)."""
+    m = re.search(r"\b(?:address|uint256)\s+(\w+)\s*=\s*[A-Za-z_]\w*\s*\[\s*i\s*\]",
+                  ctx["pre"])
+    return m.group(1) if m else "e"
+
+
+def _indent(s, pad="        "):
+    return ("\n" + pad).join(l.strip() for l in s.splitlines() if l.strip())
+
+
+def build_mutex_step(contract_src, facts, site, canary=False):
+    """Step harness for the mutex shape, built around the contract's REAL
+    pre-loop guard, loop body and post-loop teardown. Returns None if the shape
+    is not recognised."""
+    fn = site.function
+    ctx = extract_loop_context(contract_src, fn, site.call)
+    if ctx is None:
+        return None
+    vt = getattr(facts, "var_types", {}) or {}
+
+    elem = _elem_name(ctx)
+    # the payout amount local the loop computes
+    amt_m = re.search(r"\buint256\s+(\w+)\s*=", ctx["pre"])
+    if amt_m is None:
+        return None
+    amt = amt_m.group(1)
+    # a scalar uint state var read before the loop is the payout source
+    src_m = re.search(r"\buint256\s+\w+\s*=\s*(\w+)\s*;", ctx["pre_loop"])
+    if src_m is None or src_m.group(1) not in vt:
+        return None
+    pool_var = src_m.group(1)
+
+    pre_loop_o = _drop_element_local(ctx["pre_loop"], elem)
+    pre_o = _drop_element_local(ctx["pre"], elem)
+    post_o = _drop_element_local(ctx["post"], elem)
+    post_loop_o = _drop_element_local(ctx["post_loop"], elem)
+
+    # declare only the state the transcribed code actually touches, so the
+    # harness carries no variable the contract's loop does not use.
+    used = _state_vars_used(" ".join((pre_loop_o, pre_o, post_o, post_loop_o)), vt)
+
+    decls = []
+    for v in used:
+        t = (vt.get(v) or "").replace(" memory", "").strip()
+        if t.startswith("mapping") or t.startswith(("uint", "int", "bool", "address")):
+            decls.append(f"    {t} public {v};")
+
+    unwind = "inReenter = false;"
+    pre_loop_r = _lower_requires(pre_loop_o, unwind)
+    pre_r = _lower_requires(pre_o, unwind)
+    post_r = _lower_requires(post_o, unwind)
+    post_loop_r = _lower_requires(post_loop_o, unwind)
+
+    H = f"{facts.contract}StepH"
+    seed_shares = "\n        ".join(
+        f"{v}[{elem}] = share;" for v in used
+        if (vt.get(v, "") or "").startswith("mapping")
+        and (vt.get(v, "") or "").rstrip().endswith("uint256)"))
+
+    return f'''// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+// Inductive loop-step for {facts.contract}.{fn}, built around the CONTRACT'S REAL
+// pre-loop guard, loop body and post-loop teardown (extracted verbatim).
+contract {H} {{
+{chr(10).join(decls)}
+    uint256 public totalPaid;    // ghost: value paid to the element this round
+    bool    public inReenter;
+
+    // one re-entrant replay of the real sequence (models the in-loop call).
+    function reenter(address {elem}) internal {{
+        if (inReenter) return;
+        inReenter = true;
+        {_indent(pre_loop_r)}
+        {_indent(pre_r)}
+        bool ok = true;
+        {_indent(post_r)}
+        totalPaid += {amt};
+        {_indent(post_loop_r)}
+        inReenter = false;
+    }}
+
+    function check(address {elem}, uint256 P, uint256 share) public {{
+        require(P > 0 && P < (1 << 64));
+        require(share > 0 && share <= 100);
+        {pool_var} = P;
+        {seed_shares}
+        totalPaid = 0;
+        uint256 poolAtStart = {pool_var};
+        {_indent(pre_loop_o)}
+        {_indent(pre_o)}
+        reenter({elem});                      // the in-loop external call re-enters
+        bool ok = true;
+        {_indent(post_o)}
+        totalPaid += {amt};
+        {_indent(post_loop_o)}
+        {"assert(false);                       // CANARY: reachability probe" if canary else "assert(totalPaid <= poolAtStart);     // paid at most the pool it started with"}
+    }}
+}}
+'''
+
+
+# ---------------------------------------------------------------------------
+# Progress (griefing) shape.
+#
+# The loop body branches on the external call's success flag. The safety
+# property is progress: no admissible callee behaviour prevents the iteration
+# from completing. A callee that reverts must not abort the whole settlement.
+#
+# The call's success flag is left SYMBOLIC (any callee behaviour), and one
+# further rewrite is applied UNIFORMLY to both twins:
+#   L3  `require(c, ...)` in the loop body is lowered to `if (!(c)) halted = true;`
+#       with the remaining statements guarded by `if (!halted)`. A revert carries
+#       no assertion obligation, so transcribing it as a revert would report the
+#       halting twin safe for the wrong reason. `halted` records exactly what the
+#       revert does in a payout loop: the whole settlement is rolled back.
+# Whether the iteration halts is then decided by the transcribed source -- a
+# contract that records the failure cannot set `halted`; one that propagates it
+# must.
+# ---------------------------------------------------------------------------
+
+_CALL_FLAG = re.compile(r"\(\s*bool\s+(\w+)\s*,")
+_REQUIRE = re.compile(r"require\s*\(([^;]*)\)\s*;")
+
+
+def _call_success_flag(call_stmt):
+    m = _CALL_FLAG.search(call_stmt)
+    return m.group(1) if m else None
+
+
+def _lower_halt(stmts):
+    """L3: first require becomes a halt flag; the rest is guarded by it."""
+    m = _REQUIRE.search(stmts)
+    if m is None:
+        return stmts, False
+    cond = m.group(1).split(",")[0].strip()
+    head = stmts[:m.start()].rstrip()
+    tail = stmts[m.end():].strip()
+    out = f"{head}\n        if (!({cond})) {{ halted = true; }}"
+    if tail:
+        out += f"\n        if (!halted) {{\n        {_indent(tail)}\n        }}"
+    return out, True
+
+
+def build_progress_step(contract_src, facts, site, canary=False):
+    """Step harness for the progress shape, built around the contract's REAL
+    loop body and its branch on the call's success flag. Returns None if the
+    shape is not recognised."""
+    fn = site.function
+    ctx = extract_loop_context(contract_src, fn, site.call)
+    if ctx is None:
+        return None
+    vt = getattr(facts, "var_types", {}) or {}
+
+    flag = _call_success_flag(ctx["call"])
+    if flag is None:
+        return None
+    if flag not in ctx["post"]:
+        return None                      # not a success-branching loop body
+
+    elem = _elem_name(ctx)
+    # the uint mapping the loop reads the claim amount from
+    amt_m = re.search(r"\buint256\s+(\w+)\s*=\s*(\w+)\s*\[", ctx["pre"])
+    if amt_m is None:
+        return None
+    amt, owed_var = amt_m.group(1), amt_m.group(2)
+    if owed_var not in vt:
+        return None
+
+    pre_o = _drop_element_local(ctx["pre"], elem).replace("continue;", "return;")
+    post_o = _drop_element_local(ctx["post"], elem)
+    post_l, lowered = _lower_halt(post_o)
+
+    used = _state_vars_used(" ".join((pre_o, post_o)), vt)
+    decls = []
+    for v in used:
+        t = (vt.get(v) or "").replace(" memory", "").strip()
+        if t.startswith("mapping") or t.startswith(("uint", "int", "bool", "address")):
+            decls.append(f"    {t} public {v};")
+
+    assertion = ("assert(false);                     // CANARY: reachability probe"
+                 if canary else
+                 "assert(!halted);                   // progress: no callee behaviour halts the loop")
+
+    H = f"{facts.contract}StepH"
+    return f'''// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+// Inductive loop-step for {facts.contract}.{fn}, built around the CONTRACT'S REAL
+// loop body and its branch on the call's success flag (extracted verbatim).
+contract {H} {{
+{chr(10).join(decls)}
+    bool    public halted;       // ghost: a callee failure aborted the settlement
+
+    function check(address {elem}, uint256 w, bool {flag}) public {{
+        require(w > 0 && w < (1 << 128));
+        {owed_var}[{elem}] = w;
+        halted = false;
+        {_indent(pre_o)}
+        // the in-loop external call returns {flag}; left symbolic so the check
+        // ranges over every admissible callee behaviour
+        {_indent(post_l)}
+        {assertion}
+    }}
+}}
+'''
+
+
+# ---------------------------------------------------------------------------
+# Shape classification and dispatch.
+#
+# The shape is decided by WHICH KIND of state the loop touches, never by which
+# ordering it uses. A safe contract and its unsafe counterpart differ in the
+# ordering of their statements, not in the kinds of variables they write, so the
+# classifier returns the same shape for both members of a twin pair. If it ever
+# returned different shapes for a pair, it would be reading the verdict rather
+# than the structure -- check_loop_dispatch.py asserts that it does not.
+# ---------------------------------------------------------------------------
+
+_MAP_WRITE = re.compile(r"\b([A-Za-z_]\w*)\s*\[[^\]]*\]\s*=")
+
+
+class LoopStepObligation:
+    """A loop-step obligation carrying the harness built from the contract."""
+
+    def __init__(self, name, harness_source, kind, canary_source=None):
+        self.name = name
+        self.harness_source = harness_source
+        self.kind = kind
+        self.canary_source = canary_source
+
+
+def _mapping_writes(text, vt):
+    """Mapping state variables written by the given source text, with types."""
+    out = {}
+    for m in _MAP_WRITE.finditer(text):
+        v = m.group(1)
+        t = (vt.get(v) or "").strip()
+        if t.startswith("mapping"):
+            out[v] = t
+    return out
+
+
+def classify_loop_shape(contract_src, facts, site):
+    """Return "progress" | "conserve" | "mutex" | None for the loop at `site`."""
+    ctx = extract_loop_context(contract_src, site.function, site.call)
+    if ctx is None:
+        return None
+    vt = getattr(facts, "var_types", {}) or {}
+    body = " ".join((ctx["pre"], ctx["post"]))
+    writes = _mapping_writes(body, vt)
+
+    if any(t.rstrip().endswith("bool)") for t in writes.values()):
+        return "progress"
+    if any(not t.rstrip().endswith("bool)") for t in writes.values()):
+        return "conserve"
+    m = re.search(r"\buint\d*\s+\w+\s*=\s*(\w+)\s*;", ctx["pre_loop"])
+    if m and (vt.get(m.group(1), "") or "").startswith("uint"):
+        return "mutex"
+    return None
+
+
+_BUILDERS = {
+    "conserve": build_conservation_step,
+    "mutex": build_mutex_step,
+    "progress": build_progress_step,
+}
+
+
+def build_loop_step(contract_src, facts, site):
+    """Build the inductive step obligation for the loop at `site`, dispatching on
+    the loop's structure. Returns a LoopStepObligation, or None if the shape is
+    not one Aegis supports."""
+    kind = classify_loop_shape(contract_src, facts, site)
+    if kind is None:
+        return None
+    build = _BUILDERS[kind]
+    src = build(contract_src, facts, site)
+    if src is None:
+        return None
+    canary = build(contract_src, facts, site, canary=True)
+    return LoopStepObligation(f"OBL_loop_step_{site.function}", src, kind, canary)

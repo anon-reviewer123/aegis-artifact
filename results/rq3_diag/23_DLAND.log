@@ -1,0 +1,38 @@
+== Aegis on 220699e10f80f7c1753b87d67cfdce0aac4491f9_DLAND.sol ==
+target property: president_balance + marketing_balance + development_balance + coder_balance <= address(this).balance
+[eth-model] address(this).balance -> _ethBal; property now: president_balance + marketing_balance + development_balance + coder_balance <= _ethBal
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (regex): storage=['is_auth', '_balances', '_allowances', 'is_tax_free', 'tax_on', '_ethBal', 'router_address', 'owner', 'locked', '_name', '_symbol', '_decimals', 'InitialSupply', '_circulatingSupply', 'UniswapRouter', 'Dead', 'trade_enabled', 'pair', 'president_balance', 'coder_balance', 'liquidity_balance', 'marketing_balance', 'development_balance', 'president_eth_balance', 'coder_eth_balance', 'liquidity_eth_balance', 'marketing_eth_balance', 'development_eth_balance', 'anti_bot', 'bot_crash', 'max_supply', 'initial_max_tx', 'max_tx', 'swap_treshold', 'president', 'coder', 'liquidity', 'marketing', 'development', 'origin_time', 'president_wallet', 'marketing_wallet', 'coder_wallet', 'development_wallet']
+[1] NOTE: regex analyzer used (no working solc AST); soundness claim requires the AST analyzer
+[2] exposure site: retrieve_president -> .call{value: president_balance} (low-level call can re-enter)
+    conservative closure: ['rescue', 'retrieve_president', 'transfer', 'transferFrom']
+[harness] reusing synthesized harness 220699e10f80f7c1753b87d67cfdce0aac4491f9_DLAND.ethmodel.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 18 functions, 46 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 2 obligations: ['OBL_pre', 'OBL_post']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Undeclared identifier.
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Undeclared identifier.
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'phases', 'composition'] in_progress=['exposure_invariant']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_retrieve_marketing', 'OBL_cb_retrieve_development', 'OBL_cb_retrieve_coder', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Undeclared identifier.
+      OBL_cb_retrieve_marketing [closure]: UNKNOWN :: solc compile error: Error: Undeclared identifier.
+      OBL_cb_retrieve_development [closure]: UNKNOWN :: solc compile error: Error: Undeclared identifier.
+      OBL_cb_retrieve_coder [closure]: UNKNOWN :: solc compile error: Error: Undeclared identifier.
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Undeclared identifier.
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Undeclared identifier.
+  [round 1] correct=['protocol', 'ghost_state', 'phases'] in_progress=['closure', 'composition', 'exposure_invariant']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['_ethBal', 'coder_balance', 'development_balance', 'marketing_balance'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)
+  [validator] exposure invariant VACUOUS: target property mentions storage vars ['_ethBal', 'coder_balance', 'development_balance', 'marketing_balance'] that the invariant does not constrain (likely hidden behind unconstrained ghosts)

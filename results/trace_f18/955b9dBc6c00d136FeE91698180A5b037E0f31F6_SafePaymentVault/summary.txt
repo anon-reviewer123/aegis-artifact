@@ -1,0 +1,12 @@
+STATUS: UNKNOWN
+exposure invariant: None
+candidates tried: 0   repair rounds: 0
+
+[eth-model] address(this).balance -> _ethBal; property now: TotalBalance == _ethBal
+[1] static analysis (ast): storage=['BranchTeamName', 'BranchTeamRegistered', 'CallBranchTeamFunction', 'DepositTotalForOneBranch', 'Deposits', 'MinWeiDeposit', 'MinimumAccountFunds', 'MsgSender', 'RanMakeDeposit', 'RetailSite', 'TXorigin', 'TotalBalance', 'WithdrawalAddress', '_ethBal', 'addrThis', 'owner']
+[2] exposure site: Withdraw -> .call (low-level value transfer can re-enter)
+    conservative closure: ['GetTotalBalance', 'MakeDeposit', 'UpdateBranchName']
+[access] outside the closure under the trusted-roles assumption: ['EmptyAndCloseVault', 'GetDepositTotalForOneBranch', 'SetMinimumDeposit', 'Withdraw']
+[!] closure member(s) ['UpdateBranchName'] may write storage no analysis can bound (delegatecall or storage-writing assembly); a callback may call them, so no proof is possible
+
+obligation files (in order):

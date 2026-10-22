@@ -1,0 +1,102 @@
+status: verified
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:35:93:
+   |
+35 |     function __havoc_cfg0(uint8 __x0, uint8 __x1, address __x2, address __x3, address __x4, address __x5, uint8 __x6, address __x7) public {
+   |                                                                                             ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:35:119:
+   |
+35 |     function __havoc_cfg0(uint8 __x0, uint8 __x1, address __x2, address __x3, address __x4, address __x5, uint8 __x6, address __x7) public {
+   |                                                                                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:44:27:
+   |
+44 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                           ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:44:53:
+   |
+44 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                                                     ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:44:121:
+   |
+44 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                                                                                                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:52:27:
+   |
+52 |     function __havoc_cfg2(address __x0, uint8 __x1, uint8 __x2, uint8 __x3, uint8 __x4) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:62:27:
+   |
+62 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                           ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:62:54:
+   |
+62 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                      ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:62:68:
+   |
+62 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                    ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:62:82:
+   |
+62 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                  ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:62:96:
+   |
+62 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:62:110:
+   |
+62 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:62:124:
+   |
+62 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf45w5atd/OneStep.sol:78:25:
+   |
+78 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpf45w5atd/OneStep.sol:142:54:
+    |
+142 |     function __h__addLiquidity(uint256 _tokenAmount, uint256 _ethAmountWei, bool autoburn) internal {
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: SMTChecker: 1 unsupported language feature(s). Enable the model checker option "show unsupported" to see all of them.
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpf45w5atd/OneStep.sol:264:17:
+    |
+264 |                 assert(_sum__balances + _swapLimit == _totalSupply);            
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,67 @@
+{
+ "contract": "SHIBB",
+ "closure": {
+  "site_function": "transferFrom",
+  "site_call": ".call",
+  "functions": [
+   "burnBot",
+   "burnSniper",
+   "deposit",
+   "removeBot",
+   "removeSniper",
+   "transfer",
+   "transferFrom"
+  ],
+  "justification": "These functions interact with exposed storage and can be reached via re-entrancy."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "burnBot",
+   "burnSniper",
+   "deposit",
+   "removeBot",
+   "removeSniper",
+   "transfer"
+  ],
+  "nesting_bound": {
+   "transferFrom": 1
+  }
+ },
+ "phases": {
+  "function": "transferFrom",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before .call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before .call",
+   "to_marker": "after .call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after .call",
+   "to_marker": "exit"
+  },
+  "linearization_point": "after .call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Tracks the amount of ETH reserves in-flight during re-entrancy",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_ethReserves + _liquidityReserves + inFlight <= _balances[address(this)]",
+  "stable_formula": "_ethReserves + _liquidityReserves <= _balances[address(this)]",
+  "kind": "additive"
+ },
+ "composition": {
+  "target_property": "_ethReserves + _liquidityReserves <= _balances[address(this)]",
+  "rule": "The exposure invariant ensures that the ETH and liquidity reserves, including any in-flight amounts, do not exceed the contract's balance."
+ }
+}

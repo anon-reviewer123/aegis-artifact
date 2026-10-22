@@ -1,0 +1,8 @@
+contract,pattern,function,line,matched,pragma,path
+GasToken2.sol,loop,destroyChildren,167,.call(,0.4.24,corpora/MTC/GasToken2.sol
+GasToken2.sol,readonly,totalSupply,122,s_tail,0.4.24,corpora/MTC/GasToken2.sol
+SquirrelFarmer.sol,readonly,getMySquirrel,135,hatcherySquirrel,^0.4.20,corpora/MTC/SquirrelFarmer.sol
+SquirrelFarmer.sol,readonly,getMyEggs,141,claimedEggs,^0.4.20,corpora/MTC/SquirrelFarmer.sol
+SquirrelFarmer.sol,readonly,getEggsSinceLastHatch,144,"hatcherySquirrel,lastHatch",^0.4.20,corpora/MTC/SquirrelFarmer.sol
+SurgeBNB.sol,readonly,calculatePrice,143,_totalSupply,0.8.0,corpora/MTC/SurgeBNB.sol
+SurgeBNB.sol,readonly,getValueOfHoldings,153,"_balances,_totalSupply",0.8.0,corpora/MTC/SurgeBNB.sol

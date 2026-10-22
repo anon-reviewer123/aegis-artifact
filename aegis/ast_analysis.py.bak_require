@@ -1,0 +1,806 @@
+"""
+ast_analysis.py - Real solc-AST callback-exposure analysis (Module 1+2).
+
+WHY THIS REPLACES THE REGEX PATH (the reviewer answer):
+The soundness theorem requires the conservative closure to be a TRUE
+over-approximation of callback-reachable functions. A regex pass cannot deliver
+that on real contracts: it misses state written through modifiers, state
+inherited from base contracts, multiple external-call sites in one function,
+and aliased storage. This module walks solc's compact-JSON AST so that:
+  * storage variables include inherited state (we union over all base contracts)
+  * a function's reads/writes include those performed in its modifiers
+  * EVERY external call site is found (not just the first), each becoming an
+    independent exposure site
+  * write-before-call / write-after-call is computed from statement ORDER in
+    the AST, per call site
+  * the conservative closure unions over ALL public/external functions of the
+    contract AND its bases that touch any exposed storage slot
+
+If solc is unavailable/broken, callers fall back to the regex analyzer; but for
+any soundness CLAIM, this AST path must be the one that ran (the pipeline
+records which analyzer produced the facts).
+"""
+from __future__ import annotations
+from dataclasses import dataclass, field
+import json
+import os
+import re
+import shutil
+import subprocess
+import tempfile
+
+
+# Reuse the public dataclasses from static_analysis to stay API-compatible.
+from .static_analysis import (FunctionInfo, ExposureSite, ContractFacts,
+                              _CALLBACK_PATTERNS, LoopSite,)
+
+
+def solc_available() -> bool:
+    return shutil.which("solc") is not None
+
+
+def ast_available() -> bool:
+    """solc must exist AND successfully emit an AST for a trivial probe."""
+    if not solc_available():
+        return False
+    probe = ("// SPDX-License-Identifier: MIT\npragma solidity >=0.8.0;\n"
+             "contract P { uint x; function f() public { x = 1; } }\n")
+    try:
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "P.sol")
+            open(p, "w").write(probe)
+            r = subprocess.run(["solc", "--ast-compact-json", p],
+                               capture_output=True, text=True, timeout=60)
+        return r.returncode == 0 and '"nodeType"' in r.stdout
+    except Exception:
+        return False
+
+
+# Set to the last solc stderr so callers/diagnostics can see why AST failed
+LAST_SOLC_ERROR = ""
+
+
+def _installed_versions_sorted():
+    """All solc-select artifact versions present on disk, newest first."""
+    vers = set()
+    for art in _solc_artifacts_dirs():
+        for name in os.listdir(art):
+            m = re.fullmatch(r"solc-(\d+\.\d+\.\d+)", name)
+            if m:
+                vers.add(m.group(1))
+    return sorted(vers, key=lambda v: tuple(int(x) for x in v.split(".")),
+                 reverse=True)
+
+
+def _required_solc_version(src: str):
+    """Resolve a concrete installed solc version satisfying the pragma.
+
+    * exact pin (`0.8.30`)        -> that version
+    * caret (`^0.8.20`)           -> highest installed 0.8.x with minor/patch >= floor
+    * range (`>=0.8.19 <0.9.0`)   -> highest installed version >= the stated floor
+                                     (and < an upper bound if one is given)
+    Returns None only when no pragma is found or no installed version qualifies
+    (then the caller falls back to plain `solc`)."""
+    m = re.search(r"pragma\s+solidity\s+([^;]+);", src)
+    if not m:
+        return None
+    spec = m.group(1).strip()
+    mm = re.fullmatch(r"(\d+\.\d+\.\d+)", spec)
+    if mm:
+        return mm.group(1)
+
+    def tup(v):
+        return tuple(int(x) for x in v.split("."))
+
+    installed = _installed_versions_sorted()
+    if not installed:
+        return None
+
+    # floor from ^x.y.z or >=x.y.z
+    floor = None
+    fm = re.search(r"[\^>=]\s*(\d+\.\d+\.\d+)", spec)
+    if fm:
+        floor = fm.group(1)
+    # caret upper bound: ^0.8.z allows <0.9.0; ^1.2.3 allows <2.0.0
+    upper = None
+    cm = re.search(r"\^\s*(\d+)\.(\d+)\.\d+", spec)
+    if cm:
+        major, minor = int(cm.group(1)), int(cm.group(2))
+        upper = (major, minor + 1, 0) if major == 0 else (major + 1, 0, 0)
+    # explicit <x.y.z upper bound
+    um = re.search(r"<\s*(\d+\.\d+\.\d+)", spec)
+    if um:
+        upper = tup(um.group(1))
+
+    for v in installed:               # newest first
+        if floor and tup(v) < tup(floor):
+            continue
+        if upper and tup(v) >= upper:
+            continue
+        return v
+    return None
+
+
+def _solc_artifacts_dirs():
+    """All candidate solc-select artifacts directories, in priority order.
+    Several may exist (e.g. an empty ~/.solc-select alongside the populated
+    venv-local one), so callers must search ALL of them for the wanted binary
+    rather than stopping at the first directory that merely exists."""
+    cands = [
+        os.path.join(os.environ.get("VIRTUAL_ENV", ""), ".solc-select", "artifacts"),
+        os.path.expanduser("~/venv/.solc-select/artifacts"),
+        os.path.expanduser("~/.solc-select/artifacts"),
+    ]
+    return [d for d in cands if d and os.path.isdir(d)]
+
+
+def _solc_binary_for(version):
+    """Return the path to the solc-select artifact binary for `version`, or
+    plain 'solc' when version is None or no artifact is found. Searches every
+    candidate artifacts directory for the actual binary -- a directory merely
+    existing is not enough -- which avoids both the PATH-shadowing problem and
+    the empty-stub-directory problem."""
+    if not version:
+        return "solc"
+    for art in _solc_artifacts_dirs():
+        cand = os.path.join(art, f"solc-{version}", f"solc-{version}")
+        if os.path.isfile(cand):
+            return cand
+    return "solc"
+
+
+def _normalize_flattened_source(src: str) -> str:
+    """Repair the concatenation artifacts that Etherscan-exported (flattened)
+    sources carry, which make solc reject the file before any analysis:
+
+      * multiple `// SPDX-License-Identifier:` lines  -> keep the first only
+      * multiple `pragma solidity ...;` lines         -> keep the first only
+      * `import "..."` lines                          -> drop them; in a
+        flattened file the imported symbols are already inlined, so the import
+        is redundant. If a symbol is genuinely missing, solc then fails with a
+        clear "undeclared identifier" rather than a silent None -- never a
+        bogus success.
+    """
+    lines = src.splitlines()
+    out, seen_spdx, seen_pragma = [], False, False
+    for ln in lines:
+        st = ln.strip()
+        if st.startswith("// SPDX-License-Identifier:"):
+            if seen_spdx:
+                continue
+            seen_spdx = True
+        elif st.startswith("pragma solidity"):
+            if seen_pragma:
+                continue
+            seen_pragma = True
+        elif st.startswith("import "):
+            continue  # redundant in a flattened file
+        out.append(ln)
+    body = "\n".join(out)
+    return _reorder_contracts(body)
+
+
+_DEF_RE = re.compile(
+    r"^(?:abstract\s+contract|contract|interface|library)\s+(\w+)",
+    re.MULTILINE)
+
+
+def _reorder_contracts(src: str) -> str:
+    """Reorder top-level contract/interface/library definitions so that every
+    base type is defined before any contract that inherits from it. Etherscan
+    multi-file exports frequently emit the main contract first, which solc
+    rejects ("base has to precede derived"). We split the file into a preamble
+    (license/pragma) plus the definition blocks, read each block's `is A, B`
+    bases, and emit blocks in dependency order (a stable topological sort)."""
+    matches = list(_DEF_RE.finditer(src))
+    if len(matches) < 2:
+        return src
+    preamble = src[:matches[0].start()]
+    blocks = {}   # name -> source text
+    bases = {}    # name -> list of base names referenced in `is ...`
+    order = []    # original order, for stable fallback
+    for i, m in enumerate(matches):
+        name = m.group(1)
+        start = m.start()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(src)
+        block = src[start:end]
+        blocks[name] = block
+        order.append(name)
+        # parse `is A, B(...)` up to the opening brace
+        header = block[:block.find("{")] if "{" in block else block
+        im = re.search(r"\bis\b(.*)$", header, re.DOTALL)
+        bs = []
+        if im:
+            for b in re.findall(r"([A-Za-z_]\w*)", im.group(1)):
+                if b in (blocks or {}) or True:
+                    bs.append(b)
+        bases[name] = bs
+    # stable topological sort: emit a contract only after its in-file bases
+    emitted, result = set(), []
+    def visit(n, stack):
+        if n in emitted or n not in blocks:
+            return
+        if n in stack:   # cycle guard (shouldn't happen for valid Solidity)
+            return
+        stack.add(n)
+        for b in bases.get(n, []):
+            if b in blocks:
+                visit(b, stack)
+        stack.discard(n)
+        if n not in emitted:
+            emitted.add(n)
+            result.append(blocks[n])
+    for n in order:
+        visit(n, set())
+    return preamble + "\n".join(result)
+
+
+def _get_ast(sol_path: str) -> dict | None:
+    global LAST_SOLC_ERROR
+    try:
+        raw = open(sol_path).read()
+        src = _normalize_flattened_source(raw)
+        solc_bin = _solc_binary_for(_required_solc_version(raw))
+        with tempfile.TemporaryDirectory() as d:
+            tmp = os.path.join(d, os.path.basename(sol_path))
+            open(tmp, "w").write(src)
+            r = subprocess.run(
+                [solc_bin, "--ast-compact-json", "--base-path", d, tmp],
+                capture_output=True, text=True, timeout=120)
+        LAST_SOLC_ERROR = r.stderr or ""
+        txt = r.stdout
+        start = txt.find("{")
+        if start == -1:
+            return None
+        depth, end = 0, None
+        for i in range(start, len(txt)):
+            if txt[i] == "{":
+                depth += 1
+            elif txt[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
+        return json.loads(txt[start:end]) if end else None
+    except Exception as e:
+        LAST_SOLC_ERROR = f"{type(e).__name__}: {e}"
+        return None
+
+
+# --------------------------------------------------------------------------
+# AST walking helpers
+# --------------------------------------------------------------------------
+def _iter_nodes(node):
+    """Yield every dict node in the AST subtree, depth-first."""
+    if isinstance(node, dict):
+        yield node
+        for v in node.values():
+            yield from _iter_nodes(v)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _iter_nodes(item)
+
+
+def _contract_defs(ast: dict) -> list[dict]:
+    return [n for n in _iter_nodes(ast)
+            if n.get("nodeType") == "ContractDefinition"]
+
+
+def _state_var_names(contract: dict, by_id: dict) -> tuple[set[str], set[int], dict[str, str]]:
+    """Storage vars of a contract INCLUDING inherited ones, returning the
+    names, the set of declaration node-ids (for identifier resolution), and a
+    name -> declared-type map taken straight from the AST's typeString.
+
+    The typeString is solc's ground truth: a mapping is reported as
+    "mapping(address => uint256)", an address as "address", a uint as
+    "uint256". This is what lets harness synthesis stop guessing types from
+    declaration text (the glp/balanceOf-as-address misclassification bug)."""
+    names: set[str] = set()
+    ids: set[int] = set()
+    types: dict[str, str] = {}
+    # linearizedBaseContracts lists this contract + all bases (by id)
+    for cid in contract.get("linearizedBaseContracts", [contract.get("id")]):
+        cdef = by_id.get(cid)
+        if not cdef:
+            continue
+        for node in cdef.get("nodes", []):
+            if (node.get("nodeType") == "VariableDeclaration"
+                    and node.get("stateVariable")):
+                nm = node["name"]
+                names.add(nm)
+                ids.add(node["id"])
+                # most-derived declaration wins (linearized order visits the
+                # derived contract first), so only set if not already present
+                if nm not in types:
+                    tdesc = node.get("typeDescriptions") or {}
+                    tstr = tdesc.get("typeString")
+                    if tstr:
+                        types[nm] = tstr
+    return names, ids, types
+
+
+def _referenced_state(node, state_ids: set[int], state_names: set[str]):
+    """Return (reads, writes) of storage vars within an AST subtree.
+    A write is an Identifier/MemberAccess on the LHS of an Assignment or the
+    target of a unary ++/-- or compound assignment."""
+    reads: set[str] = set()
+    writes: set[str] = set()
+
+    def name_of(idnode):
+        # Identifier referencing a state var declaration, or MemberAccess /
+        # IndexAccess whose base resolves to a state var.
+        nt = idnode.get("nodeType")
+        if nt == "Identifier":
+            if (idnode.get("referencedDeclaration") in state_ids
+                    or idnode.get("name") in state_names):
+                return idnode.get("name")
+        if nt in ("IndexAccess", "MemberAccess"):
+            base = idnode.get("baseExpression") or idnode.get("expression")
+            if base:
+                return name_of(base)
+        return None
+
+    def collect_reads(sub):
+        for n in _iter_nodes(sub):
+            if n.get("nodeType") == "Identifier":
+                nm = name_of(n)
+                if nm:
+                    reads.add(nm)
+
+    for n in _iter_nodes(node):
+        nt = n.get("nodeType")
+        if nt == "Assignment":
+            lhs = n.get("leftHandSide", {})
+            nm = name_of(lhs)
+            if nm:
+                writes.add(nm)
+                if n.get("operator") not in ("=",):  # compound also reads
+                    reads.add(nm)
+            collect_reads(n.get("rightHandSide", {}))
+        elif nt == "UnaryOperation" and n.get("operator") in ("++", "--"):
+            nm = name_of(n.get("subExpression", {}))
+            if nm:
+                writes.add(nm)
+                reads.add(nm)
+        elif nt == "Identifier":
+            nm = name_of(n)
+            if nm:
+                reads.add(nm)
+    return reads, writes
+
+
+# Known re-entrant callback hook names: a call to any of these hands control to
+# adversary-supplied code and is a genuine exposure site regardless of value.
+_HOOK_REASONS = {
+    "onAssetReceived": "ERC777-style asset hook can re-enter",
+    "tokensReceived": "ERC777 tokensReceived hook can re-enter",
+    "onERC1155Received": "ERC1155 receiver hook can re-enter",
+    "onERC721Received": "ERC721 safeTransfer callback can re-enter",
+    "onCallback": "generic external callback can re-enter",
+    "onFlashLoan": "ERC-3156 flash-loan callback can re-enter",
+    "executeOperation": "flash-loan callback can re-enter",
+}
+# Low-level primitives that transfer value/control to the callee's fallback.
+_VALUE_CALLS = {
+    "call": "low-level call can re-enter",
+    "send": "send may trigger fallback",
+    "transfer": "transfer may trigger fallback",
+}
+
+
+def _has_value_option(node) -> bool:
+    """True if a FunctionCall carries a `{value: ...}` option, i.e. it forwards
+    ETH (`recv.call{value: v}(...)`). Such calls appear in the AST as a
+    FunctionCall whose expression is a FunctionCallOptions node listing 'value'."""
+    expr = node.get("expression", {})
+    if expr.get("nodeType") == "FunctionCallOptions":
+        return "value" in (expr.get("names") or [])
+    return False
+
+
+def _is_external_call(node) -> tuple[bool, str, str]:
+    """Detect a callback-capable external call and classify how adversarial it is.
+
+    Returns (is_call, token, reason). Only calls that actually hand value or
+    control to a potentially adversarial callee are exposure sites:
+      * low-level value transfers  (`.call{value:}`, `.send`, `.transfer`)
+      * known re-entrant hook names (onFlashLoan, onERC721Received, ...)
+    Plain view/interface member calls (`index.totalWeight()`, an oracle read,
+    a VRF coordinator request) are NOT treated as exposure sites: they do not
+    pass control to attacker code in a way that can break an accounting
+    invariant, and flagging them buries the real payout site. This corrects the
+    previous over-approximation that flagged every interface member call."""
+    if node.get("nodeType") != "FunctionCall":
+        return False, "", ""
+    # `recv.call{value:v}(data)` nests the MemberAccess inside FunctionCallOptions
+    expr = node.get("expression", {})
+    has_value = _has_value_option(node)
+    if expr.get("nodeType") == "FunctionCallOptions":
+        member = (expr.get("expression", {}) or {}).get("memberName", "") or ""
+    else:
+        member = expr.get("memberName", "") or ""
+    label = f".{member}" if member else "external_call"
+
+    # known adversarial callback hooks: always an exposure site
+    if member in _HOOK_REASONS:
+        return True, label, _HOOK_REASONS[member]
+    # low-level value/transfer primitives: exposure site
+    if member in _VALUE_CALLS:
+        # a `.call{value:}` payout is the canonical winner/withdraw re-entry
+        reason = ("low-level value transfer can re-enter"
+                  if (member == "call" and has_value) else _VALUE_CALLS[member])
+        return True, label, reason
+    # any other member call that explicitly forwards ETH is also a site
+    if has_value:
+        return True, label, "value-forwarding external call can re-enter"
+    # interface-cast callback on an arbitrary address, e.g.
+    # `IRewardHook(hook).onClaim(...)`. The receiver is a type-conversion to a
+    # contract/interface type applied to an address expression -- an EXPLICIT
+    # external call that can re-enter. This is distinct from a member call on a
+    # plain state variable (`index.totalWeight()`), whose base is an Identifier,
+    # not a cast, and which we continue to exclude as a trusted dependency.
+    base = expr.get("expression", {}) if expr.get("nodeType") == "MemberAccess" else {}
+    if base.get("nodeType") == "FunctionCall" and base.get("kind") == "typeConversion":
+        tstr = (base.get("typeDescriptions", {}) or {}).get("typeString", "")
+        if "contract" in tstr or "interface" in tstr:
+            return True, label, "external interface callback may re-enter"
+    # plain view/interface calls (no value, not a known hook): NOT a site
+    return False, "", ""
+
+
+def _ordered_statements(fn_body) -> list[dict]:
+    """Flat, ordered list of statement nodes in a function body.
+
+    Recursively flattens nested blocks (unchecked blocks, if/else arms, for
+    and while bodies) into a single ordered sequence so a callback buried
+    inside a compound statement is visible to the before/after phase split.
+    Leaf statements are returned as-is; a compound statement contributes its
+    inner statements in source order and is not itself emitted.
+    """
+    out = []
+
+    def walk(node):
+        if not isinstance(node, dict):
+            return
+        nt = node.get("nodeType")
+        if nt in ("Block", "UncheckedBlock"):
+            for s in node.get("statements", []) or []:
+                walk(s)
+            return
+        if nt == "IfStatement":
+            cond = node.get("condition")
+            if cond is not None:
+                out.append({"nodeType": "ExpressionStatement",
+                            "expression": cond})
+            walk(node.get("trueBody"))
+            walk(node.get("falseBody"))
+            return
+        if nt in ("ForStatement", "WhileStatement", "DoWhileStatement"):
+            walk(node.get("body"))
+            return
+        out.append(node)
+
+    for s in (fn_body or {}).get("statements", []) or []:
+        walk(s)
+    return out
+
+
+
+def _detect_loop_sites(target, state_names):
+    """Find external calls inside loop bodies and capture per-iteration state
+    writes/reads. Parallel to exposure-site detection but loop-aware (does NOT
+    flatten loops). Returns list[LoopSite]."""
+    from .static_analysis import LoopSite
+    sites = []
+
+    def _writes(node):
+        w = set()
+        def walk(n):
+            if isinstance(n, dict):
+                if n.get("nodeType") == "Assignment":
+                    base = n.get("leftHandSide", {})
+                    while base.get("nodeType") == "IndexAccess":
+                        base = base.get("baseExpression", {})
+                    nm = base.get("name")
+                    if nm in state_names:
+                        w.add(nm)
+                for v in n.values():
+                    walk(v)
+            elif isinstance(n, list):
+                for v in n:
+                    walk(v)
+        walk(node); return w
+
+    def _reads(node):
+        r = set()
+        def walk(n):
+            if isinstance(n, dict):
+                if n.get("nodeType") == "Identifier" and n.get("name") in state_names:
+                    r.add(n["name"])
+                for v in n.values():
+                    walk(v)
+            elif isinstance(n, list):
+                for v in n:
+                    walk(v)
+        walk(node); return r
+
+    def _split_writes_at_call(body, state):
+        """Walk the loop body statements in source order; collect state writes
+        before the first external call vs after it."""
+        before, after = set(), set()
+        seen_call = [False]
+        def stmt_writes(node):
+            w = set()
+            def walk(n):
+                if isinstance(n, dict):
+                    if n.get("nodeType") == "Assignment":
+                        base = n.get("leftHandSide", {})
+                        while base.get("nodeType") == "IndexAccess":
+                            base = base.get("baseExpression", {})
+                        if base.get("name") in state:
+                            w.add(base["name"])
+                    for v in n.values():
+                        walk(v)
+                elif isinstance(n, list):
+                    for v in n:
+                        walk(v)
+            walk(node); return w
+        def has_call(node):
+            found = [False]
+            def walk(n):
+                if isinstance(n, dict):
+                    if n.get("nodeType") == "FunctionCall":
+                        try:
+                            ok, _, _ = _is_external_call(n)
+                        except Exception:
+                            ok = False
+                        if ok: found[0] = True
+                    for v in n.values():
+                        walk(v)
+                elif isinstance(n, list):
+                    for v in n:
+                        walk(v)
+            walk(node); return found[0]
+        stmts = (body.get("statements") if isinstance(body, dict) else None) or [body]
+        for st in stmts:
+            w = stmt_writes(st)
+            if seen_call[0]:
+                after |= w
+            else:
+                before |= w
+            if has_call(st):
+                seen_call[0] = True
+                # writes in the SAME statement as the call count as before
+        return before, after
+
+    def scan(fn):
+        fname = fn.get("name") or "<fallback>"
+        def walk(node, loop_stack):
+            if isinstance(node, dict):
+                nt = node.get("nodeType")
+                is_loop = nt in ("ForStatement", "WhileStatement", "DoWhileStatement")
+                stack = loop_stack + [node] if is_loop else loop_stack
+                if nt == "FunctionCall":
+                    try:
+                        ok, tok, _ = _is_external_call(node)
+                    except Exception:
+                        ok = False
+                    if ok and loop_stack:
+                        body = loop_stack[-1].get("body", {})
+                        wb, wa = _split_writes_at_call(body, state_names)
+                        sites.append(LoopSite(
+                            function=fname, call=tok if ok else "?",
+                            loop_body_writes=sorted(_writes(body)),
+                            loop_body_reads=sorted(_reads(body)),
+                            writes_before_call=sorted(wb),
+                            writes_after_call=sorted(wa)))
+                for v in node.values():
+                    walk(v, stack)
+            elif isinstance(node, list):
+                for v in node:
+                    walk(v, loop_stack)
+        walk(fn.get("body", {}), [])
+
+    for node in target.get("nodes", []):
+        if node.get("nodeType") == "FunctionDefinition" and node.get("body"):
+            scan(node)
+    return sites
+
+
+def analyze_ast(sol_path: str) -> ContractFacts | None:
+    if not ast_available():
+        return None
+    ast = _get_ast(sol_path)
+    if not ast:
+        return None
+    contracts = _contract_defs(ast)
+    if not contracts:
+        return None
+    by_id = {c["id"]: c for c in contracts}
+
+    # Pick the last non-interface contract as the target (top of the file).
+    target = None
+    for c in contracts:
+        if c.get("contractKind") == "contract":
+            target = c
+    if target is None:
+        return None
+
+    state_names, state_ids, state_types = _state_var_names(target, by_id)
+
+    # Gather all function definitions across the contract + bases.
+    functions: dict[str, FunctionInfo] = {}
+    fn_nodes: dict[str, dict] = {}
+    for cid in target.get("linearizedBaseContracts", [target["id"]]):
+        cdef = by_id.get(cid)
+        if not cdef:
+            continue
+        for node in cdef.get("nodes", []):
+            if node.get("nodeType") != "FunctionDefinition":
+                continue
+            if node.get("kind") == "constructor":
+                continue
+            # Skip interface / abstract declarations (no body). These have
+            # implemented == False and a null body; collecting them lets an
+            # interface stub shadow the real implementation and become a bogus
+            # empty-window exposure site (observed on swap contracts whose
+            # transferFrom interface stub was picked over the real _transfer).
+            if node.get("implemented") is False or not node.get("body"):
+                continue
+            name = node.get("name") or "<fallback>"
+            if name in functions:
+                continue  # most-derived wins (linearized order)
+            vis = node.get("visibility", "public")
+            mut = node.get("stateMutability", "nonpayable")
+            ptypes = []
+            for prm in (node.get("parameters", {}) or {}).get("parameters", []):
+                t = (prm.get("typeDescriptions", {}) or {}).get("typeString", "")
+                ptypes.append(t)
+            info = FunctionInfo(name=name, visibility=vis,
+                                mutability=mut, param_types=ptypes)
+            # include reads/writes from the body AND from attached modifiers
+            reads, writes = _referenced_state(node.get("body", {}),
+                                              state_ids, state_names)
+            for mod in node.get("modifiers", []):
+                md = by_id_lookup_modifier(ast, mod)
+                if md:
+                    mr, mw = _referenced_state(md.get("body", {}),
+                                               state_ids, state_names)
+                    reads |= mr
+                    writes |= mw
+            info.reads, info.writes = reads, writes
+            functions[name] = info
+            fn_nodes[name] = node
+
+    # Find exposure sites: walk each function body in statement order, locate
+    # external calls, and split writes before/after each call.
+    exposure_sites: list[ExposureSite] = []
+    for name, node in fn_nodes.items():
+        stmts = _ordered_statements(node.get("body", {}))
+        # locate first callback-capable call's statement index
+        call_idx = None
+        call_token = ""
+        reason = ""
+        for i, st in enumerate(stmts):
+            for sub in _iter_nodes(st):
+                ok, tok, rsn = _is_external_call(sub)
+                if ok:
+                    call_idx, call_token, reason = i, tok, rsn
+                    break
+            if call_idx is not None:
+                break
+        if call_idx is None:
+            continue
+        before = stmts[:call_idx]
+        after = stmts[call_idx:]
+        _, wbc = _referenced_state({"statements": before}, state_ids, state_names)
+        _, wac = _referenced_state({"statements": after}, state_ids, state_names)
+        info = functions[name]
+        info.external_calls.append(call_token)
+        info.write_before_call = wbc
+        info.write_after_call = wac
+        exposed = wbc | wac | (info.reads & info.writes)
+        exposure_sites.append(ExposureSite(
+            function=name, call=call_token, callback_capable=True,
+            reason=reason, exposed_storage=set(exposed),
+            write_before_call=set(wbc), write_after_call=set(wac)))
+
+    def _stmt_calls(stmts):
+        out = []
+        for i, st in enumerate(stmts):
+            for sub in _iter_nodes(st):
+                if sub.get("nodeType") != "FunctionCall":
+                    continue
+                ex = sub.get("expression", {}) or {}
+                if ex.get("nodeType") == "Identifier" and ex.get("name") in fn_nodes:
+                    out.append((i, ex.get("name")))
+                elif (ex.get("nodeType") == "MemberAccess"
+                      and (ex.get("expression", {}) or {}).get("nodeType") == "Identifier"
+                      and (ex.get("expression", {}) or {}).get("name") == "this"
+                      and ex.get("memberName") in fn_nodes):
+                    out.append((i, ex.get("memberName")))
+        return out
+
+    lifted = []
+    lifted_keys = set()
+    for s in list(exposure_sites):
+        fi = functions.get(s.function)
+        if fi is None or fi.visibility in ("public", "external"):
+            continue
+        # Only lift a base site that already has a real straddling window.
+        # Without this, a windowless leaf accumulates callers' unrelated writes
+        # and becomes a fabricated window on a contract that has none.
+        if not (s.write_before_call and s.write_after_call):
+            continue
+        frontier = [(s.function, set(s.write_before_call), set(s.write_after_call))]
+        seen = {s.function}
+        for _ in range(3):
+            nxt = []
+            for helper, hb, ha in frontier:
+                for name, node in fn_nodes.items():
+                    if name in seen:
+                        continue
+                    stmts = _ordered_statements(node.get("body", {}))
+                    hit = None
+                    for idx, callee in _stmt_calls(stmts):
+                        if callee == helper:
+                            hit = idx
+                            break
+                    if hit is None:
+                        continue
+                    # The child must carry a real window up; a windowless
+                    # child cannot seed a window in the caller.
+                    if not (hb and ha):
+                        continue
+                    _, wb = _referenced_state({"statements": stmts[:hit]},
+                                              state_ids, state_names)
+                    _, wa = _referenced_state({"statements": stmts[hit + 1:]},
+                                              state_ids, state_names)
+                    wbc = wb | hb
+                    wac = wa | ha
+                    seen.add(name)
+                    info = functions[name]
+                    if info.visibility in ("public", "external"):
+                        key = (name, s.call)
+                        if key in lifted_keys or not (wbc or wac):
+                            continue
+                        lifted_keys.add(key)
+                        info.external_calls.append(s.call)
+                        info.write_before_call |= wbc
+                        info.write_after_call |= wac
+                        lifted.append(ExposureSite(
+                            function=name, call=s.call, callback_capable=True,
+                            reason=s.reason + " via " + s.function,
+                            exposed_storage=set(wbc | wac | (info.reads & info.writes)),
+                            write_before_call=set(wbc),
+                            write_after_call=set(wac)))
+                    else:
+                        nxt.append((name, wbc, wac))
+            frontier = nxt
+            if not frontier:
+                break
+    exposure_sites.extend(lifted)
+    exposure_sites.sort(key=lambda s: (
+        bool(s.write_before_call) and bool(s.write_after_call),
+        (functions[s.function].visibility in ("public", "external"))
+        if s.function in functions else False,
+        len(s.write_before_call | s.write_after_call)), reverse=True)
+
+    loop_sites = _detect_loop_sites(target, state_names)
+    return ContractFacts(contract=target.get("name", "Contract"),
+                         storage_vars=sorted(state_names),
+                         functions=functions,
+                         exposure_sites=exposure_sites,
+                         loop_sites=loop_sites,
+                         var_types=state_types)
+
+
+def by_id_lookup_modifier(ast: dict, modifier_invocation: dict) -> dict | None:
+    """Resolve a ModifierInvocation to its ModifierDefinition by name."""
+    name = (modifier_invocation.get("modifierName", {}) or {}).get("name")
+    if not name:
+        return None
+    for n in _iter_nodes(ast):
+        if n.get("nodeType") == "ModifierDefinition" and n.get("name") == name:
+            return n
+    return None

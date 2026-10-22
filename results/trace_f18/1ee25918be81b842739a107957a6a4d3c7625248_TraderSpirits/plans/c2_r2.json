@@ -1,0 +1,57 @@
+{
+ "contract": "TraderSpirits",
+ "closure": {
+  "site_function": "mintByUser",
+  "site_call": ".call",
+  "functions": [
+   "mintByUser"
+  ],
+  "justification": "The exposed storage variables 'publicMintId', 'publicMinted', 'totalMinted', and 'walletMinted' are only written by the 'mintByUser' function, making it the sole function in the conservative closure."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "mintByUser"
+  ],
+  "nesting_bound": {
+   "mintByUser": 1
+  }
+ },
+ "phases": {
+  "function": "mintByUser",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_external_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_external_call",
+   "to_marker": "after_external_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_external_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_external_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "tokens being minted mid-transfer",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "publicMinted + inFlight <= publicMintLimit",
+  "stable_formula": "publicMinted <= publicMintLimit",
+  "kind": "bounded",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "publicMinted <= publicMintLimit",
+  "rule": "The exposure invariant ensures that the sum of 'publicMinted' and any ongoing mint process represented by 'inFlight' remains within 'publicMintLimit' during re-entrant calls."
+ }
+}

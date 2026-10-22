@@ -1,0 +1,14 @@
+STATUS: HARNESS_NONCONFORMING
+exposure invariant: None
+candidates tried: 0   repair rounds: 0
+
+[eth-model] address(this).balance -> _ethBal; property now: _sum_balances == _ethBal
+[1] static analysis (ast): storage=['balances', 'dao']
+[2] exposure site: withdraw -> .call (low-level value transfer can re-enter)
+    conservative closure: ['deposit', 'withdraw']
+[access] outside the closure under the trusted-roles assumption: ['attack']
+[harness] cached 66f066b9dbd9bee28fbefcdf9d696c770f58f081_Att.ethmodel.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 66f066b9dbd9bee28fbefcdf9d696c770f58f081_Att.ethmodel.harness.sol (2319 chars)
+[!] HARNESS UNSUPPORTED: the exposure call is not in withdraw itself (reached through a helper)
+
+obligation files (in order):

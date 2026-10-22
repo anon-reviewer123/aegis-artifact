@@ -1,0 +1,26 @@
+status: unknown
+
+[solc]
+
+Warning: BMC: Assertion violation happens here.
+  --> /tmp/tmplohd9wf8/OneStep.sol:69:17:
+   |
+69 |                 assert(_sum_balances == _ethBal + inFlight);            
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: Counterexample:
+  PRICE = 0xFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFe923
+  __prev0 = 0xFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFe922
+  _ethBal = 0xFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFe923
+  _sum_balances = 1
+  amount = 0xFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFe923
+  balances[msg.sender] = 0xFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFffffFFFFe923
+  exposed = true
+  inFlight = 0
+  snapPre = 0
+  this = 31892
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

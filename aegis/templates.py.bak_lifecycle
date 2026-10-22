@@ -1,0 +1,434 @@
+"""
+templates.py - Invariant-template family for Aegis.
+
+An MCVP's exposure invariant is not a single fixed shape. Different callback
+vulnerability classes are naturally expressed by different *kinds* of invariant.
+A Template decides, for one invariant kind, the predicate that each per-phase
+obligation must establish/preserve/restore. Everything mechanical about harness
+construction (phase split, trimming, wrapping) is template-independent and lives
+in compiler.py; a Template only supplies the bodies of the obligation `check()`
+functions.
+
+This keeps the soundness story intact: a Template never weakens validation or
+the backend; it only chooses which predicate the sound backend is asked to
+discharge for each obligation.
+
+Template family (mapped to the callback-vulnerability taxonomy):
+  additive       T1  A == B + g                    desync / cross-function reentrancy
+  conserve       T2  total == trackedSum + g       supply integrity under hooks
+  bounded        T3  A >= B && A <= B + g          rounding / partial-update drift
+  phase          T4  boolean relation in window    phase desync / ordering
+  mapconserve    T5  map[account] rel total (+ g)  per-account vs declared total
+  multiconserve  T6  A + B + ... == T + g          several scalars conserve to one total
+  monotone       T7  V >= V@window-entry           read-only reentrancy / stale feeds
+  linear         T8  c1*x1 + ... == d1*y1 + ... + g  general linear accounting
+
+Each Template implements:
+  exposed_predicate(ctx) -> str  the predicate checked during the window
+                                 (default: the plan's exposure formula verbatim)
+  pre_check(ctx)   -> str   body of OBL_pre.check()
+  cb_check(ctx,f)  -> str   body of OBL_cb_<f>.check()
+  post_check(ctx)  -> str   body of OBL_post.check()
+  extra_ghosts()   -> list[GhostVar]  (default: none)
+  validate(plan, facts) -> list[str]  template-specific well-formedness
+
+`ctx` is a small struct the compiler fills with the already-computed, already
+contract-agnostic pieces (the q() rewriter, invariant strings, flag/ghost names,
+the share-balance guard). Templates compose strings only; they do not parse
+Solidity or touch the harness body.
+"""
+from __future__ import annotations
+from dataclasses import dataclass
+from typing import Callable
+import re
+
+
+@dataclass
+class TemplateCtx:
+    """Everything a template needs to emit obligation check-bodies, all already
+    computed by the compiler in a contract-agnostic way."""
+    q: Callable[[str], str]      # rewrite a bare-identifier formula to v.<id>() form
+    inv_exp: str                 # exposure invariant formula (backend-agnostic)
+    inv_stable: str              # stable invariant formula
+    target: str                  # target property
+    flag_name: str               # boolean exposure-phase flag (e.g. "exposed")
+    primary_ghost: str           # in-flight ghost settled to 0 by post (e.g. "inFlight")
+    share_guard: str             # feasibility guard line, or "" if not applicable
+
+
+class Template:
+    """Base class. Default behavior == T1 additive, so any contract that does
+    not specify a kind behaves exactly as the original (pre-template) compiler."""
+    kind = "additive"
+
+    def extra_ghosts(self):
+        return []
+
+    def validate(self, plan, facts=None) -> list[str]:
+        return []
+
+    def exposed_predicate(self, c: TemplateCtx) -> str:
+        """The predicate that must hold during the callback window. Subclasses
+        may derive a stronger predicate from the plan's exposure formula (e.g.
+        bounded adds the implied lower bound)."""
+        return c.inv_exp
+
+    # ---- obligation check bodies -----------------------------------------
+    def pre_check(self, c: TemplateCtx) -> str:
+        pred = self.exposed_predicate(c)
+        return f"""
+        function check(uint256 amount) public {{
+            // assume stable invariant holds on entry and a feasible operation
+            require({c.q(c.inv_stable)});
+            {c.share_guard}v.depositFor(address(this), amount); // seed feasible state
+            v.beginExposed(amount);              // PRE phase body
+            assert({c.q(pred)});                // must establish I_exp
+        }}"""
+
+    def cb_check(self, c: TemplateCtx, f: str, cb_param_types=None) -> str:
+        pred = self.exposed_predicate(c)
+        return f"""
+            function check(uint256 amount) public {{
+                require(v.{c.flag_name}());
+                require({c.q(pred)});           // assume I_exp before callback
+                v.{f}(amount);                    // run the callback (wrapper takes uint256)
+                assert({c.q(pred)});            // I_exp must still hold
+            }}"""
+
+    def view_check(self, c: TemplateCtx, g: str, ret_type: str,
+                   param_types=None, backing=None) -> str:
+        """Differential view-safety: the value returned by view g during the
+        exposed window must equal the value it returns after the window is
+        settled. Divergence is a concrete read-only reentrancy witness. This is
+        general: it needs no per-view synthesized relation."""
+        param_types = param_types or []
+        decls, args = [], []
+        for i, t in enumerate(param_types):
+            base = (t or "uint256").replace(" memory", "").replace(" calldata", "").strip()
+            if base.startswith("address"): base = "address"
+            elif base.startswith("uint"): base = "uint256"
+            elif base.startswith("int"): base = "int256"
+            elif base.startswith("bool"): base = "bool"
+            elif base.startswith("bytes32"): base = "bytes32"
+            else: base = "uint256"
+            decls.append(f"{base} a{i}")
+            args.append(f"a{i}")
+        rt = (ret_type or "uint256").replace(" memory", "").replace(" calldata", "").strip()
+        extra_sig = "".join(", " + d for d in decls)
+        call_args = ", ".join(args)
+        return f"""
+            function check(uint256 amount{extra_sig}) public {{
+                require(v.{c.flag_name}());               // mid-callback (exposed)
+                {rt} r_exposed = v.{g}({call_args});       // view during the window
+                v.endExposed(amount);                      // settle the window
+                {rt} r_stable  = v.{g}({call_args});       // view after settlement
+                assert(r_exposed == r_stable);             // read-only safe iff equal
+            }}"""
+
+    def post_check(self, c: TemplateCtx) -> str:
+        pred = self.exposed_predicate(c)
+        return f"""
+        function check(uint256 amount) public {{
+            require(v.{c.flag_name}());
+            require({c.q(pred)});                // assume I_exp at call return
+            require(v.{c.primary_ghost}() == amount); // post settles the full in-flight amount
+            v.endExposed(amount);                 // POST phase body
+            assert({c.q(c.inv_stable)});             // I_stable restored
+            assert(v.{c.primary_ghost}() == 0);     // in-flight ghost fully settled
+            assert(!v.{c.flag_name}());             // exposed phase exited
+        }}"""
+
+
+def _ghost_names(plan) -> list[str]:
+    return [g.name for g in plan.ghost_state if g.sol_type != "bool"]
+
+
+def _has_ghost_term(formula: str, plan) -> bool:
+    return any(re.search(rf"\+\s*{re.escape(g)}\b", formula)
+               for g in _ghost_names(plan))
+
+
+def _split_upper_bound(formula: str, ghost: str):
+    """Parse `A <= B + ghost` into (A, B). Returns None if the formula is not
+    a single upper bound whose slack side adds the given ghost."""
+    if formula.count("<=") != 1 or "==" in formula:
+        return None
+    lhs, rhs = formula.split("<=", 1)
+    lhs, rhs = lhs.strip(), rhs.strip()
+    base = re.sub(rf"\s*\+\s*{re.escape(ghost)}\b", "", rhs).strip()
+    if base == rhs or not base:
+        return None
+    return lhs, base
+
+
+# ----- T1: additive accounting (the original behavior) --------------------
+class AdditiveTemplate(Template):
+    """A == B + ghost. Reproduces the original compiler behavior exactly."""
+    kind = "additive"
+    # inherits all check bodies unchanged.
+
+
+# ----- T2: scalar conservation ---------------------------------------------
+class ConservationTemplate(Template):
+    """total == trackedSum + ghost, where trackedSum is a maintained SCALAR
+    (never a sum over a mapping; that is T5). The obligation bodies are the
+    additive ones; this class adds the shape checks."""
+    kind = "conserve"
+
+    def validate(self, plan, facts=None) -> list[str]:
+        f = plan.exposure_invariant.formula
+        if "==" not in f:
+            return ["conserve template requires an equality formula "
+                    "total == trackedSum + ghost"]
+        if "[" in f:
+            return ["conserve template relates SCALARS; a mapping access "
+                    "belongs to the mapconserve template"]
+        if not _has_ghost_term(f, plan):
+            return ["conserve template formula must add a declared ghost "
+                    "to the tracked-sum side"]
+        return []
+
+
+# ----- T3: bounded drift ----------------------------------------------------
+class BoundedDriftTemplate(Template):
+    """0 <= A - B <= ghost. The plan supplies only the upper bound
+    A <= B + ghost; the implied lower bound A >= B is derived here, so the
+    window predicate checked by every obligation is the full band."""
+    kind = "bounded"
+
+    def exposed_predicate(self, c: TemplateCtx) -> str:
+        parts = _split_upper_bound(c.inv_exp, c.primary_ghost)
+        if parts is None:
+            return c.inv_exp
+        lhs, base = parts
+        return (f"({lhs}) >= ({base}) && "
+                f"({lhs}) <= ({base}) + {c.primary_ghost}")
+
+    def validate(self, plan, facts=None) -> list[str]:
+        f = plan.exposure_invariant.formula
+        ghosts = _ghost_names(plan)
+        if not any(_split_upper_bound(f, g) for g in ghosts):
+            return ["bounded template requires the exposure formula to be a "
+                    "single upper bound of the form A <= B + ghost, with the "
+                    "ghost declared in ghost_state"]
+        return []
+
+
+# ----- T4: phase consistency ------------------------------------------------
+class PhaseConsistencyTemplate(Template):
+    """A boolean state-machine relation must hold throughout the window, e.g.
+    !finalized. The obligation bodies are the base ones: the boolean IS the
+    window predicate; post still restores the stable relation and settles the
+    ledger."""
+    kind = "phase"
+
+    def validate(self, plan, facts=None) -> list[str]:
+        f = plan.exposure_invariant.formula
+        for g in _ghost_names(plan):
+            if re.search(rf"\b{re.escape(g)}\b", f):
+                return ["phase template formula is a boolean relation over "
+                        "contract state; it must not mention the in-flight "
+                        "ghost"]
+        if any(op in f for op in ("<=", ">=", "<", ">", "+", "-", "*")):
+            return ["phase template formula must be a boolean relation "
+                    "(flags, ==, !=, !, &&, ||), not arithmetic"]
+        return []
+
+
+# ----- T5: mapping conservation ----------------------------------------------
+class MappingConservationTemplate(Template):
+    """A per-account mapping entry against a scalar total, written with the
+    acting account as `account`, e.g. balances[account] <= totalSupply + ghost.
+    The compiler's q() lowers map[account] to the harness getter with the
+    obligation contract's own address as the key. The obligation bodies are the
+    base ones."""
+    kind = "mapconserve"
+
+    def validate(self, plan, facts=None) -> list[str]:
+        f = plan.exposure_invariant.formula
+        m = re.search(r"([A-Za-z_]\w*)\s*\[", f)
+        if not m:
+            return ["mapconserve template requires a mapping access in the "
+                    "formula, e.g. balances[account] <= totalSupply + ghost"]
+        if facts is not None and m.group(1) not in set(facts.storage_vars):
+            return [f"mapconserve template indexes '{m.group(1)}', which is "
+                    f"not a storage variable of the contract"]
+        if not any(op in f for op in ("<=", "==")):
+            return ["mapconserve template requires a <= or == relation "
+                    "between the mapping entry and the scalar total"]
+        return []
+
+
+# ----- T6: multi-variable conservation ----------------------------------------
+class MultiConservationTemplate(Template):
+    """Several scalars conserve against one total: A + B + ... == T + ghost.
+    The obligation bodies are the base ones; this class checks the shape."""
+    kind = "multiconserve"
+
+    def validate(self, plan, facts=None) -> list[str]:
+        f = plan.exposure_invariant.formula
+        if "==" not in f or "[" in f:
+            return ["multiconserve template requires a scalar equality of the "
+                    "form A + B + ... == T + ghost"]
+        lhs = f.split("==", 1)[0]
+        ghosts = set(_ghost_names(plan))
+        lhs_terms = [t.strip() for t in lhs.split("+")
+                     if t.strip() and t.strip() not in ghosts]
+        if len(lhs_terms) < 2:
+            return ["multiconserve template requires at least two conserved "
+                    "terms on the left of ==; use additive or conserve for a "
+                    "single pair"]
+        if not _has_ghost_term(f, plan):
+            return ["multiconserve template formula must add a declared ghost "
+                    "on one side of the equality"]
+        return []
+
+
+# ----- T7: monotonic bound ------------------------------------------------------
+class MonotonicBoundTemplate(Template):
+    """An observable value must never drop below its value at the start of the
+    callback window (read-only reentrancy, stale feeds). The exposure formula
+    names the monitored expression (e.g. `reserve`); each obligation snapshots
+    it locally and asserts it did not decrease across the phase or callback it
+    checks, so the composed window satisfies V >= V@entry at every observation
+    point."""
+    kind = "monotone"
+
+    def _monitored(self, c: TemplateCtx) -> str:
+        f = c.inv_exp.strip()
+        m = re.match(r"^\s*(.+?)\s*>=\s*old\s*\(", f)
+        if m:
+            return m.group(1).strip()
+        m = re.match(r"^\s*(.+?)\s*>=", f)
+        if m:
+            return m.group(1).strip()
+        return f
+
+    def pre_check(self, c: TemplateCtx) -> str:
+        expr = self._monitored(c)
+        return f"""
+        function check(uint256 amount) public {{
+            require({c.q(c.inv_stable)});
+            {c.share_guard}v.depositFor(address(this), amount); // seed feasible state
+            uint256 entryValue = {c.q(expr)};
+            v.beginExposed(amount);              // PRE phase body
+            assert({c.q(expr)} >= entryValue);   // observable never dips below entry
+        }}"""
+
+    def cb_check(self, c: TemplateCtx, f: str, cb_param_types=None) -> str:
+        expr = self._monitored(c)
+        return f"""
+            function check(uint256 amount) public {{
+                require(v.{c.flag_name}());
+                uint256 entryValue = {c.q(expr)};
+                v.{f}(amount);                    // run the callback (wrapper takes uint256)
+                assert({c.q(expr)} >= entryValue); // callback must not lower it
+            }}"""
+
+    def post_check(self, c: TemplateCtx) -> str:
+        return f"""
+        function check(uint256 amount) public {{
+            require(v.{c.flag_name}());
+            require(v.{c.primary_ghost}() == amount); // post settles the full in-flight amount
+            v.endExposed(amount);                 // POST phase body
+            assert({c.q(c.inv_stable)});             // I_stable restored
+            assert(v.{c.primary_ghost}() == 0);     // in-flight ghost fully settled
+            assert(!v.{c.flag_name}());             // exposed phase exited
+        }}"""
+
+    def validate(self, plan, facts=None) -> list[str]:
+        f = plan.exposure_invariant.formula
+        expr = self._monitored(
+            TemplateCtx(q=lambda s: s, inv_exp=f, inv_stable="", target="",
+                        flag_name="", primary_ghost="", share_guard=""))
+        idents = set(re.findall(r"[A-Za-z_]\w*", expr)) - {"old"}
+        if not idents:
+            return ["monotone template requires the exposure formula to name "
+                    "the monitored storage expression, e.g. `reserve`"]
+        if facts is not None:
+            known = set(facts.storage_vars) | {g.name for g in plan.ghost_state}
+            unknown = idents - known
+            if unknown:
+                return [f"monotone template monitors unknown identifiers "
+                        f"{sorted(unknown)}; use storage variables of the "
+                        f"contract"]
+        return []
+
+
+# ----- T8: general linear equality -----------------------------------------------
+class LinearEqualityTemplate(Template):
+    """A general linear equality with integer coefficients:
+    c1*x1 + c2*x2 + ... == d1*y1 + ... + ghost. The obligation bodies are the
+    base ones; this class checks the formula stays in the linear fragment."""
+    kind = "linear"
+
+    def validate(self, plan, facts=None) -> list[str]:
+        f = plan.exposure_invariant.formula
+        if "==" not in f:
+            return ["linear template requires an equality formula"]
+        residue = re.sub(r"[A-Za-z_]\w*|\d+|==|\+|\-|\*|\(|\)|\s", "", f)
+        if residue:
+            return [f"linear template formula must use only +, -, *, integer "
+                    f"coefficients and identifiers; found '{residue}'"]
+        if not _has_ghost_term(f, plan):
+            return ["linear template formula must add a declared ghost on one "
+                    "side of the equality"]
+        return []
+
+
+# Registry. New templates are added here; selection is by ExposureInvariant.kind.
+_REGISTRY: dict[str, Template] = {
+    t.kind: t for t in (
+        AdditiveTemplate(),
+        ConservationTemplate(),
+        BoundedDriftTemplate(),
+        PhaseConsistencyTemplate(),
+        MappingConservationTemplate(),
+        MultiConservationTemplate(),
+        MonotonicBoundTemplate(),
+        LinearEqualityTemplate(),
+    )
+}
+
+# Paper-facing and LLM-emitted names accepted for each canonical kind.
+_ALIASES: dict[str, str] = {
+    "additive": "additive",
+    "conserve": "conserve",
+    "conservation": "conserve",
+    "bounded": "bounded",
+    "bounded-drift": "bounded",
+    "phase": "phase",
+    "phase-consistency": "phase",
+    "mapconserve": "mapconserve",
+    "mapping-conservation": "mapconserve",
+    "multiconserve": "multiconserve",
+    "multi-conservation": "multiconserve",
+    "multi-variable-conservation": "multiconserve",
+    "monotone": "monotone",
+    "monotonic": "monotone",
+    "monotonic-bound": "monotone",
+    "linear": "linear",
+    "linear-equality": "linear",
+    "general-linear": "linear",
+    "general-linear-equality": "linear",
+}
+
+
+def canonical_kind(kind: str | None) -> str:
+    """Normalize an LLM-emitted or paper-style template name to its canonical
+    registry kind. Unknown names pass through (get_template then falls back to
+    additive; the validator is the place that rejects malformed plans)."""
+    if not kind:
+        return "additive"
+    k = str(kind).strip().lower().replace("_", "-").replace(" ", "-")
+    return _ALIASES.get(k, k)
+
+
+def get_template(kind: str | None) -> Template:
+    """Return the Template for a kind, defaulting to additive (T1) so existing
+    plans with no kind set behave exactly as before."""
+    return _REGISTRY.get(canonical_kind(kind), _REGISTRY["additive"])
+
+
+def register_template(t: Template) -> None:
+    _REGISTRY[t.kind] = t

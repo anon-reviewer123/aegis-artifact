@@ -1,0 +1,9 @@
+status: unknown
+
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmp1tnwk652/Obligation.sol:208:73:
+    |
+208 |     function __aegis_check() public view { require(__aegis_depth == 0); assert(distributeBalance + treasuryBalance + liquidityBalance <= _ethBal); }
+    |                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,65 @@
+{
+ "contract": "KatRoyalties",
+ "closure": {
+  "site_function": "withdraw",
+  "site_call": ".call",
+  "functions": [
+   "withdraw",
+   "spin"
+  ],
+  "justification": "Both 'withdraw' and 'spin' interact with 'balances' and 'winnerFunds', which are exposed during the callback in 'withdraw'."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "withdraw",
+   "spin"
+  ],
+  "nesting_bound": {
+   "withdraw": 1,
+   "spin": 0
+  }
+ },
+ "phases": {
+  "function": "withdraw",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before .call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before .call",
+   "to_marker": "after .call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after .call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after .call"
+ },
+ "ghost_state": [
+  {
+   "name": "_sum_balances",
+   "sol_type": "uint256",
+   "meaning": "Sum of all balances",
+   "backed_by_storage": true
+  },
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Amount in-flight during the callback",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_sum_balances == winnerFunds + inFlight",
+  "stable_formula": "_sum_balances == winnerFunds",
+  "kind": "conserve"
+ },
+ "composition": {
+  "target_property": "_sum_balances == winnerFunds",
+  "rule": "The exposure invariant ensures that the sum of balances remains consistent with winnerFunds across the callback window, accounting for in-flight transfers."
+ }
+}

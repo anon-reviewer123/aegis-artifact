@@ -1,0 +1,34 @@
+== Aegis on 0d725A90FB41AF45b1cF5781E62F39Eabcb78B4E_Koala.sol ==
+target property: withdrawnDividends[account] <= accumulativeDividendOf(account)
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_allowances', '_balances', '_name', '_owner', '_previousOwner', '_symbol', '_totalSupply', 'excludedFromDividends', 'lastClaimTimes', 'magnifiedDividendCorrections', 'magnifiedDividendPerShare', 'magnitude', 'mustClaimDuration', 'totalDividendsDistributed', 'withdrawnDividends']
+[2] exposure site: claimInactiveAccountDividends -> .call (low-level value transfer can re-enter)
+    conservative closure: ['claim', 'claimInactiveAccountDividends', 'setBalance']
+[harness] reusing synthesized harness 0d725A90FB41AF45b1cF5781E62F39Eabcb78B4E_Koala.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 14 functions, 18 public state vars)
+[readonly] 3 exposure site(s) with a window; decomposing each separately
+[readonly] --- site claimInactiveAccountDividends.call#0
+[readonly] withdrawableDividendOf: rule inapplicable -- closure member claim writes footprint withdrawnDividends; falling through to the general arm
+[readonly] withdrawnDividendOf: rule inapplicable -- closure member claim writes footprint withdrawnDividends; falling through to the general arm
+[readonly] --- site claim.call#0
+[readonly] withdrawableDividendOf: rule inapplicable -- closure member claimInactiveAccountDividends writes footprint withdrawnDividends; falling through to the general arm
+[readonly] withdrawnDividendOf: rule inapplicable -- closure member claimInactiveAccountDividends writes footprint withdrawnDividends; falling through to the general arm
+[readonly] --- site _withdrawDividendOfUser.call#0
+[readonly] withdrawableDividendOf: rule inapplicable -- closure member claim writes footprint withdrawnDividends; falling through to the general arm
+[readonly] withdrawnDividendOf: rule inapplicable -- closure member claim writes footprint withdrawnDividends; falling through to the general arm
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['accumulativeDividendOf']
+  [validator] exposure invariant uses unknown identifiers ['accumulativeDividendOf']
+  [validator] exposure invariant uses unknown identifiers ['snapPre_withdrawnDividends']
+  [validator] exposure invariant uses unknown identifiers ['accumulativeDividendOf']

@@ -1,0 +1,51 @@
+{
+  "_README": "RQ1 50-contract benchmark. Built from metadata/contracts.csv; property extracted from each contract's invariant() return. class=aegis taxonomy; verdict=BUG_FOUND(unsafe)/VERIFIED(safe).",
+  "FlashLoanCallback_U01.sol": {
+    "class": "flash_loan_callback",
+    "property": "cash + loans == totalAssets",
+    "verdict": "BUG_FOUND",
+    "bug_site": "deposit during flash-loan callback observes cash-only surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "FlashLoanCallback_S01.sol": {
+    "class": "flash_loan_callback",
+    "property": "inFlash || cash + loans == totalAssets",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "FlashLoanCallback_U02.sol": {
+    "class": "flash_loan_callback",
+    "property": "cash + loans == totalAssets",
+    "verdict": "BUG_FOUND",
+    "bug_site": "deposit during flash-loan callback observes cash-only surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "FlashLoanCallback_S02.sol": {
+    "class": "flash_loan_callback",
+    "property": "inFlash || cash + loans == totalAssets",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "FlashLoanCallback_U03.sol": {
+    "class": "flash_loan_callback",
+    "property": "cash + loans == totalAssets",
+    "verdict": "BUG_FOUND",
+    "bug_site": "deposit during flash-loan callback observes cash-only surplus",
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  },
+  "FlashLoanCallback_S03.sol": {
+    "class": "flash_loan_callback",
+    "property": "inFlash || cash + loans == totalAssets",
+    "verdict": "VERIFIED",
+    "bug_site": null,
+    "provenance": "synthetic",
+    "solc": "0.8.20"
+  }
+}

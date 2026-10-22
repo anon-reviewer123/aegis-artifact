@@ -1,0 +1,11 @@
+contract,path,stage,detail
+BPYC,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/04/0498E07A28165CB91F6895aEa92884495d60ce87_BPYC.sol,VERIFIED,
+GoodMorning,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/29/2922f84ca65D587af9B32Fc93ffcbC073E82efE8_GoodMorning.sol,VERIFIED,
+NeoCypherpunk,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/34/34940D738F211c43E35Ae0d8D89C622eE73FB5AD_NeoCypherpunk.sol,obligation undecided,OBL_cb_transferFrom: SMTChecker could not prove (timeout/unsupported)
+QuantumEnergy,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/ce/ceaf9dfe40f9c0ba586f2990c4b33c4c98a53d8b_QuantumEnergy.sol,obligation undecided,OBL_cb_transferFrom: SMTChecker could not prove (timeout/unsupported)
+AmenoToken,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/fe/fe5842df00dc32734d36e0c2b40b858426981b9b_AmenoToken.sol,obligation undecided,OBL_cb_transferFrom: SMTChecker could not prove (timeout/unsupported)
+ReservaX,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/15/15526af86721e8265139e4f3d759c343ac1d53ce_ReservaX.sol,VERIFIED,
+TraderSpirits,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/1e/1ee25918be81b842739a107957a6a4d3c7625248_TraderSpirits.sol,obligation undecided,OBL_cb_mintByUser: SMTChecker could not prove (timeout/unsupported)
+SafePaymentVault,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/95/955b9dBc6c00d136FeE91698180A5b037E0f31F6_SafePaymentVault.sol,unbounded closure member,['UpdateBranchName']
+BULLRUNNERSCLUB,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/13/1334cbc8883b4f6aa4a77997558e8164e7c9d514_BULLRUNNERSCLUB.sol,"obligation refuted, repair failed",OBL_post: SMTChecker found an assertion violation
+VulnerableContract,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/fe/fe4afb98416e3892c129e7508a7ed3078f605189_VulnerableContract.sol,target not an invariant,violated with re-entry blocked

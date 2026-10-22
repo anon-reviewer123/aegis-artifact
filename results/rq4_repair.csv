@@ -1,0 +1,6 @@
+contract,strategy,recovered,correct,smtchecker_calls,reuse_hits,time_sec
+EscrowSafe.sol,none,False,False,20,0,148.88
+EscrowSafe.sol,whole-regen,False,False,160,0,1242.83
+EscrowSafe.sol,raw,False,False,160,0,1221.36
+EscrowSafe.sol,cegar,False,False,160,0,1238.93
+EscrowSafe.sol,cegar-reuse,False,False,104,56,967.53

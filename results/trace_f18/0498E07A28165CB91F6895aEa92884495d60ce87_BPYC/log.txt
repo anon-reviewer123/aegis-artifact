@@ -1,0 +1,60 @@
+== Aegis on 0498E07A28165CB91F6895aEa92884495d60ce87_BPYC.sol ==
+target property: _sum__rOwned == _totalProportion
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['DEAD', 'TeamFeeBuy', 'TeamFeeReceiver', 'TeamFeeSell', 'WETH', 'ZERO', '_allowances', '_decimals', '_maxTxAmount', '_maxWalletSize', '_name', '_owner', '_rOwned', '_symbol', '_totalProportion', '_totalSupply', 'alternateSwaps', 'autoLiquidityReceiver', 'claimingFees', 'feeDenominator', 'inSwap', 'isFeeExempt', 'isTxLimitExempt', 'largeSwapThreshold', 'liquidityFeeBuy', 'liquidityFeeSell', 'marketingFeeBuy', 'marketingFeeReceiver', 'marketingFeeSell', 'pair', 'reflectionFeeBuy', 'reflectionFeeSell', 'router', 'smallSwapThreshold', 'swapThreshold', 'targetLiquidity', 'targetLiquidityDenominator', 'totalFeeBuy', 'totalFeeSell', 'tradingOpen']
+[2] exposure site: swapBack -> .addLiquidityETH (value-forwarding external call can re-enter)
+    conservative closure: ['transfer', 'transferFrom']
+[access] outside the closure under the trusted-roles assumption: ['clearForeignToken', 'removeLimits', 'renounceOwnership', 'setFees', 'setMaxTxPercent', 'setMaxWalletPercent', 'setSwapBackSettings', 'setTarget', 'setTradingOpen', 'transferOwnership']
+    clearForeignToken: require isTxLimitExempt[msg.sender]
+    removeLimits: modifier onlyOwner: _owner == _msgSender()
+    renounceOwnership: modifier onlyOwner: _owner == _msgSender()
+    setFees: modifier onlyOwner: _owner == _msgSender()
+    setMaxTxPercent: modifier onlyOwner: _owner == _msgSender()
+    setMaxWalletPercent: modifier onlyOwner: _owner == _msgSender()
+    setSwapBackSettings: modifier onlyOwner: _owner == _msgSender()
+    setTarget: modifier onlyOwner: _owner == _msgSender()
+    setTradingOpen: modifier onlyOwner: _owner == _msgSender()
+    transferOwnership: modifier onlyOwner: _owner == _msgSender()
+[harness] cached 0498E07A28165CB91F6895aEa92884495d60ce87_BPYC.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 0498E07A28165CB91F6895aEa92884495d60ce87_BPYC.harness.sol (18985 chars)
+[harness] conforms to interface (found 38 functions, 59 public state vars)
+[3] deterministic candidate -- the pre-phase writes none of the target's variables, so the target itself holds at the call
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_transfer', 'OBL_cb_transferFrom', 'OBL_post', 'OBL_reach_transfer_canary', 'OBL_reach_transferFrom_canary']
+  [round 1] sliced harness: up to 62 state variables -> at most 31 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_transfer [closure]: VERIFIED
+      OBL_cb_transferFrom [closure]: VERIFIED
+      OBL_post [phases]: VERIFIED
+      OBL_reach_transfer_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transferFrom_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'exposure_invariant', 'phases', 'composition'] in_progress=[]
+  [round 1] FIXPOINT -> VERIFIED (real solver)
+
+Assume-Guarantee specification for BPYC
+  target property phi : _sum__rOwned == _totalProportion
+
+  [A_cb]  ASSUMPTION (assumption)
+          During swapBack's exposed phase, re-entrant control is confined to the callback closure ['transfer', 'transferFrom']; every such callback is admitted by the protocol, with bounded nesting.
+          formal: admissible_callbacks=['transfer', 'transferFrom'], nesting={'swapBack': 1}
+          discharged by: ['OBL_closure_soundness']
+
+  [G_pre] GUARANTEE
+          If the stable invariant holds on entry, the pre-phase establishes the exposure invariant before the external call.
+          formal: {_sum__rOwned == _totalProportion} pre-phase {_sum__rOwned == _totalProportion}
+          discharged by: ['OBL_pre']
+
+  [G_exp] GUARANTEE
+          Every callback admitted by A_cb preserves the exposure invariant while the contract is externally exposed.
+          formal: forall f in A_cb. {_sum__rOwned == _totalProportion} f {_sum__rOwned == _totalProportion}
+          discharged by: ['OBL_cb_transfer', 'OBL_cb_transferFrom']
+
+  [G_post] GUARANTEE
+          When the external call returns, the post-phase restores the stable invariant and fully settles the in-flight ghost state.
+          formal: {_sum__rOwned == _totalProportion} post-phase {_sum__rOwned == _totalProportion /\ inFlight==0}
+          discharged by: ['OBL_post']
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => _sum__rOwned == _totalProportion
+      where callbacks are confined to admissible_callbacks=['transfer', 'transferFrom'], nesting={'swapBack': 1}

@@ -1,0 +1,54 @@
+== Aegis on 74ca0b1579637d372780a937005f756675b9e99c_MosHotPotato.sol ==
+target property: NumWeeks == the number of weekly winner rounds already settled
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['ArrayOfPotatoes', 'GrandWinner', 'NumWeeks', 'PlayersEliminated', 'PotatoExplodedFixed', 'StaffPayedInitialFiftyPercent', 'WeeklyWinnerFour', 'WeeklyWinnerOne', 'WeeklyWinnerThree', 'WeeklyWinnerTwo', '_allTokens', '_allTokensIndex', '_balances', '_name', '_operatorApprovals', '_ownedTokens', '_ownedTokensIndex', '_owner', '_owners', '_symbol', '_tokenApprovals', 'baseExtension', 'baseURI', 'cost', 'maxMintAmount', 'maxSupply', 'notRevealedUri', 'paused', 'revealed']
+[2] exposure site: ChooseWeeklyWinner -> .call (low-level value transfer can re-enter)
+    conservative closure: ['ChooseWeeklyWinner', 'ClearGameTable', 'FullPlayerReset', 'ResetPartD']
+[harness] reusing synthesized harness 74ca0b1579637d372780a937005f756675b9e99c_MosHotPotato.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 25 functions, 24 public state vars)
+[readonly] 5 exposure site(s) with a window; decomposing each separately
+[readonly] --- site ChooseWeeklyWinner.call#4
+[readonly] --- site ChooseWeeklyWinner.call#3
+[readonly] --- site ChooseWeeklyWinner.call#2
+[readonly] --- site ChooseWeeklyWinner.call#1
+[readonly] --- site ChooseWeeklyWinner.call#0
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation passed
+  [round 2] compiled 6 obligations: ['OBL_pre', 'OBL_cb_ClearGameTable', 'OBL_cb_FullPlayerReset', 'OBL_cb_ResetPartD', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_cb_ClearGameTable [closure]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_cb_FullPlayerReset [closure]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_cb_ResetPartD [closure]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+  [round 2] correct=['protocol', 'ghost_state', 'phases'] in_progress=['closure', 'composition', 'exposure_invariant']
+  [round 2] CEGAR refinement constraint built for exposure_invariant
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_ClearGameTable', 'OBL_cb_FullPlayerReset', 'OBL_cb_ResetPartD', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_cb_ClearGameTable [closure]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_cb_FullPlayerReset [closure]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_cb_ResetPartD [closure]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+  [round 1] correct=['protocol', 'ghost_state', 'phases'] in_progress=['closure', 'composition', 'exposure_invariant']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation passed
+  [round 2] compiled 6 obligations: ['OBL_pre', 'OBL_cb_ClearGameTable', 'OBL_cb_FullPlayerReset', 'OBL_cb_ResetPartD', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_cb_ClearGameTable [closure]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_cb_FullPlayerReset [closure]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_cb_ResetPartD [closure]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Expected '(' but got identifier
+  [round 2] correct=['protocol', 'ghost_state', 'phases'] in_progress=['closure', 'composition', 'exposure_invariant']
+  [round 2] CEGAR refinement constraint built for exposure_invariant
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['settledRounds']

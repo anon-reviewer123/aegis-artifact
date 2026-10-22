@@ -1,0 +1,60 @@
+{
+ "contract": "NeoCypherpunk",
+ "closure": {
+  "site_function": "feeClaim",
+  "site_call": ".call",
+  "functions": [
+   "transfer",
+   "transferFrom"
+  ],
+  "justification": "These functions potentially interact with `pendingmarketingFees` directly or indirectly, hence they must be included in the closure to ensure callback safety."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "transfer",
+   "transferFrom"
+  ],
+  "nesting_bound": {
+   "transfer": 1,
+   "transferFrom": 1
+  }
+ },
+ "phases": {
+  "function": "feeClaim",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before external call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "external call",
+   "to_marker": "after external call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after external call",
+   "to_marker": "exit"
+  },
+  "linearization_point": "external call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Fee amounts in-flight during a reentrant call.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "pendingmarketingFees == snapPre + inFlight",
+  "stable_formula": "pendingmarketingFees == snapPre",
+  "kind": "conserve",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "pendingmarketingFees <= _balances[address(this)]",
+  "rule": "The exposure invariant ensures the conservation of pendingmarketingFees, and the target property asserts that pendingmarketingFees is backed by sufficient balance, preventing underflow risks."
+ }
+}

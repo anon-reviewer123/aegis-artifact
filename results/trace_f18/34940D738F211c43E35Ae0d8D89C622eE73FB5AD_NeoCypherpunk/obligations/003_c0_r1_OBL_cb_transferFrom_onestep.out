@@ -1,0 +1,124 @@
+status: unknown
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmpsxzk5upx/OneStep.sol:89:9:
+   |
+89 |         uint amount;
+   |         ^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpsxzk5upx/OneStep.sol:87:27:
+   |
+87 |     function beginExposed(uint256 amount) public {
+   |                           ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpsxzk5upx/OneStep.sol:34:55:
+   |
+34 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpsxzk5upx/OneStep.sol:34:69:
+   |
+34 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpsxzk5upx/OneStep.sol:58:27:
+   |
+58 |     function __havoc_arg2(address __x0, address __x1, address __x2, address __x3, address __x4) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpsxzk5upx/OneStep.sol:58:69:
+   |
+58 |     function __havoc_arg2(address __x0, address __x1, address __x2, address __x3, address __x4) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpsxzk5upx/OneStep.sol:58:83:
+   |
+58 |     function __havoc_arg2(address __x0, address __x1, address __x2, address __x3, address __x4) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpsxzk5upx/OneStep.sol:87:27:
+   |
+87 |     function beginExposed(uint256 amount) public {
+   |                           ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpsxzk5upx/OneStep.sol:305:52:
+    |
+305 |     function __h_addLiquidity(uint256 tokenAmount, uint256 ethAmount) internal {
+    |                                                    ^^^^^^^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmpsxzk5upx/OneStep.sol:360:17:
+    |
+360 |                 assert(pendingmarketingFees <= _balances[address(this)]);            
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: Counterexample:
+   = 2
+  __a17_from = 9
+  __a18_to = 3
+  _allowances[owner][spender] = 182
+  _balances[account] = 89
+  _balances[address(this)] = 28
+  _balances[from] = 89
+  _balances[to] = 12
+  _isBlacklisted[from] = false
+  _isBlacklisted[to] = false
+  _isExcludedFromFees[from] = false
+  _isExcludedFromFees[to] = false
+  _isExcludedFromLimits[from] = false
+  _isExcludedFromLimits[to] = false
+  _owner = 2
+  account = 9
+  address(this).balance = 86
+  amount = 63
+  automatedMarketMakerPairs[from] = false
+  automatedMarketMakerPairs[to] = true
+  buyLPFee = 2
+  buyMarketingFee = 0
+  canSwap = true
+  contractTokenBalanceforlp = 31
+  currentAllowance = 182
+  ethAmount = 0
+  exposed = true
+  from = 9
+  fromBalance = 89
+  half = 15
+  inFlight = 0
+  initialBalance = 86
+  lpfee = 1
+  maxTxAmount = 2**256 - 1
+  maxWalletAmount = 76
+  mfee = 1
+  newBalance = 0
+  otherHalf = 16
+  owner = 9
+  pendingmarketingFees = 59
+  sellLPFee = 2
+  sellMarketingFee = 3
+  snapPre = 0
+  spender = 10
+  swapTokensAtAmount = 31
+  swapping = false
+  takeFee = true
+  this = 9
+  to = 3
+  tokenAmount = 16
+  tokens = 31
+  totalfee = 2
+  tradingOpen = true
+  uniswapV2Pair = 4
+  uniswapV2Router = 1
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

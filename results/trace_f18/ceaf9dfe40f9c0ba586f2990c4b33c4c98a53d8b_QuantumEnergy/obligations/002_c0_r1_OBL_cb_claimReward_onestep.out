@@ -1,0 +1,10 @@
+status: verified
+
+[solc]
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpxorrk2wg/OneStep.sol:154:17:
+    |
+154 |                 assert(feeQueue + LiqQueue <= balanceOf[address(this)]);            
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,17 @@
+status: failed
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp8rnuq38_/Obligation.sol:71:23:
+   |
+71 |     function withdraw(uint256 amount) public {
+   |                       ^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation happens here.
+  --> /tmp/tmp8rnuq38_/Obligation.sol:89:13:
+   |
+89 |             assert(v._sum_balances() == v._ethBal());             // I_stable restored
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Info: CHC: 2 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.
+

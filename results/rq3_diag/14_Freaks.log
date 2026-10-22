@@ -1,0 +1,26 @@
+== Aegis on B8fb86CC14FD08a1aC35758e6dD9A381E9af678D_Freaks.sol ==
+target property: burnedCount == number of NFTs successfully sent to DEAD by burnForJuice
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_allTokens', '_allTokensIndex', '_balances', '_name', '_operatorApprovals', '_ownedTokens', '_ownedTokensIndex', '_owner', '_owners', '_symbol', '_tokenApprovals', 'addressMintedBalance', 'baseExtension', 'baseURI', 'burnedCount', 'cost', 'heroClaimedReward', 'juiceTokenAddress', 'maxMintAmount', 'maxSupply', 'mintableSupply', 'onlyWhitelisted', 'paused', 'whitelistedAddresses', 'whitelistedAddressesFree']
+[2] exposure site: burnForJuice -> .mintForBurnedNft (external interface callback may re-enter)
+    conservative closure: ['burnForJuice']
+[harness] reusing synthesized harness B8fb86CC14FD08a1aC35758e6dD9A381E9af678D_Freaks.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 16 functions, 23 public state vars)
+[readonly] 1 public view(s) admitted by the footprint premise on the window opened by burnForJuice
+      OBL_view_getBurnedCount: CANARY DID NOT FIRE (status unknown); harness did not compile -- reporting UNKNOWN for this view :: solc compile error: Error: Undeclared identifier.
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

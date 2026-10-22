@@ -1,0 +1,108 @@
+/**
+ *Submitted for verification at Etherscan.io on 2018-02-07
+*/
+
+pragma solidity ^0.4.19;
+
+interface token {
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
+}
+
+contract Sale {
+    address private maintoken = 0x2054a15c6822a722378d13c4e4ea85365e46e50b;
+    address private owner = msg.sender;
+    uint256 private sendtoken;
+    uint256 public cost1token = 8;
+    token public tokenReward;
+    
+    // function Sale() public {
+    //     tokenReward = token(maintoken);
+    // }
+    
+    function() external payable {
+        sendtoken = (msg.value)/0.0008 ether;
+        sendtoken = sendtoken*3/2;
+
+        if (msg.value >= 45 ether) {
+            sendtoken = (msg.value)/0.0008 ether;
+            sendtoken = sendtoken*2;
+        }
+
+        if (msg.value >= 100 ether) {
+            sendtoken = (msg.value)/0.0008 ether;
+            sendtoken = sendtoken*3;
+        }
+
+        tokenReward.transferFrom(owner, msg.sender, sendtoken);
+        owner.transfer(msg.value);
+    }
+
+
+
+    // function() external payable {
+    //     sendtoken = (msg.value)/0.00000000000008 ether;
+    //     sendtoken = sendtoken*3/2;
+
+    //     if (msg.value >= 0.000000045 ether) {
+    //         sendtoken = (msg.value)/0.00000000000008 ether;
+    //         sendtoken = sendtoken*2;
+    //     }
+
+    //     if (msg.value >= 0.0000000100 ether) {
+    //         sendtoken = (msg.value)/0.00000000000008 ether;
+    //         sendtoken = sendtoken*3;
+    //     }
+
+    //     tokenReward.transferFrom(owner, msg.sender, sendtoken);
+    //     owner.transfer(msg.value);
+    // }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// function Sale() public {
+    //     tokenReward = token(maintoken);
+    // }
+    
+    // function() external payable {
+    //     sendtoken = (msg.value)/0.00000000000008 ether;
+    //     sendtoken = sendtoken*3/2;
+
+    //     if (msg.value >= 0.000000045 ether) {
+    //         sendtoken = (msg.value)/0.00000000000008 ether;
+    //         sendtoken = sendtoken*2;
+    //     }
+
+    //     if (msg.value >= 0.0000000100 ether) {
+    //         sendtoken = (msg.value)/0.00000000000008 ether;
+    //         sendtoken = sendtoken*3;
+    //     }
+
+    //     tokenReward.transferFrom(owner, msg.sender, sendtoken);
+    //     owner.transfer(msg.value);
+    // }

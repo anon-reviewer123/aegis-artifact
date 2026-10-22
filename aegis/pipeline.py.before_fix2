@@ -1,0 +1,496 @@
+"""
+pipeline.py - The Aegis(C, phi) driver: dependency-driven fixpoint repair over
+an assume-guarantee MCVP, checked by a REAL backend.
+
+Honesty guarantees:
+  * A plan is VERIFIED only if a real solver discharged EVERY obligation.
+  * If solc is not installed, status is UNAVAILABLE -- never VERIFIED.
+  * A concrete counterexample on an obligation yields BUG_FOUND with the trace.
+"""
+from __future__ import annotations
+from dataclasses import dataclass, field
+import os
+from aegis import eth_model
+
+from . import static_analysis, synth, validator, compiler, backend
+from . import failsafe as localize_mod
+from . import depgraph
+from . import refinement          # Idea 1: CEGAR-guided refinement
+from . import proof_cache         # Idea 2: cross-round proof reuse
+from .mcvp import MCVP
+from .experiment import ExperimentConfig, RQ4Counters
+
+
+@dataclass
+class AegisResult:
+    status: str        # VERIFIED | BUG_FOUND | UNKNOWN | UNAVAILABLE
+    plan: MCVP | None
+    candidates_tried: int
+    repair_rounds: int
+    total_repairs: int
+    backend_used: str = "none"
+    obligations_report: list = field(default_factory=list)
+    # --- A/G core artifact + RQ metrics (for the paper) ---
+    ag_decomposition: dict | None = None   # the explicit A/G triple, rendered
+    metrics: dict = field(default_factory=dict)  # RQ instrumentation
+    log: list[str] = field(default_factory=list)
+
+
+
+def _run_loop_verification(facts, backend, say, smt_timeout_ms):
+    """Synthesize and check the inductive loop-step obligation for each loop
+    site. Returns (status, reports) where status is VERIFIED / BUG_FOUND / UNKNOWN.
+    A loop is safe iff its step obligation verifies (the step proves the invariant
+    is preserved for an arbitrary iteration count -- no unrolling)."""
+    synth_loop_step = None
+    for _modname in ("aegis.loop_harness_synth", "loop_harness_synth",
+                     "loop_harness_synth4"):
+        try:
+            _m = __import__(_modname, fromlist=["synth_loop_step"])
+            synth_loop_step = _m.synth_loop_step
+            break
+        except Exception:
+            continue
+    if synth_loop_step is None:
+        say("[loop] synthesizer module not found "
+            "(place loop_harness_synth.py in aegis/ or on sys.path)")
+        return "UNKNOWN", []
+    reports = []
+    any_bug = False
+    any_checked = False
+    for site in facts.loop_sites:
+        ob = synth_loop_step(site, facts, backend=backend, say=say)
+        if ob is None:
+            say(f"[loop] {site.function}: unsupported loop shape (skipped)")
+            continue
+        say(f"[loop] {site.function}: {ob.kind} step obligation "
+            f"(structural hint: {ob.expect_hint})")
+        res = backend.check_obligation(ob.name, "loop", ob.harness_source,
+                                       smt_timeout_ms, ext_calls="trusted")
+        reports.append(res)
+        any_checked = True
+        st = getattr(res, "status", "unknown")
+        say(f"      {ob.name} [{ob.kind}]: {st.upper()}"
+            + (f" :: {res.detail}" if getattr(res, 'detail', '') else ""))
+        if st == "failed":
+            any_bug = True
+    if not any_checked:
+        return "UNKNOWN", reports
+    if any_bug:
+        return "BUG_FOUND", reports
+    # all checked loop steps verified
+    return "VERIFIED", reports
+
+
+def run_aegis(sol_path: str, target_property: str,
+              llm_backend: str = "stub", k: int = 4,
+              max_repair_rounds: int = 8, smt_timeout_ms: int = 0,
+              verbose: bool = True,
+              ablate: str = "none", repair: str = "cegar-reuse") -> AegisResult:
+    config = ExperimentConfig(ablate=ablate, repair=repair)
+    counters = RQ4Counters()
+    log: list[str] = []
+
+    def say(s: str):
+        log.append(s)
+        if verbose:
+            print(s)
+
+    say(f"== Aegis on {os.path.basename(sol_path)} ==")
+    say(f"target property: {target_property}")
+
+    # ETH-balance modeling: address(this).balance is not trackable storage.
+    # Rewrite it to a ghost var _ethBal (credited by msg.value, debited by
+    # transfer/send) so the classic-reentrancy balance property is verifiable.
+    _eth_src, target_property, _eth_changed = (None, target_property, False)
+    try:
+        _orig = open(sol_path).read()
+        _new, target_property, _eth_changed = eth_model.transform(_orig, target_property)
+        if _eth_changed:
+            import tempfile, os as _os
+            _tmp = sol_path.replace(".sol", ".ethmodel.sol")
+            open(_tmp, "w").write(_new)
+            sol_path = _tmp
+            say(f"[eth-model] address(this).balance -> _ethBal; "
+                f"property now: {target_property}")
+    except Exception as _e:
+        say(f"[eth-model] skipped: {_e}")
+
+    # Backend banner -- never let a simulated result masquerade as real.
+    if backend.solc_healthy():
+        say("[backend] REAL SMTChecker (solc on PATH) -- results are sound")
+        backend_used = "smtchecker"
+    else:
+        say("[backend] *** NO REAL VERIFIER: solc not on PATH ***")
+        say("[backend] *** results will be UNAVAILABLE, never VERIFIED ***")
+        say("[backend] install: pip install solc-select && "
+            "solc-select install 0.8.26 && solc-select use 0.8.26")
+        backend_used = "none"
+
+    facts = static_analysis.analyze(sol_path)
+    say(f"[1] static analysis ({static_analysis.LAST_ANALYZER}): "
+        f"storage={facts.storage_vars}")
+    if static_analysis.LAST_ANALYZER != "ast":
+        say("[1] NOTE: regex analyzer used (no working solc AST); "
+            "soundness claim requires the AST analyzer")
+    loop_status, loop_reports = ("NONE", [])
+    if getattr(facts, "loop_sites", None):
+        say(f"[loop] {len(facts.loop_sites)} loop-call site(s) detected")
+        loop_status, loop_reports = _run_loop_verification(
+            facts, backend, say, smt_timeout_ms)
+        say(f"[loop] loop verification: {loop_status}")
+        # Loop verification is authoritative for a loop-callback contract: if it
+        # produced a definitive verdict, return it (do not fall through to the
+        # exposure-invariant path, which does not model the loop).
+        if loop_status in ("VERIFIED", "BUG_FOUND"):
+            return AegisResult(loop_status, None, 0, 0, 0,
+                               backend_used, loop_reports, log)
+
+    if not facts.exposure_sites:
+        say("no callback-exposed sites found; nothing to verify")
+        return AegisResult("UNKNOWN", None, 0, 0, 0, backend_used, loop_reports, log)
+
+    site = facts.exposure_sites[0]
+    conservative = facts.conservative_closure(site)
+    say(f"[2] exposure site: {site.function} -> {site.call} ({site.reason})")
+    say(f"    conservative closure: {sorted(conservative)}")
+
+    hc_path = sol_path.replace(".sol", ".harness.sol")
+    if not os.path.exists(hc_path):
+        # Auto-synthesize the harness from the contract source. This makes
+        # the pipeline contract-agnostic: the user supplies only the .sol
+        # file and the target property. The synthesized harness is then
+        # validated by harness_check the same way a user-authored one would
+        # be -- a malformed synthesis is caught by the same conformance gate,
+        # preserving the soundness story.
+        from . import harness_synth
+        say(f"[harness] no harness file at {os.path.basename(hc_path)}; "
+            f"auto-synthesizing from contract source")
+        contract_src = open(sol_path).read()
+        hc_src = harness_synth.synthesize_harness(contract_src, facts, site,
+                                                  stable_invariant=target_property)
+        with open(hc_path, "w") as fh:
+            fh.write(hc_src)
+        say(f"[harness] wrote synthesized harness to "
+            f"{os.path.basename(hc_path)} ({len(hc_src)} chars)")
+    else:
+        hc_src = open(hc_path).read()
+
+    # Enforce the harness interface contract. A non-conforming harness silently
+    # produces broken or vacuous obligations -- refuse to run rather than emit
+    # a meaningless VERIFIED.
+    from . import harness_check
+    report = harness_check.check_harness(hc_src, list(conservative),
+                                         exposed_function=site.function)
+    if not report.conforming:
+        say(f"[!] {report.diagnostic}")
+        return AegisResult("HARNESS_NONCONFORMING", None, 0, 0, 0, backend_used,
+                           [{"obligation": "harness_interface", "module": "harness",
+                             "status": "failed", "detail": report.diagnostic}], log)
+    say(f"[harness] conforms to interface "
+        f"(found {len(report.found_functions)} functions, "
+        f"{len(report.found_state_vars)} public state vars)")
+
+    say(f"[3] sampling {k} candidate MCVPs ({llm_backend})")
+    if config.ablate != "none":
+        say(f"[ABLATION] mode={config.ablate}")
+    if config.repair != "cegar-reuse":
+        say(f"[REPAIR] strategy={config.repair}")
+    candidates = synth.sample_plans(facts, site, target_property,
+                                    backend=llm_backend, k=k,
+                                    ablate=config.ablate)
+
+    best = None
+    for ci, plan in enumerate(candidates):
+        say(f"-- candidate {ci} --")
+        res = _fixpoint(plan, facts, site, target_property, conservative,
+                        hc_src, max_repair_rounds, llm_backend, smt_timeout_ms,
+                        backend_used, say, config, counters)
+        res.candidates_tried = ci + 1
+        res.backend_used = backend_used
+        if res.status in ("VERIFIED", "BUG_FOUND"):
+            res.log = log
+            res.metrics["smtchecker_calls"] = counters.smtchecker_calls
+            res.metrics["reuse_hits"] = counters.reuse_hits
+            res.metrics["wall_clock_sec"] = counters.elapsed()
+            return res
+        best = res
+
+    say("no candidate verified -> "
+        + ("UNAVAILABLE (no backend)" if backend_used == "none" else "UNKNOWN"))
+    if best:
+        best.candidates_tried = len(candidates)
+        best.log = log
+        best.metrics["smtchecker_calls"] = counters.smtchecker_calls
+        best.metrics["reuse_hits"] = counters.reuse_hits
+        best.metrics["wall_clock_sec"] = counters.elapsed()
+        return best
+    return AegisResult("UNKNOWN", None, len(candidates), 0, 0, backend_used,
+                       [], log=log, metrics={
+                           "smtchecker_calls": counters.smtchecker_calls,
+                           "reuse_hits": counters.reuse_hits,
+                           "wall_clock_sec": counters.elapsed()})
+
+
+def _fixpoint(plan, facts, site, target_property, conservative, hc_src,
+              max_repair_rounds, llm_backend, smt_timeout_ms, backend_used, say,
+              config=None, counters=None):
+    if config is None:
+        config = ExperimentConfig()
+    if counters is None:
+        counters = RQ4Counters()
+
+    # RQ4: --repair none → single round, no repair
+    effective_rounds = 1 if config.repair == "none" else max_repair_rounds
+
+    total_repairs = 0
+    dirty = set(depgraph.ALL_MODULES)
+    last_results = []
+
+    cache = proof_cache.ProofCache()
+    verified_states: list[dict] = []
+    known_idents = set(facts.storage_vars) | {g.name for g in plan.ghost_state}
+
+    for rnd in range(1, effective_rounds + 1):
+        # (a) validate: schema + conservative-closure SOUNDNESS gate
+        # RQ3: --ablate validator → skip validation entirely
+        if config.ablate == "validator":
+            failed_val = []
+        else:
+            failed_val = validator.validate(plan, facts, site,
+                                            ablate=config.ablate)
+        if failed_val:
+            say(f"  [round {rnd}] validation flagged: {failed_val}")
+            if config.repair == "none":
+                say(f"  [round {rnd}] --repair none: skipping repair")
+                return AegisResult("UNKNOWN", plan, 0, rnd, total_repairs,
+                                   backend_used, [{"obligation": "validation",
+                                    "module": ",".join(failed_val),
+                                    "status": "failed",
+                                    "detail": f"validation rejected: {failed_val}"}])
+            detail = (f"validation rejected modules: {failed_val}. "
+                      f"Common causes: closure omits a reachable callback; "
+                      f"protocol's allowed_callbacks must equal the closure; "
+                      f"exposure invariant must reference every storage var the "
+                      f"target property mentions (no vacuous invariants using "
+                      f"unconstrained ghosts); exposure invariant must be "
+                      f"strictly weaker than the stable invariant.")
+            for m in depgraph.repair_order(set(failed_val)):
+                plan = synth.repair_module(plan, m, facts, site, target_property,
+                                           backend=llm_backend,
+                                           failure_detail=detail,
+                                           ablate=config.ablate)
+                total_repairs += 1
+                dirty |= {m} | depgraph.downstream_of({m})
+            continue
+        say(f"  [round {rnd}] validation passed")
+
+        # refresh known identifiers (ghost set may have changed via repair)
+        known_idents = set(facts.storage_vars) | {g.name for g in plan.ghost_state}
+        ghost_names = [g.name for g in plan.ghost_state]
+        inv_new = plan.exposure_invariant.formula
+
+        # (b) compile per-obligation harnesses
+        obligations = compiler.compile_obligations(plan, facts, hc_src,
+                                                   ablate=config.ablate)
+        say(f"  [round {rnd}] compiled {len(obligations)} obligations: "
+            f"{[o.name for o in obligations]}")
+
+        # (b2) Idea 2: PROOF REUSE.
+        # RQ4: only --repair cegar-reuse enables proof reuse
+        to_check = []
+        reused_results = []
+        if config.repair == "cegar-reuse":
+            for ob in obligations:
+                if ob.name.startswith("OBL_cb_"):
+                    dec = cache.try_reuse(ob.name, inv_new,
+                                          facts.storage_vars, ghost_names)
+                    if dec.reused:
+                        say(f"      {ob.name} [closure]: REUSED :: {dec.reason}")
+                        reused_results.append(backend.ObligationResult(
+                            ob.name, ob.module, "verified",
+                            f"reused cached proof ({dec.reason})"))
+                        counters.reuse_hits += 1
+                        continue
+                    if dec.witness:
+                        say(f"      {ob.name}: reuse declined ({dec.reason}); "
+                            f"witness {dec.witness}")
+                to_check.append(ob)
+        else:
+            to_check = list(obligations)
+
+        # (c) REAL backend check (only on the not-reused obligations)
+        checked = backend.run(to_check, timeout_ms=smt_timeout_ms)
+        counters.smtchecker_calls += len(to_check)
+        results = reused_results + checked
+        # keep a stable obligation order for reporting
+        order = {o.name: i for i, o in enumerate(obligations)}
+        results.sort(key=lambda r: order.get(r.name, 1_000))
+        last_results = results
+        for r in results:
+            if r.detail.startswith("reused cached proof"):
+                continue  # already printed as REUSED
+            tag = r.status.upper()
+            extra = f" :: {r.detail}" if r.status != "verified" else ""
+            say(f"      {r.name} [{r.module}]: {tag}{extra}")
+
+        # (c2) Idea 2: populate the cache from freshly-verified callback proofs,
+        # and (Idea 1) log the verified pre-state for refinement preservation.
+        for r in results:
+            if r.status == "verified" and r.name.startswith("OBL_cb_"):
+                cb = r.name[len("OBL_cb_"):]
+                cache.record_verified(r.name, cb, inv_new, rnd)
+        # A canonical "stable, settled" safe state: inFlight==0 reduces I_exp to
+        # I_stable, so totalAssets==totalShares with all ghosts zero is a state
+        # every correct invariant must keep. Record it once.
+        if not verified_states and any(r.status == "verified" for r in results):
+            safe = {g.name: 0 for g in plan.ghost_state}
+            for v in facts.storage_vars:
+                safe.setdefault(v, 0)
+            verified_states.append(safe)
+
+        # If there is no real backend, stop honestly.
+        if any(r.status == "no_backend" for r in results):
+            return AegisResult("UNAVAILABLE", plan, 0, rnd, total_repairs,
+                               backend_used, _report(results))
+
+        # bug detection: a concrete counterexample on an obligation that
+        # represents a REAL exploit. A failed OBL_pre is special: the pre-phase
+        # establishes I_exp from I_stable, so it can only fail when the
+        # synthesized exposure invariant is wrong (e.g. wrong ghost direction),
+        # NOT because the contract is buggy. We therefore route OBL_pre failures
+        # to the repair loop (Idea 1 CEGAR refinement flips/strengthens I_exp)
+        # instead of declaring BUG_FOUND. OBL_post and OBL_cb_* failures remain
+        # genuine bug candidates (e.g. BuggyVault fails OBL_post by not settling
+        # the ghost; a malicious callback fails OBL_cb_* by violating I_exp).
+        # Deterministic operative obligations: OBL_conservation (flash-loan),
+        # OBL_reentry (classic), OBL_readonly (read-only). Unlike OBL_cb_* (whose
+        # verdict depends on the LLM-synthesized invariant's strength) these
+        # inject the contract's own predicate and reliably split safe/unsafe
+        # twins. When one is present and VERIFIED, the contract is safe along
+        # that path, so a phase-obligation (OBL_post) counterexample -- which on
+        # conservation/observation shapes is a solver-unstable model artifact
+        # (it flips between unknown-timeout and failed across runs) -- must not
+        # produce a false BUG_FOUND. OBL_pre is already excluded (routes to
+        # repair). A genuine exploit still fails the deterministic obligation
+        # (gate False) and is reported.
+        _det = [r for r in results
+                if r.name in ("OBL_conservation", "OBL_reentry", "OBL_readonly")]
+        _det_verified = bool(_det) and all(r.status == "verified" for r in _det)
+        # A deterministic operative obligation that FAILED is an exploit witness
+        # regardless of whether a counterexample trace string was extracted (the
+        # untrusted-mode violation is the signal; the trace text is incidental
+        # and its capture is itself solver-timing-dependent). For other failed
+        # obligations we still require a counterexample to avoid acting on a
+        # bare timeout misreported as failed.
+        _det_names = {"OBL_conservation", "OBL_reentry", "OBL_readonly"}
+        for r in results:
+            if r.status != "failed":
+                continue
+            is_det = r.name in _det_names
+            if not is_det and not r.counterexample:
+                continue
+            if r.name == "OBL_pre":
+                continue
+            if r.name == "OBL_post" and _det_verified:
+                continue  # phase-model artifact, contradicted by a sound proof
+            say(f"  [round {rnd}] BUG_FOUND via {r.name}")
+            if r.counterexample:
+                say(f"      counterexample: {r.counterexample}")
+            return AegisResult("BUG_FOUND", plan, 0, rnd, total_repairs,
+                               backend_used, _report(results))
+
+        # (d) localize failures to modules
+        loc = localize_mod.localize(plan, results)
+        in_prog = loc.in_progress_modules()
+        say(f"  [round {rnd}] correct={loc.correct_modules()} "
+            f"in_progress={sorted(in_prog)}")
+
+        if loc.all_correct():
+            say(f"  [round {rnd}] FIXPOINT -> VERIFIED (real solver)")
+            from . import assume_guarantee as ag
+            decomp = ag.derive(plan)
+            say("")
+            say(decomp.render())
+            metrics = {
+                "obligations_total": len(results),
+                "obligations_verified": sum(1 for r in results
+                                            if r.status == "verified"),
+                "repair_rounds": rnd,
+                "total_repairs": total_repairs,
+                "ag_components": len(decomp.components()),
+                "callback_closure_size": len(plan.closure.functions),
+                # Idea 2: proof-reuse payoff (RQ on re-verification cost)
+                "proof_reuse_hits": cache.stats()["reuse_hits"],
+                "proof_reuse_misses": cache.stats()["reuse_misses"],
+                "cached_proofs": cache.stats()["cached_proofs"],
+            }
+            return AegisResult("VERIFIED", plan, 0, rnd, total_repairs,
+                               backend_used, _report(results),
+                               ag_decomposition={"rendered": decomp.render(),
+                                                 "theorem": decomp.composition_theorem()},
+                               metrics=metrics)
+
+        # (e) repair in dependency order; propagate dirtiness
+        # RQ4: --repair none → effective_rounds=1, loop exits after this round
+        if config.repair == "none":
+            continue
+
+        module_to_failures: dict[str, list[str]] = {}
+        raw_cex_for_module: dict[str, str] = {}
+        for r in results:
+            if r.status in ("failed", "unknown"):
+                module_to_failures.setdefault(r.module, []).append(
+                    f"{r.name} ({r.status}): {r.detail}"
+                    + (f"; counterexample: {r.counterexample}"
+                       if r.counterexample else ""))
+                if r.counterexample:
+                    raw_cex_for_module[r.module] = r.counterexample
+
+        # RQ4: --repair whole-regen → discard entire MCVP and sample a fresh one
+        if config.repair == "whole-regen":
+            fresh_plans = synth.sample_plans(facts, site, target_property,
+                                             backend=llm_backend, k=1,
+                                             ablate=config.ablate)
+            if fresh_plans:
+                plan = fresh_plans[0]
+            total_repairs += 1
+            dirty = set(depgraph.ALL_MODULES)
+            say(f"  [round {rnd}] whole-regen: replaced entire MCVP")
+            continue
+
+        for m in depgraph.repair_order(in_prog):
+            # RQ4: --repair raw → pass raw solver text, skip CEGAR projection
+            # RQ4: --repair cegar or cegar-reuse → CEGAR refinement
+            if m == "exposure_invariant" and config.repair in ("cegar", "cegar-reuse"):
+                block, _cm = refinement.refine(
+                    raw_cex_for_module.get(m, ""),
+                    obligation="exposure_invariant", module=m,
+                    known_idents=known_idents,
+                    verified_states=verified_states)
+                detail = block
+                say(f"  [round {rnd}] CEGAR refinement constraint built for "
+                    f"exposure_invariant")
+            else:
+                detail = "\n".join(module_to_failures.get(m, []))
+
+            prev_closure = set(plan.closure.functions)
+            plan = synth.repair_module(plan, m, facts, site, target_property,
+                                       backend=llm_backend,
+                                       failure_detail=detail,
+                                       ablate=config.ablate)
+            total_repairs += 1
+            dirty |= {m} | depgraph.downstream_of({m})
+
+            if m == "closure":
+                for gone in prev_closure - set(plan.closure.functions):
+                    cache.invalidate_for_callback(gone)
+
+    say(f"  repair budget ({effective_rounds}) exhausted -> UNKNOWN")
+    return AegisResult("UNKNOWN", plan, 0, effective_rounds, total_repairs,
+                       backend_used, _report(last_results))
+
+
+def _report(results):
+    return [{"obligation": r.name, "module": r.module, "status": r.status,
+             "detail": r.detail} for r in results]

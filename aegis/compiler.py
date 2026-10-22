@@ -1,0 +1,867 @@
+"""
+compiler.py - Module 6: lower an MCVP into per-obligation SMTChecker harnesses.
+
+KEY DESIGN (this is what makes a failure localize and a VERIFIED mean something):
+Each assume-guarantee obligation is compiled into its OWN minimal harness
+contract that (1) `require`s the obligation's assumptions (the A in A=>G), then
+(2) executes the relevant phase/callback, then (3) `assert`s the guarantee (G).
+SMTChecker (CHC engine) discharges or refutes each assertion independently.
+
+We emit a separate harness per obligation rather than one combined contract so
+that exactly one obligation maps to exactly one SMTChecker assertion, and a
+counterexample names the obligation precisely (needed for fail-safe
+localization and the dependency-driven repair loop).
+
+Obligations emitted (the A/G decomposition of the MCVP):
+  OBL_pre              : I_stable@entry  => I_exp@before-call          [phases/exp_inv]
+  OBL_cb_<f>           : I_exp           => I_exp after callback f      [closure/exp_inv]
+  OBL_post             : I_exp           => I_stable@exit               [phases]
+  OBL_stable_implies   : I_stable        => target_property            [composition]
+
+Each harness is a full standalone Solidity file targeting SMTChecker. The
+contract's accounting logic is taken from the phase-split harness contract the
+project ships (<Name>.harness.sol) so the obligations execute real state
+updates, not abstractions.
+"""
+from __future__ import annotations
+from dataclasses import dataclass
+from .mcvp import MCVP
+from .static_analysis import ContractFacts
+from .templates import get_template, TemplateCtx
+
+
+@dataclass
+class Obligation:
+    name: str                 # e.g. "OBL_cb_redeemAll"
+    module: str               # responsible MCVP module
+    harness_source: str       # full standalone .sol for SMTChecker
+    description: str
+    ext_calls: str = "trusted"  # solc --model-checker-ext-calls mode
+
+
+# SMTChecker pragma + engine settings live in the file header.
+_HEADER = """// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+"""
+
+
+def _harness_contract_name(contract: str) -> str:
+    return f"{contract}H"
+
+
+
+
+import sys as _sys
+import traceback as _tb
+
+# Emission errors are collected here (never silently swallowed). The pipeline
+# inspects this after compile_obligations to refuse a false VERIFIED when an
+# operative obligation failed to emit. Cleared at the start of each compile.
+EMISSION_ERRORS: list = []
+
+def _record_emission_error(obl_label: str, exc: Exception):
+    msg = f"[compiler] EMISSION FAILED for {obl_label}: {type(exc).__name__}: {exc}"
+    print(msg, file=_sys.stderr)
+    _tb.print_exc()
+    EMISSION_ERRORS.append((obl_label, repr(exc)))
+
+
+def _harness_state_names(harness_body: str) -> set:
+    """Names the harness declares as contract-level state variables.
+
+    The obligation's entry guard (`require(x == 0 && ...)`) and the getter
+    rewriting in _wrap_internal must only mention what the harness actually
+    declares. Building those lists from the contract's own storage instead
+    named things the harness never carried -- a mapping-sum ghost for every
+    mapping, when only the exposed one has a ghost, and getters for variables
+    that are not public -- and solc then rejected the obligation with an
+    undeclared identifier. Harness members sit at four-space indent and
+    function bodies at eight, so a declaration is a four-space line ending in
+    a semicolon.
+    """
+    import re as _re
+    names = set()
+    for m in _re.finditer(
+            r"^ {4}(?! )(?!function\b|constructor\b|modifier\b|event\b"
+            r"|struct\b|enum\b|//|/\*|\*)(?:[^;{}\n=]|=>)*?\b([A-Za-z_]\w*)\s*"
+            r"(?:=(?!>)[^;\n]*)?;",
+            harness_body, _re.M):
+        names.add(m.group(1))
+    return names
+
+
+def _fresh_state(facts, harness_body):
+    """Numeric scalars and sum ghosts the entry guard may require zero."""
+    from .harness_synth import _is_numeric_type
+    declared = _harness_state_names(harness_body)
+    nums = tuple(v for v in facts.storage_vars
+                 if v in declared and not v.startswith("_sum_")
+                 and _is_numeric_type(facts.var_types.get(v, "") or
+                                      ("" if facts.var_types else "uint256"))
+                 and not (facts.var_types.get(v, "") or "").startswith("mapping"))
+    ghosts = tuple(n for n in sorted(declared) if n.startswith("_sum_"))
+    return nums + ghosts
+
+
+def compile_obligations(plan: MCVP, facts: ContractFacts,
+                        harness_contract_src: str,
+                        ablate: str = "none") -> list[Obligation]:
+    """Return a list of independently-checkable Obligation objects."""
+    from .harness_synth import wrapper_name as _wrapper  # noqa: F401
+    EMISSION_ERRORS.clear()
+    SLICE_STATS.clear()
+    # The closure is held to the conservative closure here, where obligations
+    # are built, rather than only where candidates are made: the repair loop
+    # re-synthesizes the closure module through the proposer, which hands back
+    # a padded one -- on ReservaX fourteen owner-only setters the access
+    # filter had excluded, each an obligation re-solved every round. Trimming
+    # at the source of the plan was not enough because repair bypassed it.
+    if ablate == "none":
+        _site = next((s for s in getattr(facts, "exposure_sites", [])
+                      if s.function == plan.phases.function), None)
+        if _site is not None:
+            _cons = sorted(facts.conservative_closure(_site))
+            if sorted(plan.closure.functions) != _cons:
+                plan.closure.functions = list(_cons)
+                plan.protocol.allowed_callbacks = list(_cons)
+                plan.protocol.nesting_bound = {f: 1 for f in _cons}
+    C = plan.contract
+    H = _harness_contract_name(C)
+    inv_exp = plan.exposure_invariant.formula
+    inv_stable = plan.exposure_invariant.stable_formula
+    target = plan.composition.target_property
+
+    _CANON_GHOST = "inFlight"
+    _CANON_FLAG = "exposed"
+    _llm_flag = _exposure_flag_name(plan)
+    _llm_ghost = _primary_ghost_name(plan)
+    _rename: dict[str, str] = {}
+    if _llm_ghost != _CANON_GHOST:
+        _rename[_llm_ghost] = _CANON_GHOST
+    if _llm_flag != _CANON_FLAG:
+        _rename[_llm_flag] = _CANON_FLAG
+    inv_exp = _rename_idents(inv_exp, _rename)
+    inv_stable = _rename_idents(inv_stable, _rename)
+    target = _rename_idents(target, _rename)
+
+    flag_name = _CANON_FLAG
+    _sum_ghost_idents = ["_sum_" + v for v in facts.storage_vars]
+    known_idents = (list(facts.storage_vars) + [_CANON_GHOST, _CANON_FLAG, "snapPre"]
+                    + _sum_ghost_idents)
+    # Ghosts the plan declares and the harness carries -- a value the pre-phase
+    # captured, say -- are read through the handle like any other state. Left
+    # out, `amt == balances[msg.sender]` lowered to a bare `amt`, which the
+    # obligation cannot see.
+    _declared_state = _harness_state_names(_strip_header(harness_contract_src))
+    known_idents += [g.name for g in (plan.ghost_state or [])
+                     if g.name in _declared_state and g.name not in known_idents]
+    primary_ghost = _CANON_GHOST
+
+    # RQ3: --ablate ghost-template → ignore the LLM's template choice
+    if ablate == "ghost-template":
+        template = get_template("additive")
+    else:
+        template = get_template(getattr(plan.exposure_invariant, "kind", "additive"))
+
+    def q(formula: str) -> str:
+        return _q(formula, known_idents)
+
+    # The harness contract body (without its own SPDX/pragma) so we can inline.
+    body = _strip_header(harness_contract_src)
+
+    obligations: list[Obligation] = []
+
+    # RQ3: --ablate phase-split → single monolithic obligation, I_stable everywhere
+    if ablate == "phase-split":
+        share_guard = (f"require(v.{_share_mapping_name(facts)}(address(this)) >= amount);\n"
+                       if _share_mapping_name(facts) else "")
+        # monolithic: require I_stable, run pre+post together, assert I_stable
+        obligations.append(Obligation(
+            name="OBL_monolithic", module="phases",
+            description="monolithic: full function preserves the stable invariant",
+            harness_source=_wrap(
+                _trim_harness(body, {"beginExposed", "endExposed"}), H, f"""
+            function check(uint256 amount) public {{
+                require({q(inv_stable)});
+                {share_guard}v.depositFor(address(this), amount);
+                v.beginExposed(amount);
+                v.endExposed(amount);
+                assert({q(inv_stable)});
+            }}""")))
+        # callback obligations use I_stable instead of I_exp
+        for f in plan.closure.functions:
+            # The site function is included: a callback re-entering the very
+            # function that made the call is the classic reentrancy pattern,
+            # and skipping it left the exposure guarantee with nothing to
+            # discharge it -- on a contract whose closure is only that
+            # function, no callback obligation was built at all.
+            _fi = facts.functions.get(f)
+            if _fi is not None and not (facts.transitive_writes(f)
+                                        if hasattr(facts, "transitive_writes")
+                                        else _fi.writes):
+                # Writes are counted through internal calls: an ERC20
+                # `transfer` writes nothing itself and does its work in
+                # `_transfer`, and skipping it left that callback unchecked.
+                continue
+            obligations.append(Obligation(
+                name=f"OBL_cb_{_wrapper(f)}", module="closure",
+                description=f"callback {f} preserves the stable invariant (no phase split)",
+                harness_source=_wrap(
+                    _trim_harness(body, {"beginExposed", _wrapper(f)}), H, f"""
+                function check(uint256 amount) public {{
+                    require({q(inv_stable)});
+                    v.{_wrapper(f)}(amount);
+                    assert({q(inv_stable)});
+                }}""")))
+        # deterministic obligations + stable_implies_target still emitted below
+        # (fall through to those sections after setting a flag)
+        _phase_split_done = True
+    else:
+        _phase_split_done = False
+
+    if not _phase_split_done:
+        # ---- OBL_pre : pre-phase establishes I_exp ----
+        share_guard = (f"require(v.{_share_mapping_name(facts)}(address(this)) >= amount);\n"
+                       if _share_mapping_name(facts) else "")
+        # Mapping-sum ghosts are required zero at entry: beginExposed decrements
+        # _sum_<m> by the withdrawn amount, which underflows from a havoc'd
+        # start and makes the view assertion unreachable. Only ghosts and
+        # scalars the harness actually declares are named.
+        _fresh = _fresh_state(facts, body)
+        _ctx = TemplateCtx(q=q, inv_exp=inv_exp, inv_stable=inv_stable,
+                           target=target, flag_name=flag_name,
+                           primary_ghost=primary_ghost, share_guard=share_guard,
+                           fresh_state=_fresh)
+        obligations.append(Obligation(
+            name="OBL_pre", module="phases",
+            description="pre-phase establishes the exposure invariant",
+            harness_source=_wrap(_trim_harness(body, {"beginExposed"}), H,
+                                 template.pre_check(_ctx))))
+
+        # ---- OBL_cb_<f> : each callback preserves I_exp ----
+        for f in plan.closure.functions:
+            # The site function is included: a callback re-entering the very
+            # function that made the call is the classic reentrancy pattern,
+            # and skipping it left the exposure guarantee with nothing to
+            # discharge it -- on a contract whose closure is only that
+            # function, no callback obligation was built at all.
+            _fi = facts.functions.get(f)
+            if _fi is not None and not (facts.transitive_writes(f)
+                                        if hasattr(facts, "transitive_writes")
+                                        else _fi.writes):
+                # Writes are counted through internal calls: an ERC20
+                # `transfer` writes nothing itself and does its work in
+                # `_transfer`, and skipping it left that callback unchecked.
+                continue
+            obligations.append(Obligation(
+                name=f"OBL_cb_{_wrapper(f)}", module="closure",
+                description=f"callback {f} preserves the exposure invariant",
+                harness_source=_wrap(_trim_harness(body, {"beginExposed", _wrapper(f)}), H,
+                                     template.cb_check(_ctx, _wrapper(f), cb_param_types=facts.functions[f].param_types if f in facts.functions else []))))
+
+        # ---- OBL_view_<g> : each public view reading exposed state is
+        #      consistent with I_stable even mid-callback (read-only reentrancy)
+        try:
+            from .static_analysis import view_closure
+            from .harness_synth import _exposed_mapping, _sum_ghost_name
+            from .footprint import admitted_views
+            _site_obj = None
+            for _s in facts.exposure_sites:
+                if _s.function == plan.phases.function:
+                    _site_obj = _s; break
+            _mv = _exposed_mapping(facts, _site_obj) if _site_obj else None
+            _backing_invariant = (f"v.{_sum_ghost_name(_mv)}() <= address(v).balance"
+                                  if _mv else None)
+            _cands = view_closure(facts, plan.phases.function)
+            # The same admissibility premise applies here. A view whose
+            # footprint a callback can write, or whose value is not a
+            # comparable scalar, has no quiescence obligation to emit; the
+            # exposure invariant covers that site instead.
+            if _site_obj is not None:
+                _adm, _vs = admitted_views(facts, _site_obj, _cands)
+                _otypes = {v.view: v.obs_type for v in _vs}
+            else:
+                _adm, _otypes = [], {}
+            for g in _adm:
+                gi = facts.functions.get(g)
+                if gi is None:
+                    continue
+                obligations.append(Obligation(
+                    name=f"OBL_view_{g}", module="readonly",
+                    description=(f"view {g} is consistent with the stable "
+                                 f"invariant during the callback window"),
+                    harness_source=_wrap_internal(_trim_harness(body, {"beginExposed", "endExposed", "depositFor", g}),
+                                         H, template.view_check(
+                                             _ctx, g, _otypes.get(g) or "uint256",
+                                             param_types=gi.param_types,
+                                             backing=_backing_invariant))))
+        except Exception as _e:
+            _record_emission_error("OBL_view", _e)
+
+    # ---- deterministic obligations (emitted regardless of phase-split ablation) ----
+    if plan.phases.function in set(plan.closure.functions):
+        try:
+            from . import reentry
+            _re_src = reentry.build_reentry_source(facts.contract, plan.phases.function)
+            if _re_src is not None:
+                obligations.append(Obligation(
+                    name="OBL_reentry", module="closure",
+                    description=(f"{plan.phases.function} is safe against "
+                                 f"self-reentry during its callback"),
+                    harness_source=_re_src,
+                    ext_calls="untrusted"))
+        except Exception as _e:
+            _record_emission_error("OBL_reentry", _e)
+
+    if plan.phases.function in set(plan.closure.functions):
+        try:
+            from . import reentry
+            _ro_src = reentry.build_readonly_obligation(facts.contract, plan.phases.function)
+            if _ro_src is not None:
+                obligations.append(Obligation(
+                    name="OBL_readonly", module="closure",
+                    description=(f"{plan.phases.function}: views stay consistent "
+                                 f"when observable during the callback"),
+                    harness_source=_ro_src,
+                    ext_calls="untrusted"))
+        except Exception as _e:
+            _record_emission_error("OBL_readonly", _e)
+
+    if plan.phases.function in set(plan.closure.functions):
+        try:
+            from . import reentry
+            _cons_src = reentry.build_conservation_obligation(facts.contract, plan.phases.function)
+            if _cons_src is not None:
+                obligations.append(Obligation(
+                    name="OBL_conservation", module="closure",
+                    description=(f"{plan.phases.function}: conservation invariant "
+                                 f"holds across the callback window"),
+                    harness_source=_cons_src,
+                    ext_calls="untrusted"))
+        except Exception as _e:
+            _record_emission_error("OBL_conservation", _e)
+
+    # ---- OBL_post : only with phase decomposition (not under phase-split ablation) ----
+    if not _phase_split_done:
+        # The callback wrappers stay in this harness. The composition theorem
+        # requires the post-phase to restore the stable invariant from ANY
+        # state satisfying the exposure invariant, including states an
+        # admissible callback produced. Trimming them away left only states
+        # reachable through beginExposed alone, which still carry the
+        # pre-phase's own guard -- TraderSpirits was proved safe that way,
+        # while its bug is exactly a nested mint against a stale count
+        # followed by the outer post-phase minting again.
+        _post_keep = {"beginExposed", "endExposed"} | {
+            _wrapper(f) for f in plan.closure.functions}
+        obligations.append(Obligation(
+            name="OBL_post", module="phases",
+            description="post-phase restores the stable invariant and clears in-flight",
+            harness_source=_wrap(_trim_harness(body, _post_keep), H,
+                                 template.post_check(_ctx))))
+
+        # Reachability canaries. OBL_post is only meaningful if the states it
+        # quantifies over include ones a callback produced; if the solver
+        # cannot run the callback at all -- TraderSpirits guards its mint with
+        # `amount >= mintPrice * quantity`, a product of two unknowns, and a
+        # path the solver deems unsatisfiable is a path the adversary never
+        # takes -- then a verified OBL_post proves nothing about reentrancy.
+        # Each canary asserts false after driving one callback: it MUST be
+        # refuted. A verified canary means that callback is unreachable here,
+        # and the run may not be reported as VERIFIED.
+        for f in plan.closure.functions:
+            obligations.append(Obligation(
+                name=f"OBL_reach_{_wrapper(f)}_canary", module="phases",
+                description=f"the callback {f} is reachable during the window",
+                harness_source=_wrap(_trim_harness(body, _post_keep), H, f"""
+        function check(uint256 amount) public {{
+            {_ctx.share_guard}v.depositFor(address(this), amount);
+            require({_ctx.q(_ctx.inv_stable)});
+            v.beginExposed(amount);              // enter the window
+            v.{_wrapper(f)}(amount);             // the adversary calls back
+            assert(false);       // must be REFUTED: this state is reachable
+        }}""")))
+
+    # ---- OBL_stable_implies_target : composition link ----
+    # Only meaningful when `target` is an actual Solidity boolean predicate. When
+    # the caller passed a property-NAME keyword (e.g. "readonly", "reentrancy")
+    # rather than an expression, there is no predicate to imply -- the operative
+    # safety check is the property-specific obligation (OBL_view for read-only).
+    # Emitting an assert on a bare keyword yields an undeclared-identifier compile
+    # error that poisons the composition module and burns the repair budget.
+    def _is_predicate(expr: str) -> bool:
+        return any(op in expr for op in ("==", "<=", ">=", "<", ">", "&&", "||", "!"))
+    if target.strip() != inv_stable.strip() and _is_predicate(target):
+        obligations.append(Obligation(
+            name="OBL_stable_implies_target", module="composition",
+            description="stable invariant implies the target property",
+            harness_source=_wrap(body, H, f"""
+            function check() public {{
+                require({q(inv_stable)});
+                assert({q(target)});
+            }}""")))
+
+    return obligations
+
+
+def _exposure_flag_name(plan: MCVP) -> str:
+    """The boolean exposure-phase flag the harness exposes. The synthesizer
+    emits a flag named 'exposed' by convention; a plan may override by declaring
+    a bool ghost, in which case we use that."""
+    for g in plan.ghost_state:
+        if g.sol_type == "bool":
+            return g.name
+    return "exposed"
+
+
+def _primary_ghost_name(plan: MCVP) -> str:
+    """The in-flight counter the post-phase settles to zero: the first non-bool
+    ghost (the quantity carried across the callback window). Falls back to the
+    conventional 'inFlight' when the plan declares no usable ghost."""
+    for g in plan.ghost_state:
+        if g.sol_type != "bool":
+            return g.name
+    return "inFlight"
+
+
+def _share_mapping_name(facts: ContractFacts) -> str | None:
+    """Return the name of a share-style mapping if the contract has one, else
+    None. Used to emit a feasibility guard only when applicable."""
+    # The static analyzer records storage vars; a mapping appears in functions'
+    # read/write sets. We heuristically pick a var named like a balance map --
+    # but only when it really is one: Yeeter has a plain `uint256 balance`,
+    # and the guard called its getter with an address, which does not compile.
+    for v in facts.storage_vars:
+        if v.lower() in ("shares", "balances", "balanceof", "balance"):
+            t = (getattr(facts, "var_types", {}) or {}).get(v, "")
+            if t and not t.replace(" ", "").startswith("mapping("):
+                continue
+            if not t and v.lower() == "balance":
+                continue    # unknown type and a scalar-sounding name
+            return v
+    return None
+
+
+def _rename_idents(formula: str, rename: dict[str, str]) -> str:
+    """Rewrite bare identifiers in a formula according to `rename`, matching
+    whole words only (so `inFlight` does not partially match `inFlightShares`).
+    Used to canonicalize the LLM's chosen ghost/flag names onto the harness's
+    actual getter names before any other lowering happens."""
+    if not rename:
+        return formula
+    import re
+    out = formula
+    # longest source names first so a name that is a prefix of another is not
+    # rewritten early (e.g. rename inFlight before in case of overlaps)
+    for src in sorted(rename, key=len, reverse=True):
+        out = re.sub(rf"(?<!\.)\b{re.escape(src)}\b(?!\s*\()", rename[src], out)
+    return out
+
+
+def _normalize_ops(formula: str) -> str:
+    """Normalize logical/comparison operators that an LLM may emit in
+    paper-style notation into valid Solidity. The MCVP is sometimes written
+    with `/\\` or `AND` for conjunction and a single `=` for equality (the
+    notation used in the paper's proof rules); these are not valid Solidity
+    expression syntax and cause `Expected primary expression`. We rewrite:
+        /\\  \\/  AND  OR        -> && || && ||
+        a single '=' comparison  -> '=='
+    while leaving already-valid operators (==, >=, <=, !=, &&, ||) intact."""
+    import re
+    out = formula
+    out = out.replace("/\\", " && ").replace("\\/", " || ")
+    out = re.sub(r"\bAND\b", "&&", out)
+    out = re.sub(r"\bOR\b", "||", out)
+    # turn a lone '=' (not ==, <=, >=, !=) into '==' for comparison
+    out = re.sub(r"(?<![=<>!])=(?![=])", "==", out)
+    return out
+
+
+def _q(formula: str, known: list[str] | None = None) -> str:
+    """Rewrite a backend-agnostic invariant into SMTChecker-callable Solidity.
+    Storage reads must go through the inner contract handle `v`.
+
+    `known` is the set of identifiers (storage vars + declared ghosts) the
+    harness exposes as public getters; each is rewritten to v.<name>(). When
+    omitted we fall back to legacy vault names so old call sites still work, but
+    the contract-agnostic path always passes the plan's identifiers.
+
+    Mapping accesses are lowered to the harness getter with the index as the
+    call argument: map[k] -> v.map(k), map[k1][k2] -> v.map(k1, k2). The acting
+    account written as `account` or `msg.sender` in a plan formula denotes the
+    obligation contract itself (the address depositFor seeds and the callback
+    wrappers act for), so it is lowered to address(this)."""
+    import re
+    formula = _normalize_ops(formula)
+    if known is None:
+        known = ["totalAssets", "totalShares", "inFlight", "exposed"]
+    out = formula
+    # The contract's own address is the harness, reached through v. Leaving
+    # `address(this)` made `balanceOf[address(this)]` read the Obligation
+    # contract's entry, a different account from the one the harness writes.
+    out = re.sub(r"\baddress\s*\(\s*this\s*\)", "address(v)", out)
+    out = re.sub(r"\bmsg\s*\.\s*sender\b", "address(this)", out)
+    out = re.sub(r"(?<!\.)\baccount\b", "address(this)", out)
+    names = sorted(set(known), key=len, reverse=True)
+    # mapping accesses first, so the scalar pass below leaves v.<map>( alone
+    for name in names:
+        pat = re.compile(rf"(?<!\.)\b{name}\s*\[")
+        while True:
+            m = pat.search(out)
+            if not m:
+                break
+            args, end = _index_args(out, out.find("[", m.start()))
+            if args is None:
+                break
+            out = out[:m.start()] + f"v.{name}(" + ", ".join(args) + ")" + out[end:]
+    # longer names first so 'shares' inside 'totalShares' is not rewritten early
+    for name in names:
+        # only rewrite a bare identifier not already followed by '(' or '[' and
+        # not already prefixed by 'v.'
+        out = re.sub(rf"(?<!\.)\b{name}\b(?!\s*[\(\[])", f"v.{name}()", out)
+    return out
+
+
+def _index_args(s: str, i: int):
+    """Collect the bracket groups of consecutive [..][..] index expressions
+    starting at s[i] == '['. Returns (args, end) where end is the position just
+    past the last closing bracket, or (None, i) if the brackets are unbalanced."""
+    args = []
+    n = len(s)
+    while i < n and s[i] == "[":
+        depth = 0
+        j = i
+        while j < n:
+            if s[j] == "[":
+                depth += 1
+            elif s[j] == "]":
+                depth -= 1
+                if depth == 0:
+                    break
+            j += 1
+        if j >= n:
+            return None, i
+        args.append(s[i + 1:j].strip())
+        i = j + 1
+        k = i
+        while k < n and s[k] == " ":
+            k += 1
+        if k < n and s[k] == "[":
+            i = k
+    return (args, i) if args else (None, i)
+
+
+_KEEP_GHOST_DECLS = True  # keep _sum_* / snapPre decls through trim
+
+def _trim_harness(src: str, keep_funcs: set[str]) -> str:
+    """Return the harness source with only the named functions kept (plus the
+    constructor and all state variables / getters). This isolates each
+    obligation so the CHC engine cannot reach a BUGGY SIBLING function as a
+    prior transaction and corrupt the entry state -- which was causing spurious
+    cross-obligation failures (a bug in endExposed making OBL_pre fail too).
+    After trimming, an obligation fails ONLY if the phase IT tests is wrong,
+    so fault localization is precise.
+
+    The keep set is closed over the harness's own call graph before anything is
+    dropped. Trimming a helper that a kept function calls leaves a reference to
+    a name that no longer exists, and solc rejects the file with an undeclared
+    identifier, so the obligation reports UNKNOWN for a reason that has nothing
+    to do with the property. Keeping a callee cannot reintroduce the sibling
+    interference the trim exists to prevent: a helper reached from a kept body
+    is already part of that obligation's execution.
+
+    Implementation: a brace-matching scan that drops top-level `function <name>`
+    definitions whose name is not in keep_funcs. Constructors and state vars are
+    always kept. depositFor is always kept (needed to seed feasible state).
+    """
+    import re
+    always = {"depositFor"}
+    keep = set(keep_funcs) | always
+
+    fn_re = re.compile(r"function\s+([A-Za-z_]\w*)\s*\(")
+
+    def _spans(text):
+        """(name, start, end) for every top-level function definition."""
+        out, i, n = [], 0, len(text)
+        while i < n:
+            m = fn_re.search(text, i)
+            if not m:
+                break
+            brace = text.find("{", m.end())
+            if brace == -1:
+                break
+            depth, j = 0, brace
+            while j < n:
+                if text[j] == "{":
+                    depth += 1
+                elif text[j] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        j += 1
+                        break
+                j += 1
+            out.append((m.group(1), m.start(), j, text[brace:j]))
+            i = j
+        return out
+
+    spans = _spans(src)
+    bodies = {name: body for name, _s, _e, body in spans}
+    keep |= {name for name in bodies if name.startswith("__havoc")}
+
+    # close the keep set over calls made by kept bodies
+    frontier = [f for f in keep if f in bodies]
+    seen = set(frontier)
+    while frontier:
+        cur = frontier.pop()
+        for callee in re.findall(r"\b([A-Za-z_]\w*)\s*\(", bodies.get(cur, "")):
+            if callee in bodies and callee not in seen:
+                seen.add(callee)
+                keep.add(callee)
+                frontier.append(callee)
+
+    out, i = [], 0
+    for name, start, end, _body in spans:
+        out.append(src[i:start])
+        if name in keep:
+            out.append(src[start:end])
+        i = end
+    out.append(src[i:])
+    return "".join(out)
+
+
+def _strip_header(src: str) -> str:
+    lines = src.splitlines()
+    kept = [ln for ln in lines
+            if not ln.strip().startswith("// SPDX")
+            and not ln.strip().startswith("pragma ")]
+    return "\n".join(kept)
+
+
+def _wrap_internal(inner_body: str, inner_name: str, check_fn: str) -> str:
+    """Like _wrap, but injects check() INSIDE the harness contract so all calls
+    (view, endExposed) and storage reads are INTERNAL -- SMTChecker can then
+    reason about the state change across the settle, instead of havoc'ing
+    external return values. The check body must use bare names (no `v.` prefix).
+    We strip a leading `v.` from calls/reads in the provided check_fn."""
+    import re as _re
+    internal_check = _re.sub(r"\bv\.", "", check_fn)
+    internal_check = internal_check.replace("address(v)", "address(this)")
+    # Public STATE VARIABLES are accessed as getters externally (v.x()) but are
+    # bare reads internally (x). Detect every public var declared in inner_body
+    # and drop the () on its getter. Real functions (view g, depositFor,
+    # beginExposed, endExposed) are NOT matched, so their calls keep parentheses.
+    # Every state variable the harness declares, of any type and visibility:
+    # the entry guard reads them bare, so a getter-style `x()` must be rewritten
+    # even when `x` is a `uint8` or is not public and so has no getter at all.
+    _statevars = _harness_state_names(inner_body)
+    _statevars |= {"exposed", "inFlight", "snapPre"}
+    for _var in _statevars:
+        internal_check = _re.sub(rf"\b{_re.escape(_var)}\(\)", _var, internal_check)
+    internal_check = _re.sub(r"\b(_sum_\w+)\(\)", r"\1", internal_check)
+    # inject the check as the last member of the harness contract: find the last
+    # closing brace of inner_body's contract and insert before it.
+    idx = inner_body.rstrip().rfind("}")
+    if idx == -1:
+        return _wrap(inner_body, inner_name, check_fn)  # fallback
+    injected = inner_body[:idx] + internal_check + "\n" + inner_body[idx:]
+    return f"""{_HEADER}
+{injected}
+"""
+
+
+# Obligation slicing (general arm). Off by default so results can be compared
+# with and without it; the pipeline switches it on from its configuration.
+SLICE = False
+# (state vars before, after) for each obligation sliced in the last compile
+SLICE_STATS: list = []
+
+
+def _wrap(inner_body: str, inner_name: str, check_fn: str) -> str:
+    """Produce a full standalone SMTChecker file: the inner harness contract
+    plus an Obligation contract that instantiates it and holds one `check`.
+
+    With SLICE on, the harness is first cut down to what `check_fn` can
+    observe -- see aegis/slicer.py for the criterion and why it is sound."""
+    if SLICE:
+        from .slicer import slice_harness, slice_report
+        before, after = slice_report(inner_body, check_fn)
+        inner_body = slice_harness(inner_body, check_fn)
+        SLICE_STATS.append((before, after))
+    return f"""{_HEADER}
+{inner_body}
+
+contract Obligation {{
+    {inner_name} v;
+    constructor() {{ v = new {inner_name}(address(this)); }}
+{_havoc_forwarder(inner_body)}{check_fn}
+}}
+"""
+
+
+def _havoc_forwarder(inner_body: str) -> str:
+    """A public entry that sets the harness's symbolic values.
+
+    Values the harness cannot compute -- a helper result, an immutable, a
+    local whose declaration was dropped -- are harness state variables. The
+    obligation creates the harness with `new`, so without a way to change them
+    they stayed 0 and a proof covered only that one value. With this entry the
+    solver may set them to anything between transactions."""
+    import re
+    out = []
+    for m in re.finditer(r"function\s+(__havoc\w*)\s*\(([^)]*)\)", inner_body):
+        fn, params = m.group(1), m.group(2).strip()
+        if not params:
+            continue
+        args = ", ".join(p.split()[-1] for p in params.split(","))
+        out.append(f"    function {fn[2:]}({params}) public {{ v.{fn}({args}); }}\n")
+    return "".join(out)
+
+
+# Filled by the most recent compile_view_obligations call: one ViewVerdict per
+# candidate view, so the pipeline can report why a view was not checked.
+VIEW_ADMISSIBILITY: list = []
+
+_CANARY_TARGETS = (
+    "assert(r_exposed == r_entry || r_exposed == r_stable);",
+    "assert(r_exposed == r_stable);",
+)
+
+
+def _canary_conclusion(check: str) -> str:
+    """Replace the obligation's conclusion with assert(false).
+
+    The canary probes reachability: if the harness body cannot reach its own
+    assertion, a verified obligation proves nothing. The conclusion is matched
+    against every shape view_check can emit so a template change cannot leave a
+    canary silently asserting the real property.
+    """
+    for target in _CANARY_TARGETS:
+        if target in check:
+            return check.replace(target, "assert(false);")
+    raise RuntimeError("view obligation has no recognised conclusion to "
+                       "replace; the canary would not be a reachability probe")
+
+
+def compile_view_obligations(facts: ContractFacts, site, contract_name: str,
+                             harness_contract_src: str,
+                             canary: bool = False,
+                             ablate: str = "none") -> list[Obligation]:
+    """Compile the differential view-safety obligations on their own.
+
+    The view check compares what a public view returns inside the exposed window
+    against what it returns after the window settles. It needs no exposure
+    invariant, no target property and no synthesized per-view relation, so it is
+    compiled here directly from the contract facts and the harness, independently
+    of whether an exposure invariant could be synthesized.
+
+    With canary=True the assertion is replaced by assert(false), giving a
+    reachability probe: if the canary is not refuted the harness body is
+    unreachable and the real verdict would be vacuous.
+    """
+    from .static_analysis import view_closure
+    from .harness_synth import _exposed_mapping, _sum_ghost_name
+
+    H = _harness_contract_name(contract_name)
+    body = _strip_header(harness_contract_src)
+    template = get_template("additive")
+
+    ctx = TemplateCtx(q=lambda s: s, inv_exp="", inv_stable="", target="",
+                      flag_name="exposed", primary_ghost="inFlight",
+                      share_guard="", fresh_state=_fresh_state(facts, body))
+
+    mv = _exposed_mapping(facts, site) if site else None
+    backing = f"v.{_sum_ghost_name(mv)}() <= address(v).balance" if mv else None
+
+    from .footprint import admitted_views
+
+    candidates = view_closure(facts, site.function)
+    admitted, verdicts = admitted_views(facts, site, candidates)
+    global VIEW_ADMISSIBILITY
+    VIEW_ADMISSIBILITY = verdicts
+    obs_types = {v.view: v.obs_type for v in verdicts}
+
+    out = []
+    for g in admitted:
+        gi = facts.functions.get(g)
+        if gi is None:
+            continue
+        check = template.view_check(ctx, g, obs_types.get(g) or "uint256",
+                                    param_types=gi.param_types, backing=backing,
+                                    ablate=ablate)
+        if canary:
+            check = _canary_conclusion(check)
+        out.append(Obligation(
+            name=f"OBL_view_{g}" + ("_canary" if canary else ""),
+            module="readonly",
+            description=(f"view {g} returns the same value during and after the "
+                         f"callback window"),
+            harness_source=_wrap_internal(
+                _trim_harness(body, {"beginExposed", "endExposed",
+                                     "depositFor", g}), H, check)))
+    return out
+
+
+
+def prune_dead_havoc(source: str) -> str:
+    """Drop havoc assignments to variables nothing else in the file reads.
+
+    Every harness carries setters for all its argument and configuration
+    variables, but an obligation keeps only the functions it needs, so most
+    of those variables are dead in it. Each setter is still one more public
+    transition for the CHC engine to explore: the nine dead argument variables
+    fixed18 added made BULLRUNNERSCLUB's read-only canaries undecidable in five
+    minutes. Removing an assignment nothing reads, and a setter left with none,
+    changes no reachable value the checked code can observe."""
+    import re
+    fn_re = re.compile(r"\n[ \t]*function\s+(__havoc\w*)\s*\(([^)]*)\)\s*public\s*\{(.*?)\n[ \t]*\}", re.S)
+    spans = [(m.start(), m.end()) for m in fn_re.finditer(source)]
+    if not spans:
+        return source
+    outside = []
+    last = 0
+    for a, b in spans:
+        outside.append(source[last:a])
+        last = b
+    outside.append(source[last:])
+    rest = "".join(outside)
+    rest = re.sub(r"//[^\n]*", "", rest)
+
+    def read_elsewhere(name):
+        uses = len(re.findall(rf"(?<![\w.]){re.escape(name)}\b", rest))
+        decls = len(re.findall(rf"\bpublic\s+{re.escape(name)}\s*;", rest))
+        return uses > decls
+
+    removed = []
+
+    def rewrite(m):
+        fn, params, body = m.group(1), m.group(2), m.group(3)
+        keep = [ln for ln in body.split("\n")
+                if not (re.match(r"\s*(\w+)\s*=\s*__x\d+\s*;\s*$", ln)
+                        and not read_elsewhere(re.match(r"\s*(\w+)", ln).group(1)))]
+        if not any(re.match(r"\s*\w+\s*=\s*__x\d+\s*;", ln) for ln in keep):
+            removed.append(fn)
+            return ""
+        indent = re.match(r"\n([ \t]*)", m.group(0)).group(1)
+        return f"\n{indent}function {fn}({params}) public {{" + "\n".join(keep) + f"\n{indent}}}"
+
+    out = fn_re.sub(rewrite, source)
+    for fn in removed:
+        out = re.sub(rf"\n[ \t]*function\s+{re.escape(fn[2:])}\s*\([^)]*\)\s*public\s*\{{\s*v\.{re.escape(fn)}\([^)]*\);\s*\}}",
+                     "", out)
+    return out
+
+
+def drop_undeclared_ghost_writes(source: str) -> str:
+    """Remove assignments to sum ghosts the file no longer declares.
+
+    The read-only slicer drops a sum ghost's declaration when the view does
+    not depend on it, but depositFor still carried `_sum_x += amount`, so the
+    obligation did not compile (WAsgard, `_sum_deposits`). A ghost with no
+    declaration is read by nothing, so its writes have no observable effect."""
+    import re
+    declared = set(re.findall(r"^\s*u?int\d*\s+(?:public\s+|internal\s+|private\s+)?(_sum_\w+)\s*;",
+                              source, re.M))
+    written = set(re.findall(r"^\s*(_sum_\w+)\s*(?:\+=|-=|=)", source, re.M))
+    for g in written - declared:
+        source = re.sub(rf"^[ \t]*{re.escape(g)}\s*(?:\+=|-=|=)[^;\n]*;[^\n]*\n", "",
+                        source, flags=re.M)
+    return source

@@ -1,0 +1,82 @@
+status: verified
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpgy2pelok/OneStep.sol:29:55:
+   |
+29 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, address __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpgy2pelok/OneStep.sol:29:111:
+   |
+29 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, address __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpgy2pelok/OneStep.sol:42:27:
+   |
+42 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpgy2pelok/OneStep.sol:42:41:
+   |
+42 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                         ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpgy2pelok/OneStep.sol:42:52:
+   |
+42 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                    ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpgy2pelok/OneStep.sol:42:80:
+   |
+42 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpgy2pelok/OneStep.sol:42:94:
+   |
+42 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpgy2pelok/OneStep.sol:42:108:
+   |
+42 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpgy2pelok/OneStep.sol:42:122:
+   |
+42 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                                          ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpgy2pelok/OneStep.sol:165:9:
+    |
+165 |         uint256 amount
+    |         ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpgy2pelok/OneStep.sol:285:52:
+    |
+285 |     function __h_addLiquidity(uint256 tokenAmount, uint256 ethAmount) internal {
+    |                                                    ^^^^^^^^^^^^^^^^^
+
+Warning: Function state mutability can be restricted to pure
+   --> /tmp/tmpgy2pelok/OneStep.sol:162:5:
+    |
+162 |     function __h__approve(
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpgy2pelok/OneStep.sol:331:17:
+    |
+331 |                 assert(pendingMarketingFee + pendingBurnFee <= _balances[address(this)] + inFlight);            
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

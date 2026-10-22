@@ -1,0 +1,40 @@
+RQ3 labelling brief
+===================
+
+You are deciding, for each contract, whether an external call it makes can be
+exploited by the code it hands control to.
+
+Fill in three columns of the sheet. Do the middle one first.
+
+  target   The relation this contract is meant to maintain, written in its own
+           variable names. For example `totalDeposits == backing`, or
+           `sumOfShares == totalSupply`. This is the property the contract
+           would be verified against. If you cannot state one, write `none`.
+
+  label    safe | unsafe | unclear
+             unsafe  - some sequence of re-entrant calls, made while an
+                       external call from this contract is still running, can
+                       leave `target` false at the end of the transaction
+             safe    - no such sequence exists
+             unclear - you cannot tell from the source
+
+  why      One line. What makes it safe, or the path that breaks it.
+
+Use `unclear` whenever you mean it. A forced guess on ambiguous flattened code
+is worse than an honest abstention, and how many are set aside is itself a
+result worth reporting.
+
+Two things to keep in mind:
+
+  * Do not run any tool on these contracts, and do not discuss them with the
+    other annotator until both sheets are finished. The agreement between the
+    two sheets is being measured, and it is only meaningful if the two were
+    made independently.
+
+  * Label what the contract does, not what you expect a verifier to conclude.
+    A contract can be unsafe in a way no tool would catch, and that case is
+    exactly what these labels exist to find.
+
+Sources for every contract in the sheet are under sources/. The `file` column
+gives the file name; `site_function` and `site_call` point at the external call
+that opens the window, as a starting place rather than the only thing to read.

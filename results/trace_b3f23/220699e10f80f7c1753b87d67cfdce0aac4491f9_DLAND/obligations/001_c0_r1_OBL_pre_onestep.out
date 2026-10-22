@@ -1,0 +1,16 @@
+status: verified
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpo83wt29r/OneStep.sol:39:25:
+   |
+39 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpo83wt29r/OneStep.sol:147:13:
+    |
+147 |             assert(president_balance + marketing_balance + development_balance + coder_balance <= _ethBal + inFlight && inFlight <= president_balance);                
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,50 @@
+"""
+localize.py (failsafe.py) - Module-level obligation localization.
+
+Each obligation already carries its responsible MCVP module (set by the
+compiler). Localization attributes every failed/unknown obligation to its
+module; modules with no failing obligation stay "correct" and are never
+re-synthesized. This is the keep-correct-work property, realized over the
+A/G obligation set.
+"""
+from __future__ import annotations
+from dataclasses import dataclass, field
+from .backend import ObligationResult
+from .mcvp import MCVP
+from .depgraph import ALL_MODULES
+
+
+@dataclass
+class ModuleStatus:
+    module: str
+    status: str                       # "correct" | "in_progress"
+    failing_obligations: list[str] = field(default_factory=list)
+    detail: str = ""
+
+
+@dataclass
+class LocalizedPlan:
+    plan: MCVP
+    modules: dict[str, ModuleStatus]
+
+    def correct_modules(self):
+        return [m for m, s in self.modules.items() if s.status == "correct"]
+
+    def in_progress_modules(self):
+        return {m for m, s in self.modules.items() if s.status == "in_progress"}
+
+    def all_correct(self):
+        return all(s.status == "correct" for s in self.modules.values())
+
+
+def localize(plan: MCVP, results: list[ObligationResult]) -> LocalizedPlan:
+    mods = {m: ModuleStatus(module=m, status="correct") for m in ALL_MODULES}
+    for r in results:
+        if r.status == "verified":
+            continue
+        s = mods.get(r.module) or mods["exposure_invariant"]
+        s.status = "in_progress"
+        s.failing_obligations.append(r.name)
+        if r.detail:
+            s.detail = r.detail
+    return LocalizedPlan(plan=plan, modules=mods)

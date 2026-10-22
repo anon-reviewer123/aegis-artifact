@@ -1,0 +1,61 @@
+{
+ "contract": "TraderSpirits",
+ "closure": {
+  "site_function": "mintByUser",
+  "site_call": ".call",
+  "functions": [
+   "airDropToken",
+   "giftMint",
+   "mintByOwner",
+   "mintByUser"
+  ],
+  "justification": "These functions modify the exposed storage variables related to minting and can be called during reentrancy."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "airDropToken",
+   "giftMint",
+   "mintByOwner"
+  ],
+  "nesting_bound": {
+   "mintByUser": 1
+  }
+ },
+ "phases": {
+  "function": "mintByUser",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "The number of tokens being minted during the callback window.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "publicMinted == publicMintLimit + inFlight",
+  "stable_formula": "publicMinted == publicMintLimit",
+  "kind": "additive"
+ },
+ "composition": {
+  "target_property": "publicMinted <= publicMintLimit",
+  "rule": "The exposure invariant ensures that the number of minted tokens does not exceed the limit even during reentrancy."
+ }
+}

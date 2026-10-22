@@ -1,0 +1,59 @@
+{
+ "contract": "TRYPTO",
+ "closure": {
+  "site_function": "take_marketing",
+  "site_call": ".call",
+  "functions": [
+   "take_marketing",
+   "transfer",
+   "transferFrom"
+  ],
+  "justification": "These functions can affect the marketing_balance during the callback window."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "transfer",
+   "transferFrom"
+  ],
+  "nesting_bound": {
+   "take_marketing": 1
+  }
+ },
+ "phases": {
+  "function": "take_marketing",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "exit"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "The amount of marketing_balance in-flight during the callback window.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "marketing_balance + growth_balance <= address(this).balance + inFlight",
+  "stable_formula": "marketing_balance + growth_balance <= address(this).balance",
+  "kind": "bounded"
+ },
+ "composition": {
+  "target_property": "marketing_balance + growth_balance <= address(this).balance",
+  "rule": "The exposure invariant ensures that the marketing_balance and growth_balance do not exceed the contract's balance during the callback window."
+ }
+}

@@ -1,0 +1,23 @@
+== Aegis on 955b9dBc6c00d136FeE91698180A5b037E0f31F6_SafePaymentVault.sol ==
+target property: TotalBalance == address(this).balance
+[eth-model] address(this).balance -> _ethBal; property now: TotalBalance == _ethBal
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['BranchTeamName', 'BranchTeamRegistered', 'CallBranchTeamFunction', 'DepositTotalForOneBranch', 'Deposits', 'MinWeiDeposit', 'MinimumAccountFunds', 'MsgSender', 'RanMakeDeposit', 'RetailSite', 'TXorigin', 'TotalBalance', 'WithdrawalAddress', '_ethBal', 'addrThis', 'owner']
+[2] exposure site: Withdraw -> .call (low-level value transfer can re-enter)
+    conservative closure: ['EmptyAndCloseVault', 'GetTotalBalance', 'MakeDeposit', 'Withdraw']
+[harness] reusing synthesized harness 955b9dBc6c00d136FeE91698180A5b037E0f31F6_SafePaymentVault.ethmodel.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 12 functions, 18 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_EmptyAndCloseVault', 'OBL_cb_GetTotalBalance', 'OBL_cb_MakeDeposit', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_cb_EmptyAndCloseVault [closure]: FAILED :: SMTChecker found an assertion violation
+      OBL_cb_GetTotalBalance [closure]: FAILED :: SMTChecker found an assertion violation
+      OBL_cb_MakeDeposit [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: No matching declaration found after argument-dependent lookup.
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: No matching declaration found after argument-dependent lookup.
+  [round 1] BUG_FOUND via OBL_cb_EmptyAndCloseVault
+      counterexample: Warning: CHC: Assertion violation happens here.
+
+--- stderr ---

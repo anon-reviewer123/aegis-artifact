@@ -1,0 +1,28 @@
+== Aegis on a744506fa02ada758abb6c4704418704d7726cb9_PokeXVerse.sol ==
+target property: amountOfTokensGotPayout == the next unpaid token index in the current royalty cycle
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_ENTERED', '_NOT_ENTERED', '_addressData', '_currentBaseURI', '_name', '_operatorApprovals', '_owner', '_ownerships', '_reservedMints', '_status', '_symbol', '_tokenApprovals', 'amountForPledgeMint', 'amountForPreSale1', 'amountForPreSale2', 'amountForPublicSale', 'amountOfTokensGotPayout', 'currentIndex', 'dummy', 'maxMintPreSalePerWallet', 'maxMintPublicSalePerWallet', 'maxReservedMints', 'maxTotalTokens', 'mintCostPreSale1', 'mintCostPreSale2', 'mintCostPublicSale', 'mintedAmountPreSale1', 'mintedAmountPreSale2', 'mintedAmountPublicSale', 'mintsPerAddressPreSale', 'mintsPerAddressPublicSale', 'paused', 'pledgeContract', 'revealed', 'saleState', 'totalEthRoyaltyPayout', 'unrevealedURI', 'whitelistEnable']
+[loop] 1 loop-call site(s) detected
+[loop] royaltyPayout: progress step obligation
+      OBL_loop_step_royaltyPayout: CANARY DID NOT FIRE (status unknown); harness did not compile -- reporting UNKNOWN :: solc compile error: Error: Undeclared identifier.
+[loop] loop verification: UNKNOWN
+[2] exposure site: royaltyPayout -> .call (low-level value transfer can re-enter)
+    conservative closure: ['royaltyPayout']
+[harness] reusing synthesized harness a744506fa02ada758abb6c4704418704d7726cb9_PokeXVerse.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 25 functions, 38 public state vars)
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

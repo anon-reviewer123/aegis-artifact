@@ -1,0 +1,69 @@
+status: verified
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmp_bk4scr_/OneStep.sol:91:9:
+   |
+91 |         uint amount;
+   |         ^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp_bk4scr_/OneStep.sol:89:27:
+   |
+89 |     function beginExposed(uint256 amount) public {
+   |                           ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp_bk4scr_/OneStep.sol:34:55:
+   |
+34 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp_bk4scr_/OneStep.sol:34:69:
+   |
+34 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp_bk4scr_/OneStep.sol:59:69:
+   |
+59 |     function __havoc_arg2(address __x0, address __x1, address __x2, address __x3, address __x4) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp_bk4scr_/OneStep.sol:59:83:
+   |
+59 |     function __havoc_arg2(address __x0, address __x1, address __x2, address __x3, address __x4) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp_bk4scr_/OneStep.sol:89:27:
+   |
+89 |     function beginExposed(uint256 amount) public {
+   |                           ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp_bk4scr_/OneStep.sol:321:52:
+    |
+321 |     function __h_addLiquidity(uint256 tokenAmount, uint256 ethAmount) internal {
+    |                                                    ^^^^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmp_bk4scr_/OneStep.sol:377:13:
+    |
+377 |             assert(pendingmarketingFees <= _balances[address(this)]);             
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmp_bk4scr_/OneStep.sol:378:13:
+    |
+378 |             assert(inFlight == 0);     
+    |             ^^^^^^^^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmp_bk4scr_/OneStep.sol:379:13:
+    |
+379 |             assert(!exposed);             
+    |             ^^^^^^^^^^^^^^^^
+

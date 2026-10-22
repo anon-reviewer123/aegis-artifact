@@ -1,0 +1,29 @@
+analyzer : ast
+target   : _sum_balances == winnerFunds
+
+  KatMonstarz                      contract IERC721
+  KatWalkerz                       contract IERC721
+  balances                         mapping(address => uint256)
+  chances                          mapping(address => uint256)
+  currentPrize                     uint256
+  entries                          address[]
+  lastSpin                         uint256
+  maxWinners                       uint256
+  minEntries                       uint256
+  minSpin                          uint256
+  minVotes                         uint256
+  owner                            address
+  proposal                         uint256[6]
+  royaltiesSplit                   uint256
+  spinInterval                     uint256
+  spinning                         bool
+  votes                            address[]
+  voting                           bool
+  winnerFunds                      uint256
+  winners                          address[]
+  withdrawing                      bool
+
+sites:
+  withdraw.call#0 before=['withdrawing'] after=['balances', 'winnerFunds', 'withdrawing']
+
+closure : ['spin', 'withdraw']

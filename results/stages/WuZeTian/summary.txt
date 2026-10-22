@@ -1,0 +1,14 @@
+
+======================================================================
+WuZeTian
+harness  : DOES NOT COMPILE  (208 lines)
+    Error: Expected pragma, import directive or contract/interface/library/struct/enum/constant/function/error definition.  (line 208)
+          205 |     
+          206 |     function createPair(address tokenA, address tokenB) external returns (address pair); 
+          207 | }
+      >>  208 | }
+Iexp     : _sum__balances + _swapLimit == _totalSupply + inFlight
+OBL_pre                     : compiles  (95 lines)
+OBL_cb_manualTaxSwapAndSend : compiles  (97 lines)
+OBL_cb_transferFrom         : compiles  (96 lines)
+OBL_post                    : compiles  (101 lines)

@@ -1,0 +1,17 @@
+contract,family,arm,label,expected,status,outcome,seconds,backend,reason
+amm_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,138.4,smtchecker,[readonly] read-only verification: VERIFIED
+amm_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,34.9,smtchecker,[readonly] read-only verification: BUG_FOUND
+backing_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,141.5,smtchecker,[readonly] read-only verification: VERIFIED
+backing_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,97.7,smtchecker,[readonly] read-only verification: BUG_FOUND
+escrow_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,172.8,smtchecker,[readonly] read-only verification: VERIFIED
+escrow_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,134.6,smtchecker,[readonly] read-only verification: BUG_FOUND
+feesplit_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,168.1,smtchecker,[readonly] read-only verification: VERIFIED
+feesplit_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,54.1,smtchecker,[readonly] read-only verification: BUG_FOUND
+lending_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,139.3,smtchecker,[readonly] read-only verification: VERIFIED
+lending_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,37.1,smtchecker,[readonly] read-only verification: BUG_FOUND
+lpvault_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,136.4,smtchecker,[readonly] read-only verification: VERIFIED
+lpvault_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,36.1,smtchecker,[readonly] read-only verification: BUG_FOUND
+pullpayment_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,141.7,smtchecker,[readonly] read-only verification: VERIFIED
+pullpayment_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,35.9,smtchecker,[readonly] read-only verification: BUG_FOUND
+staking_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,136.5,smtchecker,[readonly] read-only verification: VERIFIED
+staking_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,34.1,smtchecker,[readonly] read-only verification: BUG_FOUND

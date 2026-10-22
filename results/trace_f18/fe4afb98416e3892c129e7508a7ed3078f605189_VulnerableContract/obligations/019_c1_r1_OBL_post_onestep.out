@@ -1,0 +1,45 @@
+status: unknown
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmprxkv9071/OneStep.sol:71:23:
+   |
+71 |     function withdraw(uint256 amount) public {
+   |                       ^^^^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+  --> /tmp/tmprxkv9071/OneStep.sol:84:13:
+   |
+84 |             assert(_sum_balances == _ethBal);             
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: Counterexample:
+  PRICE = 0
+  __branch0 = false
+  __prev0 = 98
+  _ethBal = 1
+  _sum_balances = 0
+  amount = 97
+  balances[msg.sender] = 0
+  exposed = false
+  inFlight = 0
+  snapPre = 0
+  this = 13
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+
+Info: BMC: Assertion violation check is safe!
+  --> /tmp/tmprxkv9071/OneStep.sol:85:13:
+   |
+85 |             assert(inFlight == 0);     
+   |             ^^^^^^^^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+  --> /tmp/tmprxkv9071/OneStep.sol:86:13:
+   |
+86 |             assert(!exposed);             
+   |             ^^^^^^^^^^^^^^^^
+

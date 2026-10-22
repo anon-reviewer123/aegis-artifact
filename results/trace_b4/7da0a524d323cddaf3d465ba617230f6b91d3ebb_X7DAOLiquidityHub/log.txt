@@ -1,0 +1,26 @@
+== Aegis on 7da0a524d323cddaf3d465ba617230f6b91d3ebb_X7DAOLiquidityHub.sol ==
+target property: distributeBalance + auxiliaryBalance + treasuryBalance + liquidityBalance <= address(this).balance
+[eth-model] address(this).balance -> _ethBal; property now: distributeBalance + auxiliaryBalance + treasuryBalance + liquidityBalance <= _ethBal
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_ethBal', '_owner', 'auxiliaryBalance', 'auxiliaryShare', 'auxiliaryTarget', 'auxiliaryTargetFrozen', 'balanceThreshold', 'balanceThresholdFrozen', 'distributeBalance', 'distributeShare', 'distributeTarget', 'distributeTargetFrozen', 'liquidityBalance', 'liquidityRatioTarget', 'liquidityShare', 'liquidityTokenReceiver', 'maxLiquidityRatioTarget', 'maxShare', 'minLiquidityRatioTarget', 'minShare', 'offRampPair', 'router', 'treasuryBalance', 'treasuryShare', 'treasuryTarget', 'treasuryTargetFrozen', 'x7dao', 'x7daoLiquidityBalance']
+[2] exposure site: processFees -> .call (low-level value transfer can re-enter via sendAuxiliaryBalance)
+    conservative closure: ['<fallback>', 'processFees', 'sendDistributeBalance', 'sendTreasuryBalance']
+[access] outside the closure under the trusted-roles assumption: ['freezeAuxiliaryTarget', 'freezeBalanceThreshold', 'freezeDistributeTarget', 'freezeTreasuryTarget', 'renounceOwnership', 'setAuxiliaryTarget', 'setBalanceThreshold', 'setDistributionTarget', 'setLiquidityRatioTarget', 'setLiquidityTokenReceiver', 'setOffRampPair', 'setRouter', 'setShares', 'setTreasuryTarget', 'transferOwnership']
+    freezeAuxiliaryTarget: modifier onlyOwner -> _checkOwner()
+    freezeBalanceThreshold: modifier onlyOwner -> _checkOwner()
+    freezeDistributeTarget: modifier onlyOwner -> _checkOwner()
+    freezeTreasuryTarget: modifier onlyOwner -> _checkOwner()
+    renounceOwnership: modifier onlyOwner -> _checkOwner()
+    setAuxiliaryTarget: modifier onlyOwner -> _checkOwner()
+    setBalanceThreshold: modifier onlyOwner -> _checkOwner()
+    setDistributionTarget: modifier onlyOwner -> _checkOwner()
+    setLiquidityRatioTarget: modifier onlyOwner -> _checkOwner()
+    setLiquidityTokenReceiver: modifier onlyOwner -> _checkOwner()
+    setOffRampPair: modifier onlyOwner -> _checkOwner()
+    setRouter: modifier onlyOwner -> _checkOwner()
+    setShares: modifier onlyOwner -> _checkOwner()
+    setTreasuryTarget: modifier onlyOwner -> _checkOwner()
+    transferOwnership: modifier onlyOwner -> _checkOwner()
+[harness] cached 7da0a524d323cddaf3d465ba617230f6b91d3ebb_X7DAOLiquidityHub.ethmodel.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 7da0a524d323cddaf3d465ba617230f6b91d3ebb_X7DAOLiquidityHub.ethmodel.harness.sol (15417 chars)
+[!] HARNESS UNSUPPORTED: the exposure call is not in processFees itself (reached through a helper)

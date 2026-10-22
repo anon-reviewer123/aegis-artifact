@@ -1,0 +1,11 @@
+analyzer : ast
+target   : _sum_balances == address(this).balance
+
+  balances                         mapping(address => uint256)
+  dao                              contract IDao
+
+sites:
+  withdraw.call#0 before=[] after=['balances']
+  attack.deposit#0 before=[] after=[]
+
+closure : ['deposit', 'withdraw']

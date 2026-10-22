@@ -1,0 +1,827 @@
+"""
+harness_synth.py - Auto-generate a phase-split harness from a callback-exposed
+contract.
+
+This module is what makes the pipeline contract-agnostic. The user supplies
+only the .sol file and the target property; harness_synth produces a
+<Name>H harness conforming to the documented interface (depositFor,
+beginExposed, endExposed, one wrapper per closure callback). The synthesized
+harness is then validated by harness_check the same way a user-authored
+harness would be -- a malformed synthesis is caught by the same conformance
+gate, so this addition does not weaken the soundness story.
+
+Synthesis strategy: locate the exposed function and its callback site, split
+its body at that site, transcribe the pre-call writes into beginExposed and
+the post-call writes into endExposed, and emit one f(uint256) wrapper per
+closure callback. We keep require()s inside callback wrappers because the bug
+manifests when a require becomes satisfiable in the exposed phase
+(claimYield's require(totalAssets > totalShares) is the canonical case). We
+strip require()s from beginExposed/endExposed bodies because the obligation
+compiler supplies their preconditions.
+
+The transformation is intentionally source-level rather than AST-level: we
+work with the contract's Solidity text. The validator and backend remain the
+soundness authority; harness_check rejects any synthesis that does not expose
+the documented interface, exactly as it would reject a malformed
+user-authored harness.
+"""
+from __future__ import annotations
+import re
+from .static_analysis import ContractFacts, ExposureSite
+
+
+# State variables that are part of the ghost/phase ledger and must not be
+# duplicated when transcribing the original contract's storage block.
+_GHOST_LEDGER_VARS = {"inFlight", "exposed", "snapPre"}
+
+# State variables we do not transcribe into the harness because they exist
+# only to model the adversary in the original contract; the harness models
+# the adversary directly through the callback wrappers.
+_RECEIVER_VARS = {"receiver"}
+
+
+def synthesize_harness(contract_src: str, facts: ContractFacts,
+                       site: ExposureSite,
+                       stable_invariant: str = "") -> str:
+    """Return a phase-split harness contract for the given exposure site.
+
+    The harness contract is named <OriginalName>H and exposes the documented
+    interface (beginExposed/endExposed/depositFor + one wrapper per closure
+    callback)."""
+    name = facts.contract
+    _SRC_CACHE[name] = contract_src
+    pragma = _extract_pragma(contract_src) or "pragma solidity >=0.8.0;"
+    storage_decls = _harness_state_block(contract_src, facts)
+    deposit_for = _emit_deposit_for(facts, stable_invariant)
+    begin_body = _phase_body(contract_src, site, "pre").replace("msg.value", "amount")
+    end_body = _phase_body(contract_src, site, "post").replace("msg.value", "amount")
+    # The phase bodies inline the EXPOSED function's body, which references that
+    # function's own parameter names (e.g. issue(address to, uint256 amt) uses
+    # `to`/`amt`). Bind them to the harness's uniform `amount` param, exactly as
+    # the closure wrappers do, so the inlined code compiles.
+    _exp_bindings = _param_bindings(contract_src, site.function)
+    if _exp_bindings:
+        begin_body = _exp_bindings + begin_body
+        end_body = _exp_bindings + end_body
+    callback_stubs = _emit_callback_wrappers(contract_src, facts, site)
+
+    # Resolve identifiers the inlined bodies reference but the harness does not
+    # declare (cross-phase locals, helper calls, immutables/constants). Each
+    # becomes a symbolic harness state variable; no-arg helper calls are
+    # rewritten to those reads. This makes the harness self-contained and
+    # compilable while soundly over-approximating the unmodeled values.
+    _omitted = _UNREPRESENTABLE_VARS.get(name, set())
+    _known = (set(facts.storage_vars) - _omitted) | {"inFlight", "exposed", "snapPre", "amount", "who"}
+    _extra_decls, (begin_body, end_body, callback_stubs) = _resolve_unbound(
+        [begin_body, end_body, callback_stubs], _known, _omitted)
+    if _extra_decls:
+        storage_decls = storage_decls + "\n" + _extra_decls
+
+    # Same-variable conservation: if the exposed site writes one numeric
+    # variable both before and after the callback, snapshot it at entry so the
+    # stub can target `v == snapPre` with invariant `v == snapPre + inFlight`.
+    def _num(v):
+        t = (facts.var_types.get(v, "uint256") or "uint256")
+        return t.startswith("uint") or t.startswith("int")
+    _snap_var = ""
+    for _s in [site]:
+        _after = [v for v in _s.write_after_call if _num(v)]
+        _before = [v for v in _s.write_before_call if _num(v)]
+        _cross = [(a, b) for a in _before for b in _after if a != b]
+        if _after and not _cross:
+            _snap_var = _after[0]
+            break
+    snap_stmt = ("        snapPre = %s;\n" % _snap_var) if _snap_var else ""
+
+    return f"""// SPDX-License-Identifier: MIT
+{pragma}
+/// Auto-generated phase-split harness for {name}.
+/// Generated by aegis.harness_synth from exposure site:
+///   function {site.function} -> {site.call}  ({site.reason})
+contract {name}H {{
+{storage_decls}
+    uint256 public inFlight;
+    uint256 public snapPre; // [ghost] entry snapshot for same-variable conservation
+    bool    public exposed;
+
+    /// Constructor takes an address for interface uniformity with the
+    /// obligation compiler, which instantiates every harness as
+    /// `new {name}H(address(this))`. The address is ignored: this harness
+    /// models the adversary through its callback wrappers, not through a
+    /// stored receiver field.
+    constructor(address /*receiver*/) {{}}
+
+{deposit_for}
+
+    /// PRE phase of {site.function}: establishes the exposure invariant.
+    function beginExposed(uint256 amount) public {{
+{snap_stmt}{begin_body}
+        inFlight += amount;
+        exposed   = true;
+    }}
+
+    /// POST phase of {site.function}: restores the stable invariant.
+    function endExposed(uint256 amount) public {{
+        require(exposed && inFlight == amount, "phase mismatch");
+{end_body}
+        inFlight -= amount;
+        exposed   = false;
+    }}
+
+{callback_stubs}
+}}
+"""
+
+
+def _strip_ledger_writes(stmt_line: str) -> str:
+    """Remove assignment statements to ghost-ledger vars (inFlight, exposed)
+    from a line that may contain several `;`-separated statements. Statements
+    touching other vars are preserved. Returns the surviving statements joined
+    by '; ' (possibly empty)."""
+    survivors = []
+    for piece in stmt_line.split(";"):
+        s = piece.strip()
+        if not s:
+            continue
+        # does this statement assign to a ghost-ledger var?
+        is_ledger = False
+        for gv in _GHOST_LEDGER_VARS:
+            if re.match(rf"{re.escape(gv)}\b\s*(\+=|-=|=)", s):
+                is_ledger = True
+                break
+        if not is_ledger:
+            survivors.append(s)
+    return ("; ".join(survivors) + ";") if survivors else ""
+
+
+def _extract_pragma(src: str) -> str | None:
+    m = re.search(r"pragma\s+solidity[^;]*;", src)
+    return m.group(0) if m else None
+
+
+def _infer_type_from_source(var: str, src: str) -> str:
+    """Best-effort type inference from the contract source declaration, used on
+    the regex-analyzer path where the AST type map is empty. Returns "" if no
+    declaration is found."""
+    if not src:
+        return ""
+    mm = re.search(rf"(mapping\s*\([^;{{}}]*?\))\s+(?:public|private|internal)?\s*{re.escape(var)}\b", src)
+    if mm:
+        return re.sub(r"\s+", " ", mm.group(1))
+    m = re.search(rf"\b(bool|address)\b[^;=\n]*\b{re.escape(var)}\b\s*[;=]", src)
+    if m:
+        return m.group(1)
+    m = re.search(rf"\b(u?int\d*)\b[^;=\n]*\b{re.escape(var)}\b\s*[;=]", src)
+    if m:
+        return m.group(1)
+    return ""
+
+
+def _harness_type(tstr: str, var: str, src: str):
+    """Map a storage variable to a declaration type that is valid INSIDE the
+    isolated harness contract. Returns None when the type cannot be represented
+    in isolation (struct / array / enum / bytes / string / mapping-to-complex),
+    in which case the caller skips declaring the variable.
+
+    `tstr` is solc's typeString (AST path) or "" (regex path -> infer from src).
+    Contract/interface reference types are modeled as `address`; simple mappings
+    whose value type is an integer/address/bool scalar are kept verbatim."""
+    t = (tstr or "").strip()
+    if not t:
+        t = _infer_type_from_source(var, src).strip()
+    if not t:
+        return "uint256"
+    if re.match(r"u?int\d*$", t):
+        return t
+    if t == "bool":
+        return "bool"
+    if t == "address" or t.startswith("address ") \
+            or t.startswith("contract ") or t.startswith("interface "):
+        return "address"
+    if t.startswith("mapping("):
+        val = t[t.rfind("=>") + 2:].strip().rstrip(")").strip()
+        if re.match(r"u?int\d*$", val) or val == "bool" or val.startswith("address"):
+            return re.sub(r"\s+", " ", t)
+        return None
+    # struct / array / enum / bytes / string / function / tuple: unrepresentable
+    return None
+
+
+def _harness_state_block(src: str, facts: ContractFacts) -> str:
+    """Return the storage declarations needed in the harness: every storage
+    variable from the original contract, with `public` visibility so getters
+    are auto-generated. We skip ghost-ledger variables (inFlight, exposed --
+    added separately) and receiver-style variables (the harness models the
+    adversary through callback wrappers, not through an address field)."""
+    skip = _GHOST_LEDGER_VARS | _RECEIVER_VARS
+    lines = []
+    # Declare from the analyzer's storage map (authoritative and complete),
+    # not by regex-scraping the source: source declarations may carry inline
+    # initializers (`uint256 public reserve = 1000;`) or pack several vars on
+    # one line, both of which a terminator-anchored regex misses, leaving the
+    # var referenced-but-undeclared in the harness.
+    src = _SRC_CACHE.get(facts.contract, "")
+    skipped = []
+    # Emit in a deterministic, solver-friendly order rather than the analyzer's
+    # raw alphabetical order. CHC convergence is sensitive to storage-variable
+    # ordering in the inductive invariant search; a reserve-style scalar landing
+    # first (e.g. `balance` sorting before the mapping `owed`) can make an
+    # otherwise-provable obligation time out. Mappings first, then scalars,
+    # keeps the layout uniform across contracts regardless of variable names and
+    # removes this name-dependent source of UNKNOWNs.
+    def _order_key(v):
+        tstr = facts.var_types.get(v, "") if facts.var_types else ""
+        is_mapping = "mapping" in tstr or v in _mapping_storage_vars(facts)
+        return (0 if is_mapping else 1, v)
+    ordered_vars = sorted((v for v in facts.storage_vars if v not in skip),
+                          key=_order_key)
+    for var in ordered_vars:
+        tstr = facts.var_types.get(var, "") if facts.var_types else ""
+        ty = _harness_type(tstr, var, src)
+        if ty is None:
+            skipped.append(var)
+            continue
+        lines.append(f"    {ty} public {var};")
+    if skipped:
+        lines.append("    // unrepresentable storage omitted: " + ", ".join(skipped))
+    _UNREPRESENTABLE_VARS[facts.contract] = set(skipped)
+    return "\n".join(lines) if lines else "    // (no public storage vars)"
+
+
+def _conservation_seed_vars(stable_invariant, numeric_vars, skip):
+    """If the stable invariant has conservation shape `A + B + ... == C` (a sum
+    of >=2 distinct terms equals a single term), return a seed set that credits
+    exactly ONE left-hand term plus the right-hand total, so the invariant holds
+    after depositFor (the other left terms stay 0). Returns None if the invariant
+    is not conservation-shaped (e.g. plain `A == B`), so the caller falls back to
+    crediting all numeric vars."""
+    import re as _re
+    inv = stable_invariant.strip()
+    # split on the top-level == ; tolerate >= for eth-model style but only handle ==
+    if "==" not in inv:
+        return None
+    lhs, rhs = inv.split("==", 1)
+    lhs, rhs = lhs.strip(), rhs.strip()
+    # left must be a sum of >= 2 identifiers; right a single identifier
+    lhs_terms = [t.strip() for t in lhs.split("+")]
+    ident = _re.compile(r"^[A-Za-z_]\w*$")
+    if len(lhs_terms) < 2 or not all(ident.match(t) for t in lhs_terms):
+        return None
+    if not ident.match(rhs):
+        return None
+    total = rhs
+    # pick the first left term that is a numeric, seedable var
+    first_term = next((t for t in lhs_terms
+                       if t in numeric_vars and t not in skip), None)
+    if first_term is None or total not in numeric_vars or total in skip:
+        return None
+    return {first_term, total}
+
+
+def _emit_deposit_for(facts: ContractFacts, stable_invariant: str = "") -> str:
+    """Emit a depositFor(who, amount) that seeds feasible accounting state.
+
+    Contract-agnostic: instead of hardcoding shares/totalShares/totalAssets, we
+    derive the seeding from the contract's actual deposit-style function. We
+    find a public function that writes the accounting storage vars and mirror
+    its '+=' updates, so the seeding preserves whatever stable invariant the
+    contract maintains. Falls back to incrementing every non-ghost scalar/
+    mapping storage var by `amount` (which preserves any '==' accounting
+    invariant of the form sum(A)==sum(B))."""
+    skip = _GHOST_LEDGER_VARS | _RECEIVER_VARS
+    # prefer mirroring an existing deposit-like function's writes
+    deposit_fn = None
+    for name, fn in facts.functions.items():
+        if fn.visibility in ("public", "external") and fn.writes and \
+                ("deposit" in name.lower() or "mint" in name.lower() or
+                 "provide" in name.lower() or "stake" in name.lower()):
+            deposit_fn = fn
+            break
+
+    # only seed NUMERIC accounting vars: address/bool storage must never get
+    # `+= amount`. We detect type from the contract source declarations.
+    numeric_vars = _numeric_storage_vars(facts)
+    mapping_vars = _mapping_storage_vars(facts)
+
+    lines = []
+    # Seed a state that SATISFIES the stable invariant. The correct seed depends
+    # on the invariant's structure, which is passed in via `stable_invariant`:
+    #   * conservation A + B == C (e.g. cash + loans == totalAssets): credit only
+    #     ONE additive term and the total (cash += amount; totalAssets += amount),
+    #     leaving the other terms 0, so A+B == C holds.
+    #   * equality A == B (e.g. aum == trackedValue), or no invariant given:
+    #     credit ALL numeric vars so both sides move together.
+    seed_vars = _conservation_seed_vars(stable_invariant, numeric_vars, skip) \
+        if stable_invariant else None
+    if seed_vars is None:
+        seed_vars = {v for v in facts.storage_vars
+                     if v in numeric_vars and v not in skip}
+    for v in sorted(seed_vars):
+        if v in skip or v not in numeric_vars:
+            continue
+        if v in mapping_vars:
+            lines.append(f"        {v}[who]  += amount;")
+        else:
+            lines.append(f"        {v}  += amount;")
+    body = "\n".join(lines) if lines else "        // (no accounting vars to seed)"
+    return ("    function depositFor(address who, uint256 amount) public {\n"
+            f"{body}\n"
+            "    }")
+
+
+def _numeric_storage_vars(facts: ContractFacts) -> set[str]:
+    """Storage vars whose type is a numeric (uint/int) scalar or a
+    mapping(... => uint/int). address/bool vars are excluded so we never emit
+    `addr += amount`.
+
+    Ground truth is the AST type map (facts.var_types). A var is numeric iff
+    its declared type is an integer scalar or a mapping whose value type is an
+    integer. When var_types is empty (regex analyzer / no solc), we fall back
+    to the previous behavior: everything except the regex/name-detected
+    address/bool vars."""
+    addr_bool = _addr_bool_vars(facts)
+    if facts.var_types:
+        result = set()
+        for v in facts.storage_vars:
+            if v in addr_bool:
+                continue
+            if _is_numeric_type(facts.var_types.get(v, "")):
+                result.add(v)
+        return result
+    # fallback (unchanged from before): all storage vars minus addr/bool
+    return {v for v in facts.storage_vars if v not in addr_bool}
+
+
+def _is_numeric_type(tstr: str) -> bool:
+    """True if a solc typeString denotes an integer scalar or a mapping whose
+    value type is an integer (so `v[k] += amount` is well-typed)."""
+    if not tstr:
+        return False
+    if tstr.startswith("mapping("):
+        # value type is the text after the last "=>", before the trailing ")"
+        inner = tstr[tstr.rfind("=>") + 2:].strip().rstrip(")").strip()
+        return inner.startswith("uint") or inner.startswith("int")
+    return tstr.startswith("uint") or tstr.startswith("int")
+
+
+def _mapping_storage_vars(facts: ContractFacts) -> set[str]:
+    """Storage vars whose declared type is a mapping. Ground truth is the AST
+    type map; when it is empty we fall back to the previous name allowlist."""
+    if facts.var_types:
+        return {v for v in facts.storage_vars
+                if facts.var_types.get(v, "").startswith("mapping(")}
+    # fallback (unchanged): hardcoded name hints for the regex-analyzer path
+    return {v for v in facts.storage_vars
+            if v.lower() in ("shares", "balances", "balanceof", "balance")}
+
+
+def _addr_bool_vars(facts: ContractFacts) -> set[str]:
+    """Identify address/bool storage so we never emit `addr += amount`.
+
+    Ground truth is the AST type map (facts.var_types): a var is address/bool
+    iff its declared type is exactly `address`, an address-derived type
+    (e.g. `address payable`, contract/interface references), or `bool`.
+    Crucially, a `mapping(address => uint256)` is NOT address/bool -- it is a
+    numeric mapping -- which is exactly the glp/balanceOf misclassification the
+    old declaration-text regex got wrong.
+
+    When var_types is empty (regex analyzer / no solc), we fall back to the
+    previous behavior: a declaration-text regex, then conservative name hints."""
+    if facts.var_types:
+        addr_bool = set()
+        for v in facts.storage_vars:
+            t = facts.var_types.get(v, "")
+            if _is_addr_bool_type(t):
+                addr_bool.add(v)
+        return addr_bool
+    # ---- fallback path (unchanged behavior when no AST types) ----
+    src = _SRC_CACHE.get(facts.contract, "")
+    addr_bool = set()
+    if src:
+        for v in facts.storage_vars:
+            # match `address ... v ;` or `bool ... v ;` at declaration
+            if re.search(rf"\b(address|bool)\b[^;\n]*\b{re.escape(v)}\b\s*;", src):
+                addr_bool.add(v)
+        return addr_bool
+    # fallback: conservative name hints
+    for v in facts.storage_vars:
+        lv = v.lower()
+        if lv in ("hook", "receiver", "owner", "admin", "token", "asset",
+                  "exposed", "midcall", "locked", "paused"):
+            addr_bool.add(v)
+    return addr_bool
+
+
+def _is_addr_bool_type(tstr: str) -> bool:
+    """True if a solc typeString denotes an address-like or bool SCALAR (never
+    a mapping, even a mapping with an address key)."""
+    if not tstr or tstr.startswith("mapping("):
+        return False
+    if tstr == "bool":
+        return True
+    # address, address payable, and contract/interface reference types
+    # (e.g. "contract IHook") all behave as address scalars for seeding.
+    return tstr.startswith("address") or tstr.startswith("contract ") \
+        or tstr.startswith("interface ")
+
+
+# Cache of contract source keyed by contract name, populated by
+# synthesize_harness so type classification can read real declarations.
+_SRC_CACHE: dict[str, str] = {}
+_SOLIDITY_KEYWORDS = {
+    "require","assert","emit","return","if","else","for","while","do","new",
+    "address","bool","uint","int","mapping","public","private","internal",
+    "external","memory","calldata","storage","payable","this","msg","block",
+    "tx","abi","true","false","wei","gwei","ether","seconds","minutes","hours",
+    "days","weeks","delete","revert","unchecked","type","keccak256","function",
+    "constructor","modifier","view","pure","returns","contract","interface",
+    "library","struct","enum","event","using","is","virtual","override",
+}
+
+
+def _strip_comments_strings(text: str) -> str:
+    text = re.sub(r"//[^\n]*", "", text)
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+    text = re.sub(r'"(?:[^"\\]|\\.)*"', '""', text)
+    text = re.sub(r"'(?:[^'\\]|\\.)*'", "''", text)
+    return text
+_TYPE_PREFIXES = ("uint", "int", "address", "bool", "bytes", "string")
+
+
+def _declared_locals(body: str) -> set:
+    """Names introduced by local declarations inside a generated phase/wrapper
+    body, e.g. `uint256 tokens = ...;` or `address hook = ...;`."""
+    out = set()
+    body = _strip_comments_strings(body)
+    for m in re.finditer(r"\b(?:u?int\d*|address(?:\s+payable)?|bool|bytes\d*|string)\s+([A-Za-z_]\w*)\s*[=;]", body):
+        out.add(m.group(1))
+    return out
+
+
+def _free_identifiers(body: str) -> set:
+    """Identifiers referenced in a body, excluding keywords, type names, and
+    member-access suffixes (the `.x` in `a.x`)."""
+    out = set()
+    body = _strip_comments_strings(body)
+    # custom-error / event identifiers (revert X(), emit X()) are not value
+    # references -- they must not become symbolic state vars.
+    err_evt = set(re.findall(r"\brevert\s+([A-Za-z_]\w*)", body))
+    err_evt |= set(re.findall(r"\bemit\s+([A-Za-z_]\w*)", body))
+    for m in re.finditer(r"(?<![\.\w])([A-Za-z_]\w*)", body):
+        ident = m.group(1)
+        if ident in _SOLIDITY_KEYWORDS:
+            continue
+        if any(ident.startswith(t) and ident[len(t):].isdigit() for t in ("uint","int","bytes")):
+            continue
+        if ident in ("uint","int","address","bool","bytes","string"):
+            continue
+        if ident in err_evt:
+            continue
+        out.add(ident)
+    return out
+
+
+def _resolve_unbound(bodies: list, known: set, omitted: set = frozenset()) -> tuple:
+    """Given the generated phase/wrapper bodies and the set of already-known
+    identifiers (harness storage + ghosts + amount + locals), return
+    (extra_decls, rewritten_bodies): symbolic harness state variables for every
+    unresolved reference, and the bodies with no-arg helper calls rewritten to
+    those symbolic reads. Unresolved references model immutables, constants, and
+    helper results as arbitrary fixed values, which over-approximates and is
+    therefore sound."""
+    unresolved = set()
+    local_known = set(known)
+    local_known |= {"depositFor", "beginExposed", "endExposed"}
+    for b in bodies:
+        local_known |= _declared_locals(b)
+        # the harness's own function names are not free identifiers
+        for m in re.finditer(r"\bfunction\s+([A-Za-z_]\w*)\s*\(", b):
+            local_known.add(m.group(1))
+    for b in bodies:
+        for ident in _free_identifiers(b):
+            if ident not in local_known and ident not in omitted:
+                unresolved.add(ident)
+    # never resurrect a var the type-normalizer omitted as unrepresentable
+    unresolved -= set(omitted)
+    if not unresolved:
+        return "", bodies
+    # Rewrite no-arg helper calls `foo()` -> `foo` (a symbolic state read).
+    rewritten = []
+    for b in bodies:
+        for u in unresolved:
+            b = re.sub(rf"\b{re.escape(u)}\s*\(\s*\)", u, b)
+        rewritten.append(b)
+    decls = "\n".join(f"    uint256 public {u};   // symbolic (immutable/helper/constant)"
+                      for u in sorted(unresolved))
+    return decls, rewritten
+
+_UNREPRESENTABLE_VARS: dict[str, set] = {}
+
+
+def _phase_body(contract_src: str, site: ExposureSite, phase: str) -> str:
+    """Extract the pre- or post-phase body of the exposure-site function by
+    locating the external call and splitting around the *whole* statement that
+    contains it.
+
+    pre-phase  = statements before the external-call statement
+    post-phase = statements after the external-call statement
+
+    The external call is frequently wrapped in a guard block, e.g.
+
+        if (receiver != address(0)) {
+            IReceiver(receiver).onTokensReceived(amount);
+        }
+
+    A naive line split keeps the dangling `if (...) {` in the pre chunk and the
+    orphan `}` in the post chunk, producing an unbalanced (non-compiling) body
+    -- the brace-corruption bug. To avoid this we find the call, expand the cut
+    point outward to the enclosing single-statement `if` guard (header through
+    its matching `}`), and remove that entire guard block. The pre/post chunks
+    are therefore always brace-balanced by construction."""
+    fn_re = re.compile(
+        rf"function\s+{re.escape(site.function)}\s*\([^)]*\)\s*[^{{]*{{",
+        re.DOTALL)
+    m = fn_re.search(contract_src)
+    if not m:
+        return "        // (could not locate function body)"
+    start = m.end()
+    depth, i = 1, start
+    while i < len(contract_src) and depth > 0:
+        if contract_src[i] == "{":
+            depth += 1
+        elif contract_src[i] == "}":
+            depth -= 1
+        i += 1
+    body = contract_src[start:i - 1]
+
+    call_token = site.call.lstrip(".")
+    cpos = body.find(call_token)
+    if cpos == -1:
+        return "        // (could not locate external call)"
+
+    cut_start, cut_end = _guard_span(body, cpos)
+    chunk = body[:cut_start] if phase == "pre" else body[cut_end:]
+    return _clean_chunk(chunk, keep_requires=False)
+
+
+def _guard_span(body: str, call_pos: int) -> tuple[int, int]:
+    """Given the index of the external-call token in a function body, return
+    the [start, end) span to excise so neither side keeps a dangling brace or a
+    dangling guard header.
+
+    Three cases:
+      1. braced guard:   if (...) { <call>; }   -> excise the whole block
+      2. inline guard:   if (...) <call>;       -> excise `if (...)` + the stmt
+      3. bare call:      <call>;                -> excise just the statement
+    """
+    # end of the call statement (its terminating semicolon)
+    semi = body.find(";", call_pos)
+    stmt_end = semi + 1 if semi != -1 else call_pos + 1
+
+    pre = body[:call_pos]
+
+    # Case 1: braced guard. An `if (...) {` opens just before the call with no
+    # statement terminator between the brace and the call.
+    brace = pre.rfind("{")
+    if brace != -1 and ";" not in pre[brace + 1:] and "}" not in pre[brace + 1:]:
+        header = pre[:brace]
+        gstart = re.search(r"\b(if)\b[^;{}]*$", header)
+        if gstart:
+            depth, j = 0, brace
+            while j < len(body):
+                if body[j] == "{":
+                    depth += 1
+                elif body[j] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        return gstart.start(), j + 1
+                j += 1
+            return gstart.start(), stmt_end
+
+    # Case 2: inline (brace-less) guard. An `if (...)` header sits just before
+    # the call on the same statement, with no intervening `;` `{` or `}`.
+    gstart = re.search(r"\b(if)\b\s*\([^;{}]*\)\s*[^;{}]*$", pre)
+    if gstart:
+        return gstart.start(), stmt_end
+
+    # Case 3: bare call statement. call_pos points at the call TOKEN
+    # (e.g. `onFlashLoan`), which sits mid-statement after its receiver
+    # (`IFlashBorrower(borrower).`). Excising from call_pos would leave that
+    # receiver stump (`IFlashBorrower(borrower).;`). Walk back to the start of
+    # the containing statement (the previous `;`, `{`, or `}`) so the whole
+    # call statement is removed.
+    sep = max(pre.rfind(";"), pre.rfind("{"), pre.rfind("}"))
+    stmt_start = sep + 1 if sep != -1 else call_pos
+    return stmt_start, stmt_end
+
+
+def _clean_chunk(chunk: str, keep_requires: bool) -> str:
+    """Normalize a piece of Solidity body: drop empty lines, comments, and
+    (optionally) require()s, while PRESERVING brace balance.
+
+    require()s are stripped from phase bodies (beginExposed/endExposed)
+    because the obligation compiler supplies the precondition. They are KEPT
+    in callback wrappers because the bug manifests precisely when a require
+    becomes satisfiable in the exposed state (the canonical case is
+    claimYield's require(totalAssets > totalShares)).
+
+    Brace handling: _phase_body now excises the entire external-call guard
+    block, so the chunk handed here is already balanced. We therefore do NOT
+    drop braces line-by-line (the old behavior corrupted multi-line guards);
+    instead, as a safety net we count braces and drop a leading orphan `}` or a
+    trailing orphan `{` only if the chunk is otherwise unbalanced."""
+    # Process statement-by-statement, not line-by-line: benchmark contracts
+    # frequently pack several statements on one line
+    # (`require(x); supply -= burn; exposed=true;`). A line-oriented filter that
+    # drops a line starting with `require(` would also discard the co-located
+    # accounting writes after it, emptying the phase body. We therefore split on
+    # statement terminators, but only outside braces so a brace-block (an `if {`
+    # ... `}` that survived the guard excision) is kept intact as one unit.
+    def _split_statements(text):
+        parts, buf, depth = [], [], 0
+        for chprev in text:
+            if chprev == "{":
+                depth += 1
+            elif chprev == "}":
+                depth -= 1
+            buf.append(chprev)
+            if chprev == ";" and depth == 0:
+                parts.append("".join(buf)); buf = []
+        if "".join(buf).strip():
+            parts.append("".join(buf))
+        return parts
+
+    kept = []
+    for raw in _split_statements(chunk):
+        stripped = raw.strip()
+        if not stripped or stripped.startswith("//"):
+            continue
+        if not keep_requires and stripped.startswith("require("):
+            continue
+        # Drop statements that are external/library/member calls or emits: they
+        # are not accounting writes to harness storage, and they reference
+        # contract/interface types absent from the isolated harness. A member
+        # call is `<recv>.<fn>(` (mappings index with [], so this never matches
+        # an accounting write). The invariant is over storage, so removing these
+        # is sound -- a callback's effect on THIS contract's storage is modeled
+        # separately by its own OBL_cb obligation.
+        _nocmt = _strip_comments_strings(stripped)
+        # control keywords that legitimately precede a "(": never treat these as
+        # helper calls to drop.
+        _ctrl = ("require", "assert", "if", "while", "for", "return", "revert",
+                 "emit", "address", "uint", "int", "bool", "bytes", "keccak256",
+                 "type", "abi")
+        _is_member_call = re.search(r"\.\w+\s*\(", _nocmt) is not None
+        _has_bare_call = False
+        for _cm in re.finditer(r"(?<![\.\w])([A-Za-z_]\w*)\s*\(", _nocmt):
+            if _cm.group(1) not in _ctrl:
+                _has_bare_call = True
+                break
+        if _nocmt.lstrip().startswith("emit ") or _is_member_call or _has_bare_call:
+            continue
+        # In phase bodies (keep_requires=False), drop any statements that assign
+        # to the ghost-ledger vars. A contract whose source explicitly maintains
+        # inFlight/exposed (e.g. CrossFunctionVault) would otherwise have those
+        # writes copied verbatim into beginExposed/endExposed AND have the
+        # template append its own, double-counting the ghost. The harness owns
+        # the ledger, so the contract's own ledger writes are removed here.
+        if not keep_requires:
+            stripped = _strip_ledger_writes(stripped)
+            if not stripped:
+                continue
+        kept.append(stripped)
+
+    # Safety net: repair an unbalanced chunk caused by a guard that straddled
+    # the cut point. Drop a leading orphan '}' (its '{' was on the other side)
+    # or a trailing orphan '{' (its '}' was on the other side).
+    def balance(lines):
+        return sum(l.count("{") - l.count("}") for l in lines)
+
+    while kept and balance(kept) < 0 and kept[0] in ("}", "};"):
+        kept.pop(0)
+    while kept and balance(kept) > 0 and (kept[-1].endswith("{")):
+        kept.pop()
+
+    out = ["        " + l for l in kept]
+    return "\n".join(out) if out else "        // (empty)"
+
+
+def _emit_callback_wrappers(contract_src: str, facts: ContractFacts,
+                            site: ExposureSite) -> str:
+    """For each closure callback that is not the exposed function itself,
+    emit a uniform `<name>(uint256 amount)` wrapper that calls the original
+    body. The wrapper exists so the obligation compiler's OBL_cb_<g>
+    harnesses can invoke g(amount) without per-contract special-casing.
+
+    The original function's body references its OWN parameter names (e.g.
+    `deposit(uint256 a)` uses `a`, `transfer(address to, uint256 a)` uses both
+    `to` and `a`). The wrapper, however, has a single fixed parameter `amount`.
+    To keep the body compilable we bind the original parameters at the top of
+    the wrapper: the first uint-typed parameter is aliased to `amount`; every
+    other parameter is declared as a harness-local with a neutral default
+    (address -> address(this), bool -> false, uint -> amount) so the inlined
+    body's identifiers all resolve. This makes the callback drivable by the
+    obligation compiler without per-contract special-casing.
+
+    require()s inside callback bodies are KEPT -- the bug we want to localize
+    manifests when a require becomes satisfiable in the exposed phase, so
+    stripping it would over-approximate."""
+    # Emit a wrapper for every public/external function that WRITES storage
+    # (except the exposed function itself), not just the conservative closure.
+    # The conservative closure only contains functions that write the exposed
+    # function's own storage; but a callback exploit can also be a function that
+    # writes a DIFFERENT variable the invariant depends on (e.g. a flash-loan's
+    # depositDuringCallback inflates totalAssets while cash+loans is unchanged).
+    # The LLM legitimately places such a function in its plan closure, so the
+    # harness must expose a wrapper for it or OBL_cb_<g> fails to compile. Extra
+    # wrappers are harmless: the compiler only builds OBL_cb for plan-closure
+    # members, and view/pure functions (empty writes) are excluded here.
+    writing_fns = sorted(
+        name for name, info in facts.functions.items()
+        if info.visibility in ("public", "external") and info.writes)
+    wrappers = []
+    for g in writing_fns:
+        if g == site.function:
+            continue
+        body = _extract_function_body(contract_src, g)
+        if body is None:
+            continue
+        cleaned = _clean_chunk(body, keep_requires=True)
+        # msg.value is illegal in a non-payable wrapper; the harness models the
+        # ETH amount via the uniform `amount` param, so rewrite msg.value->amount.
+        cleaned = cleaned.replace("msg.value", "amount")
+        bindings = _param_bindings(contract_src, g)
+        wrappers.append(
+            f"    /// Closure callback: wraps {g} so OBL_cb_{g} can drive it.\n"
+            f"    function {g}(uint256 amount) public {{\n"
+            f"{bindings}"
+            f"{cleaned}\n"
+            f"    }}")
+    return "\n\n".join(wrappers) if wrappers else "    // (no closure callbacks)"
+
+
+def _param_bindings(src: str, fname: str) -> str:
+    """Emit local declarations that bind the original parameters of `fname` so
+    its inlined body compiles inside a uniform `(uint256 amount)` wrapper.
+
+    The first uint-typed parameter is aliased to `amount`; any other parameter
+    is given a neutral harness-local default keyed by type. Returns the binding
+    lines (possibly empty) with trailing newline, ready to prepend to the body."""
+    params = _parse_params(src, fname)
+    if not params:
+        return ""
+    lines = []
+    aliased_amount = False
+    for ptype, pname in params:
+        base = ptype.split()[0]  # strip 'memory'/'calldata'/'payable'
+        if not aliased_amount and (base.startswith("uint") or base.startswith("int")):
+            # bind the primary numeric param to the wrapper's `amount`
+            if pname != "amount":
+                lines.append(f"        {ptype} {pname} = amount;")
+            aliased_amount = True
+        elif base.startswith("uint") or base.startswith("int"):
+            lines.append(f"        {ptype} {pname} = amount;")
+        elif base == "address":
+            lines.append(f"        address {pname} = address(this);")
+        elif base == "bool":
+            lines.append(f"        bool {pname} = false;")
+        else:
+            # unknown type: default-construct via a zero-ish value
+            lines.append(f"        {ptype} {pname};")
+    return ("\n".join(lines) + "\n") if lines else ""
+
+
+def _parse_params(src: str, fname: str) -> list[tuple[str, str]]:
+    """Return [(type, name), ...] for the parameters of function `fname` in the
+    contract source. Types keep leading qualifiers stripped to the base token."""
+    m = re.search(rf"function\s+{re.escape(fname)}\s*\(([^)]*)\)", src)
+    if not m:
+        return []
+    raw = m.group(1).strip()
+    if not raw:
+        return []
+    out = []
+    for part in raw.split(","):
+        toks = part.split()
+        if len(toks) >= 2:
+            ptype = toks[0]            # base type (uint256, address, bool, ...)
+            pname = toks[-1]           # parameter name
+            out.append((ptype, pname))
+    return out
+
+
+def _extract_function_body(src: str, fname: str) -> str | None:
+    m = re.search(
+        rf"function\s+{re.escape(fname)}\s*\([^)]*\)\s*[^{{]*{{", src,
+        re.DOTALL)
+    if not m:
+        return None
+    start = m.end()
+    depth, i = 1, start
+    while i < len(src) and depth > 0:
+        if src[i] == "{":
+            depth += 1
+        elif src[i] == "}":
+            depth -= 1
+        i += 1
+    return src[start:i - 1]

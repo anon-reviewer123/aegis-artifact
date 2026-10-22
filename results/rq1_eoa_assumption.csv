@@ -1,0 +1,9 @@
+contract,family,arm,label,expected,status,outcome,seconds,backend,reason
+UnexpectedEOACallback_S01.sol,eoa_assumption,general,safe,VERIFIED,BUG_FOUND,FP,70.4,smtchecker,[3] sampling 4 candidate MCVPs (openai)
+UnexpectedEOACallback_S02.sol,eoa_assumption,general,safe,VERIFIED,VERIFIED,TN,53.8,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint accruedTotal,rewardDebt; fal | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_S03.sol,eoa_assumption,general,safe,VERIFIED,VERIFIED,TN,53.4,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint bonusDebt,bonusTotal; fallin | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_S04.sol,eoa_assumption,general,safe,VERIFIED,VERIFIED,TN,58.4,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint rebateDebt,rebateTotal; fall | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_U01.sol,eoa_assumption,general,unsafe,BUG_FOUND,BUG_FOUND,TP,72.5,smtchecker,[readonly] invariant: rule inapplicable -- closure member accrue writes footprint rewardDebt; falling through  | [3] sampling 4 candidate MCVPs (openai)
+UnexpectedEOACallback_U02.sol,eoa_assumption,general,unsafe,BUG_FOUND,BUG_FOUND,TP,94.6,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint accruedTotal,rewardDebt; fal | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_U03.sol,eoa_assumption,general,unsafe,BUG_FOUND,BUG_FOUND,TP,90.7,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint bonusDebt,bonusTotal; fallin | [3] sampling 4 candidate MCVPs (openai)"
+UnexpectedEOACallback_U04.sol,eoa_assumption,general,unsafe,BUG_FOUND,BUG_FOUND,TP,91.0,smtchecker,"[readonly] invariant: rule inapplicable -- closure member accrue writes footprint rebateDebt,rebateTotal; fall | [3] sampling 4 candidate MCVPs (openai)"

@@ -1,0 +1,120 @@
+import argparse
+import json
+import os
+import subprocess
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from aegis.static_analysis import analyze
+
+
+def numeric(facts, name):
+    t = facts.var_types.get(name, "")
+    if t:
+        return t.startswith("uint") or t.startswith("int")
+    return True
+
+
+def derive_property(facts):
+    """Derive the target from facts.exposure_sites[0] -- the SAME site the
+    pipeline builds the harness on. Deriving from any other site desynchronizes
+    the target variable from the snapshotted variable and every plan is rejected.
+    Cross-variable window -> `A == B`; same-variable window -> `v == snapPre`
+    (harness snapshots v into snapPre, invariant is `v == snapPre + inFlight`).
+    Returns None (NO_WINDOW) when site[0] has no numeric post-call write."""
+    if not facts.exposure_sites:
+        return None
+    site = facts.exposure_sites[0]
+    before = [v for v in site.write_before_call if numeric(facts, v)]
+    after = [v for v in site.write_after_call if numeric(facts, v)]
+    if not after:
+        return None
+    cross = [(a, b) for a in before for b in after if a != b]
+    if cross:
+        a, b = cross[0]
+        return f"{a} == {b}"
+    return f"{after[0]} == snapPre"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("census_dir", help="dir with contracts/ and scope_v2.json")
+    ap.add_argument("--n", type=int, default=10)
+    ap.add_argument("--llm", default="stub")
+    ap.add_argument("--timeout", type=int, default=600)
+    ap.add_argument("--out", default="smoke_out")
+    ap.add_argument("--smt-timeout-ms", type=int, default=30000)
+    args = ap.parse_args()
+
+    scope = json.load(open(os.path.join(args.census_dir, "scope_v2.json")))
+    addrs = scope["sample"][:args.n]
+    cdir = os.path.join(args.census_dir, "contracts")
+    os.makedirs(args.out, exist_ok=True)
+    rows = []
+    for addr in addrs:
+        sol = os.path.join(cdir, addr + ".sol")
+        rec = {"address": addr}
+        t0 = time.time()
+        try:
+            facts = analyze(sol)
+            rec["main_contract"] = facts.contract
+            rec["exposure_sites"] = len(facts.exposure_sites)
+            prop = derive_property(facts)
+            rec["property"] = prop
+        except Exception as e:
+            rec["stage"] = "static_analysis"
+            rec["error"] = f"{type(e).__name__}: {e}"
+            rec["elapsed"] = round(time.time() - t0, 1)
+            rows.append(rec)
+            print(f"{addr[:12]}  ANALYZE_FAIL  {rec['error'][:70]}")
+            continue
+        if not prop:
+            rec["stage"] = "property"
+            rec["error"] = "no exposed window"
+            rec["elapsed"] = round(time.time() - t0, 1)
+            rows.append(rec)
+            print(f"{addr[:12]}  NO_WINDOW     sites={rec['exposure_sites']}")
+            continue
+        cmd = [sys.executable, "run_aegis.py", sol, "--property", prop,
+               "--llm", args.llm, "--json",
+               "--smt-timeout-ms", str(args.smt_timeout_ms)]
+        try:
+            p = subprocess.run(cmd, capture_output=True, text=True,
+                               timeout=args.timeout)
+            rec["elapsed"] = round(time.time() - t0, 1)
+            try:
+                out = json.loads(p.stdout[p.stdout.index("{"):])
+                rec["status"] = out.get("status")
+                rec["backend"] = out.get("backend")
+                rec["obligations"] = len(out.get("obligations", []))
+                json.dump(out, open(os.path.join(args.out,
+                                                 addr + ".json"), "w"),
+                          indent=1)
+            except Exception:
+                rec["stage"] = "pipeline"
+                rec["error"] = (p.stderr.strip().splitlines()[-1]
+                                if p.stderr.strip() else "no JSON in output")
+                open(os.path.join(args.out, addr + ".log"), "w").write(
+                    p.stdout + "\n----STDERR----\n" + p.stderr)
+        except subprocess.TimeoutExpired:
+            rec["elapsed"] = args.timeout
+            rec["status"] = "TIMEOUT"
+        rows.append(rec)
+        obl = rec.get("obligations", "-")
+        print(f"{addr[:12]}  {rec.get('status', 'ERROR'):11s} "
+              f"obl={obl}  prop=({prop})  "
+              f"sites={rec['exposure_sites']}  {rec['elapsed']}s")
+    json.dump(rows, open(os.path.join(args.out, "summary.json"), "w"),
+              indent=1)
+    ok = sum(1 for r in rows if r.get("status") in
+             ("VERIFIED", "BUG_FOUND", "UNKNOWN"))
+    withobl = sum(1 for r in rows if isinstance(r.get("obligations"), int)
+                  and r["obligations"] > 0)
+    print(f"\nclean pipeline runs: {ok}/{len(rows)}  |  "
+          f"produced obligations: {withobl}/{len(rows)}")
+    print(f"details in {args.out}/summary.json")
+
+
+if __name__ == "__main__":
+    main()

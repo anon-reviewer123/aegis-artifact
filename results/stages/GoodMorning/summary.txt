@@ -1,0 +1,9 @@
+
+======================================================================
+GoodMorning
+harness  : compiles  (188 lines)
+Iexp     : _sum__rOwned == _totalProportion + inFlight
+OBL_pre                     : compiles  (81 lines)
+OBL_cb_setSwapBackSettings  : compiles  (86 lines)
+OBL_cb_transferFrom         : compiles  (82 lines)
+OBL_post                    : compiles  (93 lines)

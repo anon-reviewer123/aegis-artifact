@@ -1,0 +1,56 @@
+{
+ "contract": "WAsgard",
+ "closure": {
+  "site_function": "wrap",
+  "site_call": ".transferFrom",
+  "functions": [
+   "wrap"
+  ],
+  "justification": "The 'wrap' function is the only function that writes to 'deposits' and 'lastWrapped', which are exposed during the callback."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "wrap"
+  ],
+  "nesting_bound": {
+   "wrap": 1
+  }
+ },
+ "phases": {
+  "function": "wrap",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before .transferFrom"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before .transferFrom",
+   "to_marker": "after .transferFrom"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after .transferFrom",
+   "to_marker": "exit"
+  },
+  "linearization_point": "after .transferFrom"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Amount of deposits in-flight during the wrap operation",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_sum__balances == _totalSupply + inFlight",
+  "stable_formula": "_sum__balances == _totalSupply",
+  "kind": "additive"
+ },
+ "composition": {
+  "target_property": "_sum__balances == _totalSupply",
+  "rule": "The exposure invariant ensures that the total supply accounts for in-flight deposits during the wrap operation."
+ }
+}

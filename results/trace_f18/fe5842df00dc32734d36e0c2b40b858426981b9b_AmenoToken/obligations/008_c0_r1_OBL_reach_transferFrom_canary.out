@@ -1,0 +1,57 @@
+status: unknown
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl8ngy_8f/Obligation.sol:30:55:
+   |
+30 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, address __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl8ngy_8f/Obligation.sol:30:111:
+   |
+30 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, address __x6, address __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl8ngy_8f/Obligation.sol:45:27:
+   |
+45 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl8ngy_8f/Obligation.sol:45:41:
+   |
+45 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                         ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl8ngy_8f/Obligation.sol:45:52:
+   |
+45 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                    ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl8ngy_8f/Obligation.sol:45:108:
+   |
+45 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpl8ngy_8f/Obligation.sol:45:122:
+   |
+45 |     function __havoc_arg1(address __x0, bool __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                                          ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpl8ngy_8f/Obligation.sol:321:52:
+    |
+321 |     function __h_addLiquidity(uint256 tokenAmount, uint256 ethAmount) internal {
+    |                                                    ^^^^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmpl8ngy_8f/Obligation.sol:376:13:
+    |
+376 |             assert(false);       // must be REFUTED: this state is reachable
+    |             ^^^^^^^^^^^^^
+

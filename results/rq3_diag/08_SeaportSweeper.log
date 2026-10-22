@@ -1,0 +1,28 @@
+== Aegis on 9D0A89bC35FB160a076DE0341d9280830D3013CA_SeaportSweeper.sol ==
+target property: sum(refunds) <= address(this).balance
+[eth-model] address(this).balance -> _ethBal; property now: sum(refunds) <= _ethBal
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (regex): storage=['refunds', 'amount', 'recipient', 'considerationToken', 'considerationIdentifier', 'considerationAmount', 'offerer', 'zone', 'offerToken', 'offerIdentifier', 'offerAmount', 'startTime', 'endTime', 'zoneHash', 'salt', 'offererConduitKey', 'fulfillerConduitKey', 'totalOriginalAdditionalRecipients', 'signature', '_ethBal', 'value', 'msgValue', 'refund', 'gas_use', 'seaportAddress', 'sender', 'emptyAddress', 'collection', 'conduitKey', 'emptyBytes32', 'owner']
+[1] NOTE: regex analyzer used (no working solc AST); soundness claim requires the AST analyzer
+[2] exposure site: MatchOrders -> .call{value: params.refund} (low-level call can re-enter)
+    conservative closure: ['MatchOrders', 'performRefundAdmin', 'performRefundUser']
+[harness] reusing synthesized harness 9D0A89bC35FB160a076DE0341d9280830D3013CA_SeaportSweeper.ethmodel.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 6 functions, 36 public state vars)
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['closure', 'exposure_invariant']
+  [round 2] validation flagged: ['protocol', 'exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] closure UNSOUND: missing reachable callbacks ['performRefundUser'] (conservative=['MatchOrders', 'performRefundAdmin', 'performRefundUser'])
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] protocol UNSOUND: closure callbacks ['performRefundUser'] are not admitted by the protocol (under-approximation)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

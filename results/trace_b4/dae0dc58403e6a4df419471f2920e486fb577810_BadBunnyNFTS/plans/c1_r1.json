@@ -1,0 +1,61 @@
+{
+ "contract": "BadBunnyNFTS",
+ "closure": {
+  "site_function": "teamPayout",
+  "site_call": ".transfer",
+  "functions": [
+   "<fallback>",
+   "claimMintRewards",
+   "mint"
+  ],
+  "justification": "The conservative closure includes all functions that write to or depend on the state variables exposed at the call site, which are '_balanceDistributor' and '_ethBal'."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "<fallback>",
+   "claimMintRewards",
+   "mint"
+  ],
+  "nesting_bound": {
+   "teamPayout": 1
+  }
+ },
+ "phases": {
+  "function": "teamPayout",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "exposure_start"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "exposure_start",
+   "to_marker": "exposure_end"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "exposure_end",
+   "to_marker": "end"
+  },
+  "linearization_point": "exposure_end"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "The amount mid-transfer from '_balanceDistributor' to '_ethBal'.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_balanceDistributor == _ethBal + inFlight",
+  "stable_formula": "_balanceDistributor == _ethBal",
+  "kind": "additive",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "_balanceDistributor <= _ethBal",
+  "rule": "Use the additive invariant template to ensure the sum of '_balanceDistributor' and 'inFlight' equals '_ethBal' during the callback window, ensuring the post-exposure target property '_balanceDistributor <= _ethBal' holds."
+ }
+}

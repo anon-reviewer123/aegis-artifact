@@ -1,0 +1,87 @@
+contract,family,arm,label,expected,status,outcome,seconds,reason
+dividend_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,7.7,[loop] loop verification: VERIFIED
+dividend_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,7.6,[loop] loop verification: BUG_FOUND
+griefing_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,5.3,[loop] loop verification: VERIFIED
+griefing_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,6.7,[loop] loop verification: BUG_FOUND
+refund_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,6.7,[loop] loop verification: VERIFIED
+refund_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,7.6,[loop] loop verification: BUG_FOUND
+airdrop_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,8.2,[loop] loop verification: VERIFIED
+airdrop_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,7.9,[loop] loop verification: BUG_FOUND
+batch_payout_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,7.5,[loop] loop verification: VERIFIED
+batch_payout_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,7.9,[loop] loop verification: BUG_FOUND
+escrow_release_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,7.6,[loop] loop verification: VERIFIED
+escrow_release_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,8.1,[loop] loop verification: BUG_FOUND
+fee_split_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,11.7,[loop] loop verification: VERIFIED
+fee_split_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,10.5,[loop] loop verification: BUG_FOUND
+queue_drain_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,5.8,[loop] loop verification: VERIFIED
+queue_drain_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,7.0,[loop] loop verification: BUG_FOUND
+vesting_claim_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,7.4,[loop] loop verification: VERIFIED
+vesting_claim_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,7.6,[loop] loop verification: BUG_FOUND
+amm_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,86.6,[readonly] read-only verification: VERIFIED
+amm_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,24.0,[readonly] read-only verification: BUG_FOUND
+backing_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,87.7,[readonly] read-only verification: VERIFIED
+backing_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,23.8,[readonly] read-only verification: BUG_FOUND
+escrow_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,136.0,[readonly] read-only verification: VERIFIED
+escrow_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,57.3,[readonly] read-only verification: BUG_FOUND
+feesplit_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,146.5,[readonly] read-only verification: VERIFIED
+feesplit_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,55.4,[readonly] read-only verification: BUG_FOUND
+lending_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,137.5,[readonly] read-only verification: VERIFIED
+lending_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,26.1,[readonly] read-only verification: BUG_FOUND
+lpvault_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,97.1,[readonly] read-only verification: VERIFIED
+lpvault_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,27.2,[readonly] read-only verification: BUG_FOUND
+pullpayment_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,137.8,[readonly] read-only verification: VERIFIED
+pullpayment_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,59.4,[readonly] read-only verification: BUG_FOUND
+staking_safe.sol,read_only,fixed,safe,VERIFIED,VERIFIED,TN,155.6,[readonly] read-only verification: VERIFIED
+staking_unsafe.sol,read_only,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,67.5,[readonly] read-only verification: BUG_FOUND
+depth_streak_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,23.5,[loop] loop verification: VERIFIED
+depth_streak_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,25.8,[loop] loop verification: BUG_FOUND
+depth_tier_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,22.2,[loop] loop verification: VERIFIED
+depth_tier_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,27.8,[loop] loop verification: BUG_FOUND
+nonlinear_rate_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,22.8,[loop] loop verification: VERIFIED
+nonlinear_rate_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,25.2,[loop] loop verification: BUG_FOUND
+widening_accum_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,26.2,[loop] loop verification: VERIFIED
+widening_accum_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,22.8,[loop] loop verification: BUG_FOUND
+widening_ledger_safe.sol,forced_revert_loop,fixed,safe,VERIFIED,VERIFIED,TN,7.5,[loop] loop verification: VERIFIED
+widening_ledger_unsafe.sol,forced_revert_loop,fixed,unsafe,BUG_FOUND,BUG_FOUND,TP,8.9,[loop] loop verification: BUG_FOUND
+ClassicReentrancy_S01.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,108.7,[3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_S02.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,115.1,[3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_S03.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,120.5,[3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_S04.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,141.5,[3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_S05.sol,classic_reentrancy,general,safe,VERIFIED,VERIFIED,TN,127.1,[3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_U01.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,138.0,[3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_U02.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,137.8,[3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_U03.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,135.7,[3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_U04.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,138.0,[3] sampling 4 candidate MCVPs (openai)
+ClassicReentrancy_U05.sol,classic_reentrancy,general,unsafe,BUG_FOUND,BUG_FOUND,TP,133.3,[3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_S01.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,9.9,[readonly] read-only verification: VERIFIED
+CrossFunctionDesync_S02.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,9.8,[readonly] read-only verification: VERIFIED
+CrossFunctionDesync_S03.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,10.2,[readonly] read-only verification: VERIFIED
+CrossFunctionDesync_S04.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,10.3,[readonly] read-only verification: VERIFIED
+CrossFunctionDesync_S05.sol,cross_function,general,safe,VERIFIED,VERIFIED,TN,10.4,[readonly] read-only verification: VERIFIED
+CrossFunctionDesync_U01.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,91.2,[3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U02.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,90.8,[3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U03.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,92.1,[3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U04.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,89.6,[3] sampling 4 candidate MCVPs (openai)
+CrossFunctionDesync_U05.sol,cross_function,general,unsafe,BUG_FOUND,BUG_FOUND,TP,91.1,[3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S01.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,75.3,[3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S02.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,87.2,[3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S03.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,85.9,[3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U01.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,100.3,[3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U02.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,101.8,[3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U03.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,102.9,[3] sampling 4 candidate MCVPs (openai)
+ForcedRevertGriefing_S01.sol,forced_revert_loop,general,safe,VERIFIED,UNKNOWN,NV,80.8,[3] sampling 4 candidate MCVPs (openai)
+ForcedRevertGriefing_S02.sol,forced_revert_loop,general,safe,VERIFIED,UNKNOWN,NV,80.1,[3] sampling 4 candidate MCVPs (openai)
+ForcedRevertGriefing_U01.sol,forced_revert_loop,general,unsafe,BUG_FOUND,UNKNOWN,NV,73.0,[3] sampling 4 candidate MCVPs (openai)
+ForcedRevertGriefing_U02.sol,forced_revert_loop,general,unsafe,BUG_FOUND,UNKNOWN,NV,72.8,[3] sampling 4 candidate MCVPs (openai)
+PhaseOrderingDesync_S01.sol,phase_ordering,general,safe,VERIFIED,VERIFIED,TN,9.5,[readonly] read-only verification: VERIFIED
+PhaseOrderingDesync_U01.sol,phase_ordering,general,unsafe,BUG_FOUND,VERIFIED,FN,131.8,[3] sampling 4 candidate MCVPs (openai)
+TokenHookAccounting_S01.sol,token_hook,general,safe,VERIFIED,TIMEOUT,NV,300.1,per-contract budget
+TokenHookAccounting_S02.sol,token_hook,general,safe,VERIFIED,TIMEOUT,NV,300.1,per-contract budget
+TokenHookAccounting_S03.sol,token_hook,general,safe,VERIFIED,TIMEOUT,NV,300.1,per-contract budget
+TokenHookAccounting_S04.sol,token_hook,general,safe,VERIFIED,TIMEOUT,NV,300.1,per-contract budget
+TokenHookAccounting_U01.sol,token_hook,general,unsafe,BUG_FOUND,UNKNOWN,NV,234.6,"[gate] obligations discharged, but the verdict does not cover the whole contract -- reporting UNKNOWN instead of VERIFIED"
+TokenHookAccounting_U02.sol,token_hook,general,unsafe,BUG_FOUND,UNKNOWN,NV,222.2,"[gate] obligations discharged, but the verdict does not cover the whole contract -- reporting UNKNOWN instead of VERIFIED"
+TokenHookAccounting_U03.sol,token_hook,general,unsafe,BUG_FOUND,UNKNOWN,NV,216.9,"[gate] obligations discharged, but the verdict does not cover the whole contract -- reporting UNKNOWN instead of VERIFIED"
+TokenHookAccounting_U04.sol,token_hook,general,unsafe,BUG_FOUND,UNKNOWN,NV,216.2,"[gate] obligations discharged, but the verdict does not cover the whole contract -- reporting UNKNOWN instead of VERIFIED"
+UnexpectedEOACallback_S01.sol,eoa_assumption,general,safe,VERIFIED,UNKNOWN,NV,137.5,[3] sampling 4 candidate MCVPs (openai)
+UnexpectedEOACallback_U01.sol,eoa_assumption,general,unsafe,BUG_FOUND,BUG_FOUND,TP,131.1,[3] sampling 4 candidate MCVPs (openai)

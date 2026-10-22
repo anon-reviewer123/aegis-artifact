@@ -1,0 +1,24 @@
+== Aegis on 00000000001bCaD2BE91675Bd695690F3480c2F9_ProxyWallet.sol ==
+target property: usedNonces[nonce] == true after the corresponding signed transfer executes successfully
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['AUTHORIZED_ADDRESS_SET', 'ETH_TRANSFER', 'PROXY_USAGE', 'SET_NEEDED_QUORUM', 'authorized', 'quorumNeeded', 'usedNonces']
+[2] exposure site: transfer -> .transfer (transfer may trigger fallback)
+    conservative closure: ['proxy', 'setAddressPermit', 'setMinimumQuorum', 'transfer']
+[harness] reusing synthesized harness 00000000001bCaD2BE91675Bd695690F3480c2F9_ProxyWallet.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 6 functions, 12 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['nonce']
+  [validator] exposure invariant uses unknown identifiers ['nonce']
+  [validator] exposure invariant uses unknown identifiers ['nonce']
+  [validator] exposure invariant uses unknown identifiers ['nonce']

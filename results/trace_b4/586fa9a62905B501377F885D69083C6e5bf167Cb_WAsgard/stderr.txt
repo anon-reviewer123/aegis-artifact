@@ -1,0 +1,11 @@
+  [validator] exposure invariant equals stable invariant, accepted: the pre-phase writes none of its variables, so it still holds when control is handed out
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] exposure invariant equals stable invariant, accepted: the pre-phase writes none of its variables, so it still holds when control is handed out
+  [validator] template 'conserve': conserve template formula must add a declared ghost to the tracked-sum side
+  [validator] template 'conserve': conserve template formula must add a declared ghost to the tracked-sum side
+  [validator] template 'conserve': conserve template formula must add a declared ghost to the tracked-sum side
+  [validator] exposure invariant equals stable invariant, accepted: the pre-phase writes none of its variables, so it still holds when control is handed out
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] template 'conserve': conserve template formula must add a declared ghost to the tracked-sum side
+  [validator] template 'conserve': conserve template formula must add a declared ghost to the tracked-sum side
+  [validator] template 'conserve': conserve template formula must add a declared ghost to the tracked-sum side

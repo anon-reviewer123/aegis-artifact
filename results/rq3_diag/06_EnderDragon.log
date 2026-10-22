@@ -1,0 +1,29 @@
+== Aegis on 8AD149b4B2d1503e864b1CA4A0537272D1b05517_EnderDragon.sol ==
+target property: sum(_balances) == _totalSupply
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['DEAD', 'WETH', 'ZERO', '_allowances', '_balances', '_decimals', '_maxWalletSize', '_name', '_owner', '_symbol', '_totalSupply', 'autoLiquidityReceiver', 'burnFee', 'developmentFee', 'developmentFeeReceiver', 'feeDenominator', 'inSwap', 'isFeeExempt', 'isMaxWalletExempt', 'liquidityFee', 'marketingFee', 'marketingFeeReceiver', 'router', 'swapEnabled', 'swapThreshold', 'thresholdIncreasing', 'totalBuyFee', 'totalFee', 'uniswapV2Pair']
+[loop] 1 loop-call site(s) detected
+[loop] airdrop: unsupported loop shape (skipped)
+[loop] loop verification: UNKNOWN
+[2] exposure site: swapBack -> .call (low-level value transfer can re-enter)
+    conservative closure: ['setSwapBackSettings', 'transfer', 'transferFrom']
+[harness] reusing synthesized harness 8AD149b4B2d1503e864b1CA4A0537272D1b05517_EnderDragon.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 16 functions, 29 public state vars)
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['closure', 'exposure_invariant']
+  [round 2] validation flagged: ['protocol', 'exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] closure UNSOUND: missing reachable callbacks ['transfer', 'transferFrom'] (conservative=['setSwapBackSettings', 'transfer', 'transferFrom'])
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] protocol UNSOUND: closure callbacks ['transfer', 'transferFrom'] are not admitted by the protocol (under-approximation)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

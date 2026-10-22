@@ -1,0 +1,32 @@
+analyzer : ast
+target   : pendingMarketingFee + pendingBurnFee <= _balances[address(this)]
+
+  _allowances                      mapping(address => mapping(address => uint256))
+  _balances                        mapping(address => uint256)
+  _isBlacklisted                   mapping(address => bool)
+  _isExcludedFromFees              mapping(address => bool)
+  _name                            string
+  _owner                           address
+  _symbol                          string
+  _totalSupply                     uint256
+  automatedMarketMakerPairs        mapping(address => bool)
+  burnFee                          uint256
+  liquidityFee                     uint256
+  marketingWallet                  address
+  marketingfee                     uint256
+  maxTxAmount                      uint256
+  pendingBurnFee                   uint256
+  pendingMarketingFee              uint256
+  swapTokensAtAmount               uint256
+  swapping                         bool
+  uniswapV2Pair                    address
+  uniswapV2Router                  contract IUniswapV2Router02
+
+sites:
+  swapAndSendMarketingFee.call#0 before=[] after=['pendingMarketingFee']
+  claimMarketingFees.call#0 before=['swapping'] after=['pendingMarketingFee', 'swapping']
+  updateUniswapV2Router.createPair#0 before=['uniswapV2Router'] after=['uniswapV2Pair']
+  migrateGasToken.call#0 before=[] after=[]
+  addLiquidity.addLiquidityETH#0 before=[] after=[]
+
+closure : ['claimMarketingFees', 'transfer', 'transferFrom']

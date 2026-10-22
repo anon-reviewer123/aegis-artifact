@@ -1,0 +1,26 @@
+contract,path,stage,detail
+BULLRUNNERSCLUB,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/13/1334cbc8883b4f6aa4a77997558e8164e7c9d514_BULLRUNNERSCLUB.sol,"obligation refuted, repair failed",OBL_pre: SMTChecker found an assertion violation
+BPYC,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/04/0498E07A28165CB91F6895aEa92884495d60ce87_BPYC.sol,obligation undecided,OBL_cb_transfer: SMTChecker could not prove (timeout/unsupported)
+ReservaX,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/15/15526af86721e8265139e4f3d759c343ac1d53ce_ReservaX.sol,obligation undecided,OBL_post: solc wall-clock timeout
+DLAND,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/22/220699e10f80f7c1753b87d67cfdce0aac4491f9_DLAND.sol,obligation undecided,OBL_cb_transfer: SMTChecker could not prove (timeout/unsupported)
+TraderSpirits,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/1e/1ee25918be81b842739a107957a6a4d3c7625248_TraderSpirits.sol,obligation undecided,OBL_post: solc wall-clock timeout
+GoodMorning,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/29/2922f84ca65D587af9B32Fc93ffcbC073E82efE8_GoodMorning.sol,obligation undecided,OBL_cb_transfer: SMTChecker could not prove (timeout/unsupported)
+NeoCypherpunk,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/34/34940D738F211c43E35Ae0d8D89C622eE73FB5AD_NeoCypherpunk.sol,obligation undecided,OBL_cb_transfer: SMTChecker could not prove (timeout/unsupported)
+TRYPTO,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/3e/3e8c621d156df0bab305eabb2b22c0f320500c0a_TRYPTO.sol,obligation undecided,OBL_post: solc wall-clock timeout
+Ring,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/47/474B3ECf5Ed565866dfe70876Cd194a4300EAEea_Ring.sol,"obligation refuted, repair failed",OBL_pre: SMTChecker found an assertion violation
+SHIBB,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/49/49a9e8198c5aad6ddcf2d5fad8c1ed3feb345b11_SHIBB.sol,harness nonconforming,
+WAsgard,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/58/586fa9a62905B501377F885D69083C6e5bf167Cb_WAsgard.sol,obligation undecided,OBL_cb_wrap: solc wall-clock timeout
+Dao,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/66/66f066b9dbd9bee28fbefcdf9d696c770f58f081_Att.sol,harness nonconforming,
+WuZeTian,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/5c/5Cb6309cAd696C37B9f27D1fA9C4D99774AEda7e_WuZeTian.sol,"obligation refuted, repair failed",OBL_pre: SMTChecker found an assertion violation
+X7DAOLiquidityHub,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/7d/7da0a524d323cddaf3d465ba617230f6b91d3ebb_X7DAOLiquidityHub.sol,harness nonconforming,
+SafePaymentVault,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/95/955b9dBc6c00d136FeE91698180A5b037E0f31F6_SafePaymentVault.sol,VERIFIED,
+SummoningOfTheWicked,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/96/9620ee7b333341017bab1aee20236450cb7b9d59_SummoningOfTheWicked.sol,validator rejected the plan,exposure invariant DEGENERATE: `demons == demons` is the same on both sides apart from gho
+X7RLiquidityHub,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/71/712a166e741405fcb9815aa5c3442f2cd3328ebb_X7RLiquidityHub.sol,obligation undecided,OBL_cb_processFees: SMTChecker could not prove (timeout/unsupported)
+SimpleSalesEth,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/bd/BdCF455Bd54988eA3E3aB96c4E8555B73956aC9E_SimpleSalesEth.sol,obligation undecided,OBL_pre: SMTChecker could not prove (timeout/unsupported)
+Yeeter,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/c3/c3bd3b0d98c614d1eb3cdf0f6b593cc6a0df2dfe_Yeeter.sol,obligation undecided,OBL_cb_yeetyeet: SMTChecker could not prove (timeout/unsupported)
+QuantumEnergy,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/ce/ceaf9dfe40f9c0ba586f2990c4b33c4c98a53d8b_QuantumEnergy.sol,obligation undecided,OBL_cb_transfer: SMTChecker could not prove (timeout/unsupported)
+BadBunnyNFTS,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/da/dae0dc58403e6a4df419471f2920e486fb577810_BadBunnyNFTS.sol,validator rejected the plan,exposure invariant uses unknown identifiers
+SimpleSalesEth,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/d7/d7fdb58f09b69d49f55d91f449b3b5241c185a93_SimpleSalesEth.sol,obligation undecided,OBL_pre: SMTChecker could not prove (timeout/unsupported)
+KatRoyalties,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/dd/dDd1058242d75a9d61CAACc2C08dA4F39bd1548d_KatRoyalties.sol,"obligation refuted, repair failed",OBL_post: SMTChecker found an assertion violation
+VulnerableContract,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/fe/fe4afb98416e3892c129e7508a7ed3078f605189_VulnerableContract.sol,obligation undecided,OBL_cb_deposit: SMTChecker could not prove (timeout/unsupported)
+AmenoToken,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/fe/fe5842df00dc32734d36e0c2b40b858426981b9b_AmenoToken.sol,obligation undecided,OBL_cb_transfer: SMTChecker could not prove (timeout/unsupported)

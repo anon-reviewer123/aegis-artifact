@@ -1,0 +1,67 @@
+STATUS: VERIFIED
+exposure invariant: _sum__balances + _swapLimit == _totalSupply
+candidates tried: 1   repair rounds: 1
+
+[1] static analysis (ast): storage=['_allowances', '_antiMevBlock', '_balances', '_buyTaxRate', '_decimals', '_inTaxSwap', '_isLP', '_launchBlock', '_lpOwner', '_maxTxAmount', '_maxWalletAmount', '_name', '_noFees', '_noLimits', '_owner', '_primaryLP', '_primarySwapRouter', '_sellTaxRate', '_swapLimit', '_swapRouterAddress', '_symbol', '_taxSharesDevelopment', '_taxSharesLP', '_taxSharesMarketing', '_taxSwapMax', '_taxSwapMin', '_totalSupply', '_totalTaxShares', '_tradingOpen', '_walletDevelopment', '_walletMarketing', 'antiSnipeBlocks1', 'antiSnipeBlocks2', 'antiSnipeTax1', 'antiSnipeTax2']
+[2] exposure site: addLiquidity -> .call (low-level call can re-enter)
+    conservative closure: ['burn', 'transfer', 'transferFrom']
+[access] outside the closure under the trusted-roles assumption: ['addLiquidity', 'manualTaxSwapAndSend', 'renounceOwnership', 'setExempt', 'setFeeSplit', 'setFees', 'setLimits', 'setTaxSwap', 'transferOwnership', 'updateWallets']
+[harness] cached 5Cb6309cAd696C37B9f27D1fA9C4D99774AEda7e_WuZeTian.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 5Cb6309cAd696C37B9f27D1fA9C4D99774AEda7e_WuZeTian.harness.sol (18840 chars)
+[harness] conforms to interface (found 36 functions, 61 public state vars)
+[readonly] balanceOf: rule inapplicable -- closure member burn writes footprint _balances; falling through to the general arm
+[3] deterministic candidate -- computed from what the pre-phase moves: _sum__balances + _swapLimit == _totalSupply
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 8 obligations: ['OBL_pre', 'OBL_cb_burn', 'OBL_cb_transfer', 'OBL_cb_transferFrom', 'OBL_post', 'OBL_reach_burn_canary', 'OBL_reach_transfer_canary', 'OBL_reach_transferFrom_canary']
+  [round 1] sliced harness: up to 64 state variables -> at most 35 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_burn [closure]: VERIFIED
+      OBL_cb_transfer [closure]: VERIFIED
+      OBL_cb_transferFrom [closure]: VERIFIED
+      OBL_post [phases]: VERIFIED
+      OBL_reach_burn_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transfer_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transferFrom_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'exposure_invariant', 'phases', 'composition'] in_progress=[]
+  [round 1] FIXPOINT -> VERIFIED (real solver)
+Assume-Guarantee specification for WuZeTian
+  target property phi : _sum__balances + _swapLimit == _totalSupply
+
+  [A_cb]  ASSUMPTION (assumption)
+          During addLiquidity's exposed phase, re-entrant control is confined to the callback closure ['burn', 'transfer', 'transferFrom']; every such callback is admitted by the protocol, with bounded nesting.
+          formal: admissible_callbacks=['burn', 'transfer', 'transferFrom'], nesting={'addLiquidity': 1}
+          discharged by: ['OBL_closure_soundness']
+
+  [G_pre] GUARANTEE
+          If the stable invariant holds on entry, the pre-phase establishes the exposure invariant before the external call.
+          formal: {_sum__balances + _swapLimit == _totalSupply} pre-phase {_sum__balances + _swapLimit == _totalSupply}
+          discharged by: ['OBL_pre']
+
+  [G_exp] GUARANTEE
+          Every callback admitted by A_cb preserves the exposure invariant while the contract is externally exposed.
+          formal: forall f in A_cb. {_sum__balances + _swapLimit == _totalSupply} f {_sum__balances + _swapLimit == _totalSupply}
+          discharged by: ['OBL_cb_burn', 'OBL_cb_transfer', 'OBL_cb_transferFrom']
+
+  [G_post] GUARANTEE
+          When the external call returns, the post-phase restores the stable invariant and fully settles the in-flight ghost state.
+          formal: {_sum__balances + _swapLimit == _totalSupply} post-phase {_sum__balances + _swapLimit == _totalSupply /\ inFlight==0}
+          discharged by: ['OBL_post']
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => _sum__balances + _swapLimit == _totalSupply
+      where callbacks are confined to admissible_callbacks=['burn', 'transfer', 'transferFrom'], nesting={'addLiquidity': 1}
+
+obligation files (in order):
+  001_c0_r1_OBL_pre_onestep                            status: unknown
+  002_c0_r1_OBL_pre                                    status: verified
+  003_c0_r1_OBL_cb_burn_onestep                        status: verified
+  004_c0_r1_OBL_cb_transfer_onestep                    status: verified
+  005_c0_r1_OBL_cb_transferFrom_onestep                status: verified
+  006_c0_r1_OBL_post_onestep                           status: verified
+  007_c0_r1_OBL_reach_burn_canary                      status: unknown
+  008_c0_r1_OBL_reach_burn_canary_onestep              status: failed
+  009_c0_r1_OBL_reach_transfer_canary                  status: unknown
+  010_c0_r1_OBL_reach_transfer_canary_onestep          status: failed
+  011_c0_r1_OBL_reach_transferFrom_canary              status: unknown
+  012_c0_r1_OBL_reach_transferFrom_canary_onestep      status: failed

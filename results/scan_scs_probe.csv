@@ -1,0 +1,109 @@
+file,contract,function,kind,call,pragma,writes_before,writes_after,shape,hash
+../scs-eth/contracts/goerli/00/001407A020bE25589f70F1D4D668BFeA1C69eb9C_DAOFactory.sol,DAO,execute,loop,.call{value: _actions[i],0.8,,,no_effect,b68e12078d8ce0d0aa7dc9e547340d6a32871cb9
+../scs-eth/contracts/goerli/00/002793d5da8e8101395071248d31c78228449952_AltBn128.sol,OxOPool,getCurrentRingIndex,readonly,deposit,0.8,,ringsNumber,view_reads_desynced,ee5a0df4e0e0f6d21ff9ec841a6851170cedcd81
+../scs-eth/contracts/goerli/00/002b34520317f55B1c7Dbe0ceFA519f9d7dDF90a_EventEmitter.sol,Auction,inRegisteredState,readonly,closeAuction,0.8,,currAuctionState,view_reads_desynced,1b6f9c27ea52bfe9a19f47befd85f636f7cbab3e
+../scs-eth/contracts/goerli/00/002b34520317f55B1c7Dbe0ceFA519f9d7dDF90a_EventEmitter.sol,Auction,inBiddingState,readonly,closeAuction,0.8,,currAuctionState,view_reads_desynced,1b6f9c27ea52bfe9a19f47befd85f636f7cbab3e
+../scs-eth/contracts/goerli/00/002b34520317f55B1c7Dbe0ceFA519f9d7dDF90a_EventEmitter.sol,Auction,inVerifyWinnerState,readonly,closeAuction,0.8,,currAuctionState,view_reads_desynced,1b6f9c27ea52bfe9a19f47befd85f636f7cbab3e
+../scs-eth/contracts/goerli/00/002b34520317f55B1c7Dbe0ceFA519f9d7dDF90a_EventEmitter.sol,Auction,inPendingPaymentState,readonly,closeAuction,0.8,,currAuctionState,view_reads_desynced,1b6f9c27ea52bfe9a19f47befd85f636f7cbab3e
+../scs-eth/contracts/goerli/00/002b34520317f55B1c7Dbe0ceFA519f9d7dDF90a_EventEmitter.sol,Auction,inPendingAuditState,readonly,closeAuction,0.8,,currAuctionState,view_reads_desynced,1b6f9c27ea52bfe9a19f47befd85f636f7cbab3e
+../scs-eth/contracts/goerli/00/002b34520317f55B1c7Dbe0ceFA519f9d7dDF90a_EventEmitter.sol,Auction,inClosedState,readonly,closeAuction,0.8,,currAuctionState,view_reads_desynced,1b6f9c27ea52bfe9a19f47befd85f636f7cbab3e
+../scs-eth/contracts/goerli/00/004c0c46769b1aa6d829936a0287f0915651f3a7_ERC1155Press.sol,ERC1155Press,withdraw,loop,".call{value: fee, gas: F",0.8,,,no_effect,5be434e2b61931472468ed6290876e2a09b79573
+../scs-eth/contracts/goerli/00/00567B3dd1Bc947666b607AE0bDed233821Ba17C_Distribution.sol,Distribution,distributeProfits,loop,".call{value: amount}("""")",0.8,,,no_effect,92f028f165de33c56e4b2e1fea2fb6fdd715fae0
+../scs-eth/contracts/goerli/00/00567B3dd1Bc947666b607AE0bDed233821Ba17C_Distribution.sol,Bridge,_mint,loop,".call{value: _amount}(""""",0.8,,,no_effect,7cd01f668df2a56eacd6bdaa6f517a42f81ecdb2
+../scs-eth/contracts/goerli/00/0060ff833651a5869bce5409ace11fdac7479191_SeaGoldTrade.sol,SeaGoldTrade,saleToken,loop,.call{value: covertToken,0.8,salestruct,,effect_before_call,fe6d2331f22dc07b6b3298d7968c2932c6eb7a1a
+../scs-eth/contracts/goerli/00/007F47d58C95e0626b9918B40aa3804501F1A089_Bridge.sol,Bridge,transferFunds,loop,.call{value: amounts[i]},0.8,,,no_effect,187fdf5d78a4fd6aa885b5d2b97d64c77fbe4051
+../scs-eth/contracts/goerli/00/00A68B1d4a21b7b3750Ce5f24e370Da1d1B0936B_CelestialCastleMainland.sol,CelestialCastleMainland,retrieveFreaks,loop,".call(payload);
+			if (t",0.8,,,no_effect,23a821a6523b61d16c3f7b635533b1cea46e9929
+../scs-eth/contracts/goerli/00/00A68B1d4a21b7b3750Ce5f24e370Da1d1B0936B_CelestialCastleMainland.sol,CelestialCastleMainland,retrieveCelestials,loop,".call(payload);
+			if (t",0.8,,,no_effect,23a821a6523b61d16c3f7b635533b1cea46e9929
+../scs-eth/contracts/goerli/00/00E0C7040187ca37C47E2dAD949b606C2245C5dD_Eavolution.sol,Eavolution,getTicketStatus,readonly,buyTicket,0.8,,_ticketDetails,view_reads_desynced,9e48b5da5387f8ac32ff50cd185ce502549bbeb9
+../scs-eth/contracts/goerli/00/00E0C7040187ca37C47E2dAD949b606C2245C5dD_Eavolution.sol,Eavolution,getBuyerTicketsIds,readonly,resaleTicket,0.8,,_ticketHolders,view_reads_desynced,9e48b5da5387f8ac32ff50cd185ce502549bbeb9
+../scs-eth/contracts/goerli/00/00E0C7040187ca37C47E2dAD949b606C2245C5dD_Eavolution.sol,Eavolution,getTicketDetails,readonly,buyTicket,0.8,,_ticketDetails,view_reads_desynced,9e48b5da5387f8ac32ff50cd185ce502549bbeb9
+../scs-eth/contracts/goerli/00/00E0C7040187ca37C47E2dAD949b606C2245C5dD_Eavolution.sol,Eavolution,getRegisteredNames,readonly,resaleTicket,0.8,,_registeredForEvent,view_reads_desynced,9e48b5da5387f8ac32ff50cd185ce502549bbeb9
+../scs-eth/contracts/goerli/00/00E1f04A5397F944ad81f9Da1d7DDfB2e44ACea8_BankAttack.sol,Bank2,balanceOfETH,readonly,withdraw_with_bonus,0.8,,_balances,view_reads_desynced,b9329bdbcc827934b1a4ca55b648563700f1a9d4
+../scs-eth/contracts/goerli/00/00ED5FDF65f17472046CAecf88fA83cB3FbE00eF_EmogramMarketplaceUpgradeable.sol,EmogramMarketplaceUpgradeable,emogramsOnAuctionLength,readonly,PlaceBid,0.8,,emogramsOnAuction,view_reads_desynced,7372056ce0945ae82e9c84bd249b251afa1b420e
+../scs-eth/contracts/goerli/00/00fD9B22e575Ce4C3AE96Ed0E366Fb64fA2286E8_Multicall3.sol,Multicall3,aggregate,loop,.call(call.callData);,0.8,,,no_effect,8bd9d599fcc277fa103e6c21e51b802a8eb8e2c0
+../scs-eth/contracts/goerli/00/00fD9B22e575Ce4C3AE96Ed0E366Fb64fA2286E8_Multicall3.sol,Multicall3,tryAggregate,loop,.call(call.callData);,0.8,,,no_effect,8bd9d599fcc277fa103e6c21e51b802a8eb8e2c0
+../scs-eth/contracts/goerli/00/00fD9B22e575Ce4C3AE96Ed0E366Fb64fA2286E8_Multicall3.sol,Multicall3,aggregate3,loop,.call(calli.callData);,0.8,,,no_effect,8bd9d599fcc277fa103e6c21e51b802a8eb8e2c0
+../scs-eth/contracts/goerli/00/00fD9B22e575Ce4C3AE96Ed0E366Fb64fA2286E8_Multicall3.sol,Multicall3,aggregate3Value,loop,.call{value: val}(calli.,0.8,,,no_effect,8bd9d599fcc277fa103e6c21e51b802a8eb8e2c0
+../scs-eth/contracts/goerli/00/00fec148b47e78fd76dc98a72abef34a09ce654e_MainImplementation.sol,MainImplementation,copy_from_tx,loop,".call(
+                t",0.8,,,no_effect,e280d19da08dc9240b1e8a4af5fff5eedaae17d3
+../scs-eth/contracts/goerli/01/010D1Df7fA6F4Bf869C17dd282c9D8a863EA73B4_FallbackGasTank.sol,FallbackGasTank,getBalance,readonly,handleFallbackUserOp,0.8,,dappIdentifierBalances,view_reads_desynced,75a3b55860b266ad9873eee93483c130211a5e5f
+../scs-eth/contracts/goerli/01/011359B95c45cEb4905660a833a8abA1EaA3B62A_GovernorContract.sol,Governor,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,a8997b851ad3079b0ba3d9e1af1a5e19f04e3326
+../scs-eth/contracts/goerli/01/011Be811d3fDBF19B5a7b19e2CDc9c2fFAEe4199_WalletFactory.sol,WalletSimple,batchTransfer,loop,.call{ value: values[i],0.8,,,no_effect,42d2f7deb4b69e86c30cf340f4fe97dad92703f8
+../scs-eth/contracts/goerli/01/013FBb3b74A8a256A05f68a4e9d3Aef184F62b94_CrowdFunding.sol,Campaign,getTotalFund,readonly,contribute,0.8,,s_TotalFunded,view_reads_desynced,a98601a0ed0f18f34c24f00b0e193d86354d1d5a
+../scs-eth/contracts/goerli/01/013FBb3b74A8a256A05f68a4e9d3Aef184F62b94_CrowdFunding.sol,Campaign,getFundByAddress,readonly,contribute,0.8,,s_contributerFund,view_reads_desynced,a98601a0ed0f18f34c24f00b0e193d86354d1d5a
+../scs-eth/contracts/goerli/01/013FBb3b74A8a256A05f68a4e9d3Aef184F62b94_CrowdFunding.sol,Campaign,getContributorsFundAmount,readonly,contribute,0.8,,s_contributerFund,view_reads_desynced,a98601a0ed0f18f34c24f00b0e193d86354d1d5a
+../scs-eth/contracts/goerli/01/014E70E7609324cA838c34f77e29C199cb017274_ETHPool.sol,ETHPool,_calculateReward,readonly,withdrawStake,0.8,,_totalStakesInPool|rewardBalance,view_reads_desynced,708e2c831cb25f2bbd93dc858fd58f4b05b3318d
+../scs-eth/contracts/goerli/01/01731cfE4d1518c3A156c5f56C447159A9e60C6C_Teste.sol,ERC721PsiUpgradeable,_checkOnERC721Received,loop,.onERC721Received(_msgSe,0.8,,,no_effect,e2ced9d4bf7bc377f4fc4df79c69e450711fb7fd
+../scs-eth/contracts/goerli/01/01757B1FA4af71b026Aba716dBF739C4977C5183_PolyOneCore.sol,PolyOneCore,_distributeFunds,loop,".call{value: amount}("""")",0.8,,,no_effect,52369a2d56c8bdf01ec905020b6f63cd3dfbb8c7
+../scs-eth/contracts/goerli/01/0179a4c211E69Bb1b1DCDaC9bc4Fd3a8f5766aD6_MojoMilestone.sol,MojoMilestone,_beforeTokenTransfer,loop,".onTransfer(from, to, id",0.8,,,no_effect,d76ccffbc6cb2bf036add1be4397992eb7f2ec5f
+../scs-eth/contracts/goerli/01/018F7D49811D98926Fa7544217329a3D0e4049b3_AuctionManager.sol,AuctionManager,getFullAuctionData,readonly,fulfillAuction,0.8,,_auctions,view_reads_desynced,fd9b5acbcfc1099584aee47f7a7a0aaa3d9a40d2
+../scs-eth/contracts/goerli/01/018F7D49811D98926Fa7544217329a3D0e4049b3_AuctionManager.sol,AuctionManager,getFullAuctionsData,readonly,fulfillAuction,0.8,,_auctions,view_reads_desynced,fd9b5acbcfc1099584aee47f7a7a0aaa3d9a40d2
+../scs-eth/contracts/goerli/01/01B822De153973625b26617642062002b16970a5_CryptoNinjaChildren.sol,ERC721Psi,_checkOnERC721Received,loop,.onERC721Received(_msgSe,0.8,,,no_effect,bb3f440b485c9e07c8081606f8dfb56c53e479b1
+../scs-eth/contracts/goerli/01/01D1bF00B066ae18A8eB445304f86d833C93d807_Auction.sol,Auction,checkUpkeep,readonly,makeBid,0.8,,s_auctionState|s_lastTimeStamp,view_reads_desynced,c36421ea92ca99f504aa4fe540fc121cacd87980
+../scs-eth/contracts/goerli/01/01cA7982817B93923288Bd6DBc0868F36eD84e19_Raffle.sol,Raffle,EnterRaffle,loop,.call{,0.8,s_raffles,s_raffleMania,effect_after_call,8325f5f5c97aab638f2365044991427688de75b3
+../scs-eth/contracts/goerli/01/01cA7982817B93923288Bd6DBc0868F36eD84e19_Raffle.sol,Raffle,fulfillRandomWords,loop,.call{,0.8,recentWinner|s_raffleToPerform|s_raffles,s_raffles,effect_after_call,8325f5f5c97aab638f2365044991427688de75b3
+../scs-eth/contracts/goerli/01/01cA7982817B93923288Bd6DBc0868F36eD84e19_Raffle.sol,Raffle,checkUpkeep,readonly,EnterRaffle,0.8,,s_raffleMania,view_reads_desynced,8325f5f5c97aab638f2365044991427688de75b3
+../scs-eth/contracts/goerli/01/01cA7982817B93923288Bd6DBc0868F36eD84e19_Raffle.sol,Raffle,getRaffleManiaCount,readonly,EnterRaffle,0.8,,s_raffleMania,view_reads_desynced,8325f5f5c97aab638f2365044991427688de75b3
+../scs-eth/contracts/goerli/02/021290a5e46F643D26C2C5E83DAF52446f7b5405_BuyCrowdfund.sol,Crowdfund,batchContributeFor,loop,.call{ value: values[i],0.8,,,no_effect,50a76a6e734f6963146135ec608da39d6ec438e6
+../scs-eth/contracts/goerli/02/026e1639c1b6399589b8be26f8a0f4613fafc8b6_SeaGoldTrade.sol,SeaGoldTrade,saleToken,loop,.call{value: covertToken,0.8,salestruct,,effect_before_call,be9c77fd279a027229f8c24f01c8a8d806e1f066
+../scs-eth/contracts/goerli/02/026ea26b624f8e632e8317eaabd7934ab54e9fc4_cMinter.sol,cMinter,startProxies,loop,.call{value: value}(p);,0.8,,,no_effect,9a451bd9661dd67b0239e7cd704ee6839b4a09aa
+../scs-eth/contracts/goerli/02/026ea26b624f8e632e8317eaabd7934ab54e9fc4_cMinter.sol,cMinter,withdrawERC721Proxies,loop,".call(
+                a",0.8,,,no_effect,9a451bd9661dd67b0239e7cd704ee6839b4a09aa
+../scs-eth/contracts/goerli/02/026ea26b624f8e632e8317eaabd7934ab54e9fc4_cMinter.sol,cMinter,withdrawERC1155Proxies,loop,".call(
+                a",0.8,,,no_effect,9a451bd9661dd67b0239e7cd704ee6839b4a09aa
+../scs-eth/contracts/goerli/02/02d242914426213455DB8bc1b6FaA2eBc4b6A07C_RevenueManager.sol,GovernorUpgradeable,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,d49c5977482cae459040c6389ff3db9bf87a95d2
+../scs-eth/contracts/goerli/02/02fe5f380636a26cda418a0f201876d64f9cba8b_SeaGoldTrade.sol,SeaGoldTrade,saleToken,loop,.call{value: covertToken,0.8,salestruct,,effect_before_call,c491447e03295f988b8a85618ae91c6220e23c97
+../scs-eth/contracts/goerli/03/034205862d6c71543e235a3b1750267504b82f47_ExecutionNode.sol,FeeOperator,collectFee,loop,".call{value: bal, gas: 5",0.8,,,no_effect,21b66889147d115006224bc34eb53a0650937bc0
+../scs-eth/contracts/goerli/03/0343Af039E2E1c25A9691eEb654Ce0de1910C3e2_LimitOrdersFlashbots.sol,LimitOrdersFlashbots,_swap,loop,.call(_swapData[i]);,0.8,,,no_effect,883a53fc820cd15d47356892b27233b35e3c2a4e
+../scs-eth/contracts/goerli/03/034464300c9AAE3c2b8495eb886b99B6275a10cb_SteerGovernance.sol,GovernorUpgradeable,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,fd3812e42084189b218656560d078e8a7cbb5055
+../scs-eth/contracts/goerli/03/03531ff7AbFf5190ECE5Ec05520084e112B6D0AC_AvicarERC721.sol,AvicarERC721,disperse,loop,".call{
+                v",0.8,,,no_effect,5ee61f11fda82d4928251c3be978f0598726dcdd
+../scs-eth/contracts/goerli/03/037Fc79Ab6bD25b4D21dd16cAC91dA4435f19f4A_MajrNFT.sol,Splitter,split,loop,".call{value: amount}("""")",0.8,,,no_effect,340f74b7ec314aaf0cd16f4513bfe8fd02b4ab88
+../scs-eth/contracts/goerli/03/037Fc79Ab6bD25b4D21dd16cAC91dA4435f19f4A_MajrNFT.sol,Splitter,referralSplit,loop,".call{value: amount}("""")",0.8,,,no_effect,340f74b7ec314aaf0cd16f4513bfe8fd02b4ab88
+../scs-eth/contracts/goerli/03/038966ad6B6BA3B42da595A58F40580e5b872CD4_TokenVotingSetup.sol,DAO,execute,loop,.call{value: _actions[i],0.8,,,no_effect,55d52cbd4e35e494b541414740319da0588d6723
+../scs-eth/contracts/goerli/03/0397BC905c2F258a44e7bA90e28Db3BE3D8C4381_Contract.sol,Contract,getbalance,readonly,withdraw,0.8,,balance,view_reads_desynced,d66f79e701183c395a23101c068bb92bc6a2a187
+../scs-eth/contracts/goerli/03/039DAc2a9d2e6D2ce5E1d8847057Fc54bDbE6c1C_DAO.sol,DAO,execute,loop,.call{value: action.valu,0.8,,,no_effect,376945e982ff21b80056a747df0a6476993799ac
+../scs-eth/contracts/goerli/03/03B5946d34A464CBe618bAf3Eed8BA0d75982900_W3Card.sol,W3Card,deliveriesBySender,readonly,sendEthGift,0.8,,deliveries,view_reads_desynced,f8b3d7729ba555c59fe9a8136902ee534dc7ffdc
+../scs-eth/contracts/goerli/03/03DAeCFEd972dE43C14b38bABc950E1EDa480a96_EvaStake.sol,ERC721Psi,_checkOnERC721Received,loop,.onERC721Received(_msgSe,0.8,,,no_effect,0ca21e28b4e6e95c0a3eeb5f9534a67a7b77e6a5
+../scs-eth/contracts/goerli/03/03Daa4a9Cd10DADb2FEA1E21E0dB9752BefC812E_RelayHub.sol,RelayHub,balanceOf,readonly,relayCall,0.8,,balances,view_reads_desynced,272032995f0574d8d6052a7d4117707b97087423
+../scs-eth/contracts/goerli/03/03a622222417C212AFdfb169f4F2c88a57De9fA3_TokenWizardAuto.sol,TokenWizardAuto,checkUpkeep,readonly,approveContract,0.8,,lastCompoundedTimestamp,view_reads_desynced,f6de3bb0f8d46b821a89555a0324a496bbe27f89
+../scs-eth/contracts/goerli/03/03a622222417C212AFdfb169f4F2c88a57De9fA3_TokenWizardAuto.sol,TokenWizardAuto,viewApprovalStatus,readonly,approveContract,0.8,,lenderApproved,view_reads_desynced,f6de3bb0f8d46b821a89555a0324a496bbe27f89
+../scs-eth/contracts/goerli/03/03a9CcC41f4BD9770C58fe0230Df61f01D0f6637_SURGE.sol,SURGE,balanceOf,readonly,_sell,0.8,,_balances,view_reads_desynced,e264309bc1fea07ba0a9f01e0dd9f12171f2196b
+../scs-eth/contracts/goerli/03/03a9CcC41f4BD9770C58fe0230Df61f01D0f6637_SURGE.sol,SURGE,getCirculatingSupply,readonly,_sell,0.8,,_balances,view_reads_desynced,e264309bc1fea07ba0a9f01e0dd9f12171f2196b
+../scs-eth/contracts/goerli/03/03a9CcC41f4BD9770C58fe0230Df61f01D0f6637_SURGE.sol,SURGE,getLiquidity,readonly,_sell,0.8,,liquidity,view_reads_desynced,e264309bc1fea07ba0a9f01e0dd9f12171f2196b
+../scs-eth/contracts/goerli/03/03a9CcC41f4BD9770C58fe0230Df61f01D0f6637_SURGE.sol,SURGE,getValueOfHoldings,readonly,_sell,0.8,,_balances|liquidity,view_reads_desynced,e264309bc1fea07ba0a9f01e0dd9f12171f2196b
+../scs-eth/contracts/goerli/03/03a9CcC41f4BD9770C58fe0230Df61f01D0f6637_SURGE.sol,SURGE,getTokenAmountOut,readonly,_sell,0.8,,liquidity,view_reads_desynced,e264309bc1fea07ba0a9f01e0dd9f12171f2196b
+../scs-eth/contracts/goerli/03/03a9CcC41f4BD9770C58fe0230Df61f01D0f6637_SURGE.sol,SURGE,getBNBAmountOut,readonly,_sell,0.8,,_balances,view_reads_desynced,e264309bc1fea07ba0a9f01e0dd9f12171f2196b
+../scs-eth/contracts/goerli/03/03a9CcC41f4BD9770C58fe0230Df61f01D0f6637_SURGE.sol,SURGE,calculatePrice,readonly,_sell,0.8,,_balances|liquidity,view_reads_desynced,e264309bc1fea07ba0a9f01e0dd9f12171f2196b
+../scs-eth/contracts/goerli/03/03c25a75fDaD95CFD53f912Ca6f1B478771930d1_Maskies.sol,ERC721Psi,_checkOnERC721Received,loop,.onERC721Received(_msgSe,0.8,,,no_effect,26d2383cab3994083175583db4f642e6a01fff00
+../scs-eth/contracts/goerli/03/03dc224c1501cd2a48ac6795b1340000964691db_Pitch.sol,Withdrawable,withdraw_wdp,loop,.call{value: balance0 *,0.8,,,no_effect,b56f32548bdd331443cd6604e2eb024bc793dddc
+../scs-eth/contracts/goerli/04/0405eeD0B202b08E04e715A78E4846E5Ccd5C7e2_JungleFreaksCaller.sol,JungleFreaksCaller,mintMul,loop,.call{value : price * mi,0.8,,,no_effect,1e63b4c031db979596741745e9a14941ca6cbec9
+../scs-eth/contracts/goerli/04/042A12E366BA0cD8D57DDAEF1C28760dFAA0894b_BankLikeYou.sol,BankLikeYou,getBalance,readonly,withdraw,0.8,,balances,view_reads_desynced,953e646366a473f09096445fb07ae54a3d525be1
+../scs-eth/contracts/goerli/04/042A12E366BA0cD8D57DDAEF1C28760dFAA0894b_BankLikeYou.sol,BankLikeYou,getProfit,readonly,withdraw,0.8,,balances,view_reads_desynced,953e646366a473f09096445fb07ae54a3d525be1
+../scs-eth/contracts/goerli/04/043724c3f3F3556E6E5C773f5994d16B03B186B7_Orchestrator.sol,Orchestrator,_executeAction,loop,.call(calldatas[i]);,0.8,,,no_effect,8944c3ae277998554532371a905407c323289d7f
+../scs-eth/contracts/goerli/04/044D7AA8a2849a9688078D2962127044AcaCb159_MergeCanvas.sol,MergeCanvas,changePixelsColor,loop,.call{value: _prices[i]},0.8,pixel_color|pixel_owner|pixel_price_paid,,effect_before_call,c5dee09a35880ca0dfc695644c2f785bda7499cb
+../scs-eth/contracts/goerli/04/046206f6371DfEa5be8AB2aC212f029576220e4F_SSD.sol,Governor,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,8e4a461c217baaf67e8a2fb3857ad3ed7c79d287
+../scs-eth/contracts/goerli/04/046CC181839E8fC092BDaC101B451cAA53453002_RinzoSwap.sol,RinzoSwap,_transferFromHelper,loop,.call(abi.encodeWithSele,0.8,,,no_effect,f5b877ae8bda914547d5243ef7e72c27c33dc283
+../scs-eth/contracts/goerli/04/046CC181839E8fC092BDaC101B451cAA53453002_RinzoSwap.sol,RinzoSwap,_trade,loop,.call{value:_tradeDetail,0.8,,,no_effect,f5b877ae8bda914547d5243ef7e72c27c33dc283
+../scs-eth/contracts/goerli/04/046CC181839E8fC092BDaC101B451cAA53453002_RinzoSwap.sol,RinzoSwap,_returnDust,loop,.call(abi.encodeWithSele,0.8,,,no_effect,f5b877ae8bda914547d5243ef7e72c27c33dc283
+../scs-eth/contracts/goerli/04/046CC181839E8fC092BDaC101B451cAA53453002_RinzoSwap.sol,RinzoSwap,batchBuyFromOpenSea,loop,.call{value:openseaTrade,0.8,,,no_effect,f5b877ae8bda914547d5243ef7e72c27c33dc283
+../scs-eth/contracts/goerli/04/046CC181839E8fC092BDaC101B451cAA53453002_RinzoSwap.sol,RinzoSwap,batchBuyWithERC20s,loop,.call(abi.encodeWithSele,0.8,,,no_effect,f5b877ae8bda914547d5243ef7e72c27c33dc283
+../scs-eth/contracts/goerli/04/04AfF1880597d9F9De4746a3F4e92337804fe21d_BlockChainTaxi.sol,BlockChainTaxi,checkRide,readonly,requestRide,0.8,,rideDestination|rideOrigin|ridePrice,view_reads_desynced,9860c4b43ffeeca00b32ad6e7d9d860c5cd1f74b
+../scs-eth/contracts/goerli/04/04E97A2bc4252B87A8B026B1a3b6eE681b057607_Miaswap.sol,Miaswap,getPoolInfo,readonly,addLiquidity,0.8,,s_poolInfos,view_reads_desynced,827aff75af7374d7dd9a4a4a20343520003ea309
+../scs-eth/contracts/goerli/04/04E97A2bc4252B87A8B026B1a3b6eE681b057607_Miaswap.sol,Miaswap,calculateEthDepositOrWithdraw,readonly,addLiquidity,0.8,,s_poolInfos,view_reads_desynced,827aff75af7374d7dd9a4a4a20343520003ea309
+../scs-eth/contracts/goerli/04/04E97A2bc4252B87A8B026B1a3b6eE681b057607_Miaswap.sol,Miaswap,calculateEthToSwap,readonly,addLiquidity,0.8,,s_poolInfos,view_reads_desynced,827aff75af7374d7dd9a4a4a20343520003ea309
+../scs-eth/contracts/goerli/04/04E97A2bc4252B87A8B026B1a3b6eE681b057607_Miaswap.sol,Miaswap,calculateEthReceivedAfterSwap,readonly,addLiquidity,0.8,,s_poolInfos,view_reads_desynced,827aff75af7374d7dd9a4a4a20343520003ea309
+../scs-eth/contracts/goerli/04/04E97A2bc4252B87A8B026B1a3b6eE681b057607_Miaswap.sol,Miaswap,getCreatorBalance,readonly,addLiquidity,0.8,,s_poolInfos,view_reads_desynced,827aff75af7374d7dd9a4a4a20343520003ea309
+../scs-eth/contracts/goerli/05/0509d6246b5fa21c8fFd3B68cb9162781c1C3aE3_Governance.sol,Governance,execute,loop,".call{
+                v",0.8,,,no_effect,6135fb60cb81548b2471c7aa824100b898670000
+../scs-eth/contracts/goerli/05/0509d6246b5fa21c8fFd3B68cb9162781c1C3aE3_Governance.sol,Governance,getProposal,readonly,execute,0.8,,_proposals,view_reads_desynced,6135fb60cb81548b2471c7aa824100b898670000
+../scs-eth/contracts/goerli/05/0509d6246b5fa21c8fFd3B68cb9162781c1C3aE3_Governance.sol,Governance,state,readonly,execute,0.8,,_proposals,view_reads_desynced,6135fb60cb81548b2471c7aa824100b898670000
+../scs-eth/contracts/goerli/05/0522dcB915032DcAdB995f2ED89ec34421385234_ProtocolGovernor.sol,Governor,_execute,loop,".call{
+                v",0.8,,,no_effect,399bbbf9211762ecf96a8be9f417fe6c56732ada
+../scs-eth/contracts/goerli/05/05230a2d11e731171fb342ca878ee2f1934f7a7f_arbNFTMain.sol,arbNFTMain,start1,loop,.call{value: value}(,0.8,,,no_effect,f1fd0bc58727f85e1f16553c82c6ac632c94a3fb
+../scs-eth/contracts/goerli/05/05230a2d11e731171fb342ca878ee2f1934f7a7f_arbNFTMain.sol,arbNFTMain,start2,loop,.call{value: value}(,0.8,,,no_effect,f1fd0bc58727f85e1f16553c82c6ac632c94a3fb
+../scs-eth/contracts/goerli/05/054515428c4a28507052436E9FaB51632d13be2D_CeresGovernance.sol,Governor,_execute,loop,.call{value: values[i]}(,0.8,,,no_effect,de67ee5105a79d4821b088d3ef2a3f722ccb4afe
+../scs-eth/contracts/goerli/05/055158D1BDcf26ba3a6A0222a18C5bd7AcB68DA8_Jimbo.sol,Jimbo,totalSupply,readonly,mint,0.8,,supplies,view_reads_desynced,f21ff0631813928d088c6101f355334199a14379
+../scs-eth/contracts/goerli/05/05a59c94bb72E07385A899D9d662784400511bfb_RainiNFT1155v2.sol,RainiNFT1155v2,_beforeTokenTransfer,loop,".onTransfered(from, to,",0.8,subContract,,effect_before_call,6702862b6b8b0c70343bbf0df1a6b05fdbfa11e9

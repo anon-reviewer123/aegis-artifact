@@ -1,0 +1,62 @@
+{
+ "status": "UNKNOWN",
+ "candidates_tried": 3,
+ "repair_rounds": 1,
+ "obligations": [
+  {
+   "obligation": "OBL_pre",
+   "module": "phases",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  },
+  {
+   "obligation": "OBL_cb_claimDividends",
+   "module": "closure",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  },
+  {
+   "obligation": "OBL_cb_unwrap",
+   "module": "closure",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  },
+  {
+   "obligation": "OBL_cb_wrap",
+   "module": "closure",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  },
+  {
+   "obligation": "OBL_view_withdrawnDividendOf",
+   "module": "readonly",
+   "status": "unknown",
+   "detail": "solc compile error: Error: Undeclared identifier.  @  _sum_deposits  += amount;   // keep sum ghost consistent"
+  },
+  {
+   "obligation": "OBL_post",
+   "module": "phases",
+   "status": "unknown",
+   "detail": "solc wall-clock timeout"
+  },
+  {
+   "obligation": "OBL_reach_claimDividends_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "BMC completed the callback from a state satisfying the assumption [one-step witness]"
+  },
+  {
+   "obligation": "OBL_reach_unwrap_canary",
+   "module": "phases",
+   "status": "unknown",
+   "detail": "solc wall-clock timeout"
+  },
+  {
+   "obligation": "OBL_reach_wrap_canary",
+   "module": "phases",
+   "status": "unknown",
+   "detail": "SMTChecker could not prove (timeout/unsupported)"
+  }
+ ],
+ "exposure_invariant": "_sum__balances <= _totalSupply + inFlight"
+}

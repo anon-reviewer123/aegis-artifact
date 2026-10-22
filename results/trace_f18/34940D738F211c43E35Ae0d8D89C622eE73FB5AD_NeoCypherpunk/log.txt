@@ -1,0 +1,60 @@
+== Aegis on 34940D738F211c43E35Ae0d8D89C622eE73FB5AD_NeoCypherpunk.sol ==
+target property: pendingmarketingFees <= _balances[address(this)]
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_allowances', '_balances', '_isBlacklisted', '_isExcludedFromFees', '_isExcludedFromLimits', '_name', '_owner', '_symbol', '_totalSupply', 'automatedMarketMakerPairs', 'buyLPFee', 'buyMarketingFee', 'marketingAddress', 'maxFeePercent', 'maxTxAmount', 'maxWalletAmount', 'pendingmarketingFees', 'sellLPFee', 'sellMarketingFee', 'swapTokensAtAmount', 'swapping', 'tradingOpen', 'uniswapV2Pair', 'uniswapV2Router']
+[2] exposure site: feeClaim -> .call (low-level value transfer can re-enter)
+    conservative closure: ['transfer', 'transferFrom']
+[access] outside the closure under the trusted-roles assumption: ['blacklistAddress', 'claimMarketingFees', 'excludeFromFees', 'excludeFromLimits', 'excludeMultipleAccountsFromFees', 'excludeMultipleAccountsFromLimits', 'renounceOwnership', 'retrieveStuckEth', 'retrieveStuckTokens', 'setAutomatedMarketMakerPair', 'setBuyFee', 'setMarketingAddress', 'setMaxFeePercent', 'setMaxTxAmount', 'setMaxWalletAmount', 'setSellFee', 'setSwapTokensAtAmount', 'setTrading', 'swapOnDemand', 'transferOwnership', 'updateUniswapV2Router']
+    blacklistAddress: modifier onlyOwner -> _checkOwner()
+    claimMarketingFees: modifier onlyOwner -> _checkOwner()
+    excludeFromFees: modifier onlyOwner -> _checkOwner()
+    excludeFromLimits: modifier onlyOwner -> _checkOwner()
+    excludeMultipleAccountsFromFees: modifier onlyOwner -> _checkOwner()
+    excludeMultipleAccountsFromLimits: modifier onlyOwner -> _checkOwner()
+    renounceOwnership: modifier onlyOwner -> _checkOwner()
+    retrieveStuckEth: modifier onlyOwner -> _checkOwner()
+    retrieveStuckTokens: modifier onlyOwner -> _checkOwner()
+    setAutomatedMarketMakerPair: modifier onlyOwner -> _checkOwner()
+    setBuyFee: modifier onlyOwner -> _checkOwner()
+    setMarketingAddress: modifier onlyOwner -> _checkOwner()
+    setMaxFeePercent: modifier onlyOwner -> _checkOwner()
+    setMaxTxAmount: modifier onlyOwner -> _checkOwner()
+    setMaxWalletAmount: modifier onlyOwner -> _checkOwner()
+    setSellFee: modifier onlyOwner -> _checkOwner()
+    setSwapTokensAtAmount: modifier onlyOwner -> _checkOwner()
+    setTrading: modifier onlyOwner -> _checkOwner()
+    swapOnDemand: modifier onlyOwner -> _checkOwner()
+    transferOwnership: modifier onlyOwner -> _checkOwner()
+    updateUniswapV2Router: modifier onlyOwner -> _checkOwner()
+[harness] cached 34940D738F211c43E35Ae0d8D89C622eE73FB5AD_NeoCypherpunk.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 34940D738F211c43E35Ae0d8D89C622eE73FB5AD_NeoCypherpunk.harness.sol (20462 chars)
+[harness] conforms to interface (found 49 functions, 48 public state vars)
+[readonly] 2 exposure site(s) with a window; decomposing each separately
+[readonly] --- site claimMarketingFees.call#0
+[readonly] --- site updateUniswapV2Router.createPair#0
+[3] deterministic candidate -- the pre-phase writes none of the target's variables, so the target itself holds at the call
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_transfer', 'OBL_cb_transferFrom', 'OBL_post', 'OBL_reach_transfer_canary', 'OBL_reach_transferFrom_canary']
+  [round 1] sliced harness: up to 51 state variables -> at most 27 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_transfer [closure]: VERIFIED
+      OBL_cb_transferFrom [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_post [phases]: VERIFIED
+      OBL_reach_transfer_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transferFrom_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 1] every open obligation is undecided; the plan is not repairable -- moving to the next candidate
+[3] sampling 2 candidate MCVPs (openai)
+[3] closure set to the conservative closure (2 member(s)); dropped ['feeClaim', 'claimMarketingFees', 'swapOnDemand', '_transfer']; added ['transfer', 'transferFrom']
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  [round 3] validation flagged: ['exposure_invariant']
+  repair budget (3) exhausted -> UNKNOWN
+[3] closure set to the conservative closure (2 member(s)); dropped ['claimMarketingFees', 'feeClaim']
+-- candidate 2 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  [round 3] validation flagged: ['exposure_invariant']
+  repair budget (3) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN

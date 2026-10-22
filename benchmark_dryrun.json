@@ -1,0 +1,18 @@
+{
+  "_README": "RQ1 DRY-RUN benchmark: 10 contracts, 5 taxonomy classes, safe+buggy pair each. Proven-good existing contracts + 4 new (ROR, flash-loan). Griefing/liveness held for the full build (its phase-consistency invariant needs a hand harness). Keys starting with _ are skipped by the runners.",
+
+  "MotivatingVault.sol":    {"class": "classic_reentrancy",    "property": "totalAssets == totalShares", "verdict": "VERIFIED",  "bug_site": null,        "provenance": "synthetic",     "solc": "0.8.26"},
+  "NestedBuggy.sol":        {"class": "classic_reentrancy",    "property": "totalAssets == totalShares", "verdict": "BUG_FOUND", "bug_site": "withdraw",  "provenance": "synthetic",     "solc": "0.8.26"},
+
+  "CrossFunctionVault.sol": {"class": "cross_function_desync", "property": "totalAssets == totalShares", "verdict": "VERIFIED",  "bug_site": null,        "provenance": "synthetic",     "solc": "0.8.26"},
+  "PerpVault.sol":          {"class": "cross_function_desync", "property": "aum == trackedValue",        "verdict": "BUG_FOUND", "bug_site": "mintGlp",   "provenance": "synthetic-GMX", "solc": "0.8.26"},
+
+  "ERC777Vault.sol":        {"class": "token_hook_accounting", "property": "totalAssets == totalShares", "verdict": "VERIFIED",  "bug_site": null,        "provenance": "synthetic",     "solc": "0.8.26"},
+  "ERC777Buggy.sol":        {"class": "token_hook_accounting", "property": "totalAssets == totalShares", "verdict": "BUG_FOUND", "bug_site": "redeemAll", "provenance": "synthetic",     "solc": "0.8.26"},
+
+  "ReadOnlyVault.sol":      {"class": "read_only_reentrancy",  "property": "totalAssets == totalShares", "verdict": "VERIFIED",  "bug_site": null,        "provenance": "synthetic-ROR", "solc": "0.8.26"},
+  "ReadOnlyBuggy.sol":      {"class": "read_only_reentrancy",  "property": "totalAssets == totalShares", "verdict": "BUG_FOUND", "bug_site": "redeem",    "provenance": "synthetic-ROR", "solc": "0.8.26"},
+
+  "FlashLoanVault.sol":     {"class": "flash_loan_callback",   "property": "totalAssets == totalShares", "verdict": "VERIFIED",  "bug_site": null,        "provenance": "synthetic-flash", "solc": "0.8.26"},
+  "FlashLoanBuggy.sol":     {"class": "flash_loan_callback",   "property": "totalAssets == totalShares", "verdict": "BUG_FOUND", "bug_site": "flashLoan", "provenance": "synthetic-flash", "solc": "0.8.26"}
+}

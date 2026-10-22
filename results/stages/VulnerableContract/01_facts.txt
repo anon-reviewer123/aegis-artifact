@@ -1,0 +1,10 @@
+analyzer : ast
+target   : _sum_balances == address(this).balance
+
+  PRICE                            uint256
+  balances                         mapping(address => uint256)
+
+sites:
+  withdraw.call#0 before=[] after=['balances']
+
+closure : ['deposit', 'withdraw']

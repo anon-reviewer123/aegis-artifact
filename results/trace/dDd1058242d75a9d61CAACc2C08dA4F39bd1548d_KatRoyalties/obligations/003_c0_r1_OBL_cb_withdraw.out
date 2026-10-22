@@ -1,0 +1,22 @@
+status: verified
+
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmpwphwm9uj/Obligation.sol:63:9:
+   |
+63 |         uint256 amount = balances[msg.sender];
+   |         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpwphwm9uj/Obligation.sol:60:23:
+   |
+60 |     function withdraw(uint256 amount) public {
+   |                       ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpwphwm9uj/Obligation.sol:60:23:
+   |
+60 |     function withdraw(uint256 amount) public {
+   |                       ^^^^^^^^^^^^^^
+
+Info: CHC: 1 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.
+

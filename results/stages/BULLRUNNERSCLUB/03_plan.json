@@ -1,0 +1,57 @@
+{
+ "contract": "BULLRUNNERSCLUB",
+ "closure": {
+  "site_function": "withdraw",
+  "site_call": ".call",
+  "functions": [
+   "mint",
+   "withdraw"
+  ],
+  "justification": "These functions interact with team_balance, which is exposed during the callback."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "mint"
+  ],
+  "nesting_bound": {
+   "withdraw": 1
+  }
+ },
+ "phases": {
+  "function": "withdraw",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before .call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before .call",
+   "to_marker": "after .call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after .call",
+   "to_marker": "exit"
+  },
+  "linearization_point": "after .call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Amount of team_balance in-flight during the callback",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "team_balance == address(this).balance + inFlight",
+  "stable_formula": "team_balance == address(this).balance",
+  "kind": "additive"
+ },
+ "composition": {
+  "target_property": "team_balance <= address(this).balance",
+  "rule": "The exposure invariant ensures that in-flight changes are accounted for, maintaining the target property."
+ }
+}

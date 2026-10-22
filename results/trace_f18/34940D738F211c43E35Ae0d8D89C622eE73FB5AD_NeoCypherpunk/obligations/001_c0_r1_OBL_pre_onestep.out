@@ -1,0 +1,57 @@
+status: verified
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmpf1f2on0c/OneStep.sol:53:9:
+   |
+53 |         uint amount;
+   |         ^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpf1f2on0c/OneStep.sol:51:27:
+   |
+51 |     function beginExposed(uint256 amount) public {
+   |                           ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf1f2on0c/OneStep.sol:21:27:
+   |
+21 |     function __havoc_cfg1(uint256 __x0, bool __x1, address __x2, address __x3) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf1f2on0c/OneStep.sol:21:41:
+   |
+21 |     function __havoc_cfg1(uint256 __x0, bool __x1, address __x2, address __x3) public {
+   |                                         ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf1f2on0c/OneStep.sol:21:52:
+   |
+21 |     function __havoc_cfg1(uint256 __x0, bool __x1, address __x2, address __x3) public {
+   |                                                    ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpf1f2on0c/OneStep.sol:51:27:
+   |
+51 |     function beginExposed(uint256 amount) public {
+   |                           ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpf1f2on0c/OneStep.sol:150:9:
+    |
+150 |         uint256 amount
+    |         ^^^^^^^^^^^^^^
+
+Warning: Function state mutability can be restricted to pure
+   --> /tmp/tmpf1f2on0c/OneStep.sol:147:5:
+    |
+147 |     function __h__approve(
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpf1f2on0c/OneStep.sol:206:13:
+    |
+206 |             assert(pendingmarketingFees <= _balances[address(this)]);                
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

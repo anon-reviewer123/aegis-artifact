@@ -1,0 +1,60 @@
+{
+ "contract": "VulnerableContract",
+ "closure": {
+  "site_function": "withdraw",
+  "site_call": ".call",
+  "functions": [
+   "deposit",
+   "withdraw"
+  ],
+  "justification": "Both deposit and withdraw functions touch the exposed storage variables _ethBal and balances."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "deposit",
+   "withdraw"
+  ],
+  "nesting_bound": {
+   "deposit": 1,
+   "withdraw": 1
+  }
+ },
+ "phases": {
+  "function": "withdraw",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Amount of balances in-flight during the callback window",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_sum_balances == _ethBal + inFlight",
+  "stable_formula": "_sum_balances == _ethBal",
+  "kind": "conserve",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "_sum_balances == _ethBal",
+  "rule": "The exposure invariant ensures that the sum of balances is conserved with respect to _ethBal during the callback window."
+ }
+}

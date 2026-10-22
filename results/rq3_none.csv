@@ -1,0 +1,11 @@
+contract,ground_truth,outcome,raw_verdict,failing_module,notes
+Escrow.sol,BUG_FOUND,correct,BUG_FOUND,phases,OBL_pre
+EscrowSafe.sol,VERIFIED,unknown,UNKNOWN,phases,OBL_pre
+LendingPool.sol,BUG_FOUND,correct,BUG_FOUND,closure,OBL_cb_accrue
+LendingPoolSafe.sol,VERIFIED,correct,VERIFIED,,
+SaleVault.sol,BUG_FOUND,correct,BUG_FOUND,closure,OBL_cb_claimBonus
+SaleVaultSafe.sol,VERIFIED,correct,VERIFIED,,
+StakeVault.sol,BUG_FOUND,correct,BUG_FOUND,closure,OBL_cb_bonus
+StakeVaultSafe.sol,VERIFIED,correct,VERIFIED,,
+VestingVault.sol,BUG_FOUND,correct,BUG_FOUND,closure,OBL_cb_topUp
+VestingVaultSafe.sol,VERIFIED,correct,VERIFIED,,

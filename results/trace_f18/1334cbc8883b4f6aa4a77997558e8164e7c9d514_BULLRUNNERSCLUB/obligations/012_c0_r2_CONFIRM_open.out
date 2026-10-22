@@ -1,0 +1,14 @@
+status: unknown
+
+
+Warning: SPDX license identifier not provided in source file. Before publishing, consider adding a comment containing "SPDX-License-Identifier: <SPDX-License>" to each source file. Use "SPDX-License-Identifier: UNLICENSED" for non-open-source code. Please see https://spdx.org for more information.
+--> /tmp/tmpx938lqf0/Obligation.sol
+
+Warning: SMTChecker: 4 unsupported language feature(s). Enable the model checker option "show unsupported" to see all of them.
+
+Warning: CHC: Assertion violation might happen here.
+    --> /tmp/tmpx938lqf0/Obligation.sol:1199:73:
+     |
+1199 |     function __aegis_check() public view { require(__aegis_depth == 0); assert(team_balance <= _ethBal); }
+     |                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,58 @@
+
+==============================================================================
+BPYC
+  /home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/04/0498E07A28165CB91F6895aEa92884495d60ce87_BPYC.sol
+  target: sum(_rOwned) == _totalProportion
+  analyzer: ast   storage vars: 40   sites: 7
+  site: swapBack -> .addLiquidityETH
+  closure: ['setSwapBackSettings', 'transfer', 'transferFrom']
+  conformance: ok
+    harness: compiles
+
+==============================================================================
+DLAND
+  /home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/22/220699e10f80f7c1753b87d67cfdce0aac4491f9_DLAND.sol
+  target: president_balance + marketing_balance + development_balance + coder_balance <= address(this).balance
+  analyzer: ast   storage vars: 41   sites: 9
+  site: retrieve_president -> .call
+  closure: ['retrieve_president', 'transfer', 'transferFrom']
+  conformance: ok
+    harness: DOES NOT COMPILE
+      error: Member "president" not found or not visible after argument-dependent lookup in uint256.
+           206 |         uint16 _liquidity = uint16(amount);
+           207 |         uint16 _marketing = uint16(amount);
+           208 |         uint16 _development = uint16(amount);
+      >>   209 |         tax_on[destination].president = _president;
+           210 |         tax_on[destination].coder = _coder;
+           211 |         tax_on[destination].liquidity = _liquidity;
+           212 |         tax_on[destination].marketing = _marketing;
+
+==============================================================================
+GoodMorning
+  /home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/29/2922f84ca65D587af9B32Fc93ffcbC073E82efE8_GoodMorning.sol
+  target: sum(_rOwned) == _totalProportion
+  analyzer: ast   storage vars: 40   sites: 6
+  site: swapBack -> .addLiquidityETH
+  closure: ['setSwapBackSettings', 'transfer', 'transferFrom']
+  conformance: ok
+    harness: compiles
+
+==============================================================================
+Coin
+  /home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/13/131A4345A04F6d25d022D65D77CbF8Ab446013b6_Coin.sol
+  target: sum(_balances) == _totalSupply
+  analyzer: ast   storage vars: 29   sites: 5
+  site: swapBack -> .call
+  closure: ['launch', 'setSwapBackSettings', 'transfer', 'transferFrom', 'transferTo']
+  conformance: ok
+    harness: compiles
+
+==============================================================================
+EnderDragon
+  /home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/8a/8AD149b4B2d1503e864b1CA4A0537272D1b05517_EnderDragon.sol
+  target: sum(_balances) == _totalSupply
+  analyzer: ast   storage vars: 29   sites: 3
+  site: swapBack -> .call
+  closure: ['setSwapBackSettings', 'transfer', 'transferFrom']
+  conformance: ok
+    harness: compiles

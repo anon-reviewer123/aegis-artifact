@@ -1,0 +1,51 @@
+{
+ "contract": "BULLRUNNERSCLUB",
+ "closure": {
+  "site_function": "withdraw",
+  "site_call": ".call",
+  "functions": [],
+  "justification": "The 'withdraw' function can re-enter due to low-level value transfer. Both 'withdraw' and 'mint' modify '_ethBal' and 'team_balance', which are exposed during the call."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [],
+  "nesting_bound": {}
+ },
+ "phases": {
+  "function": "withdraw",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint",
+   "meaning": "The amount of balance mid-transfer during the callback window.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_ethBal == team_balance + inFlight",
+  "stable_formula": "_ethBal == team_balance",
+  "kind": "additive",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "team_balance <= _ethBal",
+  "rule": "exposure invariant implies property"
+ }
+}

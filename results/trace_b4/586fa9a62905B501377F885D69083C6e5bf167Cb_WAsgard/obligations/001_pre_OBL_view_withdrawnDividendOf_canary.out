@@ -1,0 +1,53 @@
+status: unknown
+
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp2k212v91/Obligation.sol:140:41:
+    |
+140 |     function __h_withdrawableDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp2k212v91/Obligation.sol:18:5:
+   |
+18 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp2k212v91/Obligation.sol:169:41:
+    |
+169 |     function __h_accumulativeDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp2k212v91/Obligation.sol:18:5:
+   |
+18 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp2k212v91/Obligation.sol:193:9:
+    |
+193 |         bool success;
+    |         ^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp2k212v91/Obligation.sol:27:5:
+   |
+27 |     bool public success = true;   // success flag of an excised call
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp2k212v91/Obligation.sol:203:34:
+    |
+203 |     function withdrawnDividendOf(address _owner) public view  returns(uint256) {
+    |                                  ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp2k212v91/Obligation.sol:18:5:
+   |
+18 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Error: Undeclared identifier.
+  --> /tmp/tmp2k212v91/Obligation.sol:66:9:
+   |
+66 |         _sum_deposits  += amount;   // keep sum ghost consistent
+   |         ^^^^^^^^^^^^^
+

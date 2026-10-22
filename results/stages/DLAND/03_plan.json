@@ -1,0 +1,65 @@
+{
+ "contract": "DLAND",
+ "closure": {
+  "site_function": "retrieve_president",
+  "site_call": ".call",
+  "functions": [
+   "retrieve_president",
+   "retrieve_marketing",
+   "retrieve_development",
+   "retrieve_coder"
+  ],
+  "justification": "These functions manipulate the respective balances and can be re-entered during the low-level call."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "retrieve_president",
+   "retrieve_marketing",
+   "retrieve_development",
+   "retrieve_coder"
+  ],
+  "nesting_bound": {
+   "retrieve_president": 1,
+   "retrieve_marketing": 1,
+   "retrieve_development": 1,
+   "retrieve_coder": 1
+  }
+ },
+ "phases": {
+  "function": "retrieve_president",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "The total amount of president_balance mid-transfer during the callback window.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "president_balance + marketing_balance + development_balance + coder_balance <= address(this).balance + inFlight",
+  "stable_formula": "president_balance + marketing_balance + development_balance + coder_balance <= address(this).balance",
+  "kind": "bounded"
+ },
+ "composition": {
+  "target_property": "president_balance + marketing_balance + development_balance + coder_balance <= address(this).balance",
+  "rule": "The exposure invariant ensures that the sum of all balances does not exceed the contract's balance, even during reentrant calls."
+ }
+}

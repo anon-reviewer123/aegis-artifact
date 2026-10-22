@@ -1,0 +1,37 @@
+status: unknown
+
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp0y9qs3yj/Obligation.sol:105:9:
+    |
+105 |         uint256 newValue = numUnits * pricePerUnit;
+    |         ^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp0y9qs3yj/Obligation.sol:42:5:
+   |
+42 |     uint256 public newValue;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp0y9qs3yj/Obligation.sol:124:9:
+    |
+124 |         uint256 newValue = numUnits * pricePerUnit;
+    |         ^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp0y9qs3yj/Obligation.sol:42:5:
+   |
+42 |     uint256 public newValue;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0y9qs3yj/Obligation.sol:86:25:
+   |
+86 |     function __fallback(uint256 amount) public {
+   |                         ^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmp0y9qs3yj/Obligation.sol:147:13:
+    |
+147 |             assert(false);       // must be REFUTED: this state is reachable
+    |             ^^^^^^^^^^^^^
+

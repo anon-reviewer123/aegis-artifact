@@ -1,0 +1,27 @@
+status: unknown
+
+
+Warning: Unused local variable.
+   --> /tmp/tmpinu7tiul/Obligation.sol:260:17:
+    |
+260 |                 uint256 r_entry   = get_balance();       // view AT ENTRY (sigma_0)
+    |                 ^^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmpinu7tiul/Obligation.sol:262:17:
+    |
+262 |                 uint256 r_exposed = get_balance();           // view DURING the window
+    |                 ^^^^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmpinu7tiul/Obligation.sol:264:17:
+    |
+264 |                 uint256 r_stable  = get_balance();       // view AFTER settlement
+    |                 ^^^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmpinu7tiul/Obligation.sol:265:17:
+    |
+265 |                 assert(false);                               // quiescent iff it matches one of them
+    |                 ^^^^^^^^^^^^^
+

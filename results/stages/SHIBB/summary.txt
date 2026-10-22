@@ -1,0 +1,10 @@
+
+======================================================================
+SHIBB
+harness  : compiles  (305 lines)
+Iexp     : _ethReserves + _liquidityReserves + inFlight <= _balances[address(this)]
+OBL_pre                     : compiles  (124 lines)
+OBL_cb_deposit              : compiles  (131 lines)
+OBL_cb_removeBot            : compiles  (124 lines)
+OBL_cb_removeSniper         : compiles  (124 lines)
+OBL_post                    : compiles  (131 lines)

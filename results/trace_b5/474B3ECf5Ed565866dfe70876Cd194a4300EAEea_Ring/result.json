@@ -1,0 +1,56 @@
+{
+ "status": "VERIFIED",
+ "candidates_tried": 1,
+ "repair_rounds": 1,
+ "obligations": [
+  {
+   "obligation": "OBL_pre",
+   "module": "phases",
+   "status": "verified",
+   "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+  },
+  {
+   "obligation": "OBL_cb_burn",
+   "module": "closure",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  },
+  {
+   "obligation": "OBL_cb_transfer",
+   "module": "closure",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  },
+  {
+   "obligation": "OBL_cb_transferFrom",
+   "module": "closure",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  },
+  {
+   "obligation": "OBL_post",
+   "module": "phases",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  },
+  {
+   "obligation": "OBL_reach_burn_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "BMC completed the callback from a state satisfying the assumption [one-step witness]"
+  },
+  {
+   "obligation": "OBL_reach_transfer_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "BMC completed the callback from a state satisfying the assumption [one-step witness]"
+  },
+  {
+   "obligation": "OBL_reach_transferFrom_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "BMC completed the callback from a state satisfying the assumption [one-step witness]"
+  }
+ ],
+ "exposure_invariant": "_sum__balances + _swapLimit == _totalSupply"
+}

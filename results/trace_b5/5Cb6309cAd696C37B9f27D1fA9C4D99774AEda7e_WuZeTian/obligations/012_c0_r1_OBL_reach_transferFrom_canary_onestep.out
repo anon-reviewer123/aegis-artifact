@@ -1,0 +1,165 @@
+status: failed
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:37:93:
+   |
+37 |     function __havoc_cfg0(uint8 __x0, uint8 __x1, address __x2, address __x3, address __x4, address __x5, uint8 __x6, address __x7) public {
+   |                                                                                             ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:37:119:
+   |
+37 |     function __havoc_cfg0(uint8 __x0, uint8 __x1, address __x2, address __x3, address __x4, address __x5, uint8 __x6, address __x7) public {
+   |                                                                                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:46:27:
+   |
+46 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                           ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:46:53:
+   |
+46 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                                                     ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:46:121:
+   |
+46 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                                                                                                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:54:27:
+   |
+54 |     function __havoc_cfg2(address __x0, uint8 __x1, uint8 __x2, uint8 __x3, uint8 __x4) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:66:27:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                           ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:66:82:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                  ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:66:96:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:66:110:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:66:124:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpbo9_qlnv/OneStep.sol:84:25:
+   |
+84 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpbo9_qlnv/OneStep.sol:166:54:
+    |
+166 |     function __h__addLiquidity(uint256 _tokenAmount, uint256 _ethAmountWei, bool autoburn) internal {
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: SMTChecker: 1 unsupported language feature(s). Enable the model checker option "show unsupported" to see all of them.
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmpbo9_qlnv/OneStep.sol:299:13:
+    |
+299 |             assert(false);       
+    |             ^^^^^^^^^^^^^
+Note: Counterexample:
+   = 0
+  __a17_recipient = 0
+  __a18_sender = 29
+  __a19_recipient = 23
+  __prev0 = 111
+  __prev1 = 118
+  __prev2 = 109
+  __prev3 = 0
+  _allowances[sender][msg.sender] = 117
+  _antiMevBlock = 2
+  _balances[_primaryLP] = 111
+  _balances[address(this)] = 113
+  _balances[recipient] = 109
+  _balances[sender] = 118
+  _buyTaxRate = 0
+  _contractETHBalance = 0
+  _decimals = 0
+  _ethAmountWei = 114
+  _ethPreSwap = 0
+  _ethSwapped = 0
+  _ethWeiAmount = 0
+  _inTaxSwap = false
+  _isLP[recipient] = true
+  _isLP[sender] = true
+  _launchBlock = 0
+  _lpOwner = 1
+  _maxTxAmount = 0
+  _maxWalletAmount = 0
+  _noFees[recipient] = false
+  _noFees[sender] = true
+  _noLimits[recipient] = false
+  _noLimits[sender] = true
+  _owner = 29
+  _primaryLP = 28
+  _sellTaxRate = 0
+  _sum__balances = 3
+  _swapLimit = 0
+  _taxAmount = 0
+  _taxSharesLP = 1
+  _taxSwapMax = 1
+  _taxSwapMin = 1
+  _taxTokensAvailable = 0
+  _tokenAmount = 113
+  _tokensForLP = 0
+  _tokensToSwap = 0
+  _totalSupply = 3
+  _totalTaxShares = 1
+  _tradingOpen = false
+  _transferAmount = 0
+  address(this).balance = 114
+  amount = 0
+  antiSnipeBlocks1 = 2
+  antiSnipeBlocks2 = 0
+  antiSnipeTax1 = 0
+  antiSnipeTax2 = 0
+  autoburn = false
+  checkResult = true
+  exposed = true
+  inFlight = 0
+  limitCheckPassed = false
+  lpTokenRecipient = 1
+  recipient = 23
+  sender = 29
+  snapPre = 0
+  taxAmount = 0
+  this = 12
+  tokenAmount = 64
+  transferAmount = 60
+  who = 27
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

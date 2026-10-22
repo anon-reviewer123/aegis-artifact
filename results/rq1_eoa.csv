@@ -1,0 +1,3 @@
+contract,family,arm,label,expected,status,outcome,seconds,backend,reason
+UnexpectedEOACallback_S01.sol,eoa_assumption,general,safe,VERIFIED,BUG_FOUND,FP,65.7,smtchecker,[3] sampling 4 candidate MCVPs (openai)
+UnexpectedEOACallback_U01.sol,eoa_assumption,general,unsafe,BUG_FOUND,BUG_FOUND,TP,69.0,smtchecker,[readonly] invariant: rule inapplicable -- closure member accrue writes footprint rewardDebt; falling through  | [3] sampling 4 candidate MCVPs (openai)

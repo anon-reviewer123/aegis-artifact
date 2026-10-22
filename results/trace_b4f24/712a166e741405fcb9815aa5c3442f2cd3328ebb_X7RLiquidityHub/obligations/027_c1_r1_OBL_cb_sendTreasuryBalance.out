@@ -1,0 +1,76 @@
+status: verified
+
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmp0adhqftg/Obligation.sol:84:9:
+   |
+84 |         uint256 ethToSend = treasuryBalance;
+   |         ^^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp0adhqftg/Obligation.sol:27:5:
+   |
+27 |     uint256 public ethToSend;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0adhqftg/Obligation.sol:19:27:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0adhqftg/Obligation.sol:19:41:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0adhqftg/Obligation.sol:19:55:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0adhqftg/Obligation.sol:19:69:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0adhqftg/Obligation.sol:19:83:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0adhqftg/Obligation.sol:19:97:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0adhqftg/Obligation.sol:19:111:
+   |
+19 |     function __havoc_cfg1(uint256 __x0, uint256 __x1, uint256 __x2, uint256 __x3, address __x4, address __x5, uint256 __x6, address __x7) public {
+   |                                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0adhqftg/Obligation.sol:39:25:
+   |
+39 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp0adhqftg/Obligation.sol:80:34:
+   |
+80 |     function sendTreasuryBalance(uint256 amount) public {
+   |                                  ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp0adhqftg/Obligation.sol:132:24:
+    |
+132 |     function __preBody(uint256 amount) internal {
+    |                        ^^^^^^^^^^^^^^
+
+Info: CHC: 1 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.
+

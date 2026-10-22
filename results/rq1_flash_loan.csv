@@ -1,0 +1,13 @@
+contract,family,arm,label,expected,status,outcome,seconds,backend,reason
+FlashLoanCallback_S01.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,49.0,smtchecker,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S02.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,46.8,smtchecker,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S03.sol,flash_loan,general,safe,VERIFIED,UNKNOWN,NV,59.2,smtchecker,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S04.sol,flash_loan,general,safe,VERIFIED,TIMEOUT,NV,300.1,?,per-contract budget
+FlashLoanCallback_S05.sol,flash_loan,general,safe,VERIFIED,TIMEOUT,NV,300.1,?,per-contract budget
+FlashLoanCallback_S06.sol,flash_loan,general,safe,VERIFIED,TIMEOUT,NV,300.1,?,per-contract budget
+FlashLoanCallback_U01.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,85.8,smtchecker,[readonly] invariant: rule inapplicable -- closure member depositDuringCallback writes footprint totalAssets;  | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U02.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,82.9,smtchecker,[readonly] invariant: rule inapplicable -- closure member depositDuringCallback writes footprint totalAssets;  | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U03.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,83.6,smtchecker,[readonly] invariant: rule inapplicable -- closure member depositDuringCallback writes footprint totalAssets;  | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U04.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,75.4,smtchecker,"[readonly] invariant: rule inapplicable -- closure member supply writes footprint cash,totalAssets; falling th | [3] sampling 4 candidate MCVPs (openai)"
+FlashLoanCallback_U05.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,72.5,smtchecker,"[readonly] invariant: rule inapplicable -- closure member supply writes footprint idle,poolSize; falling throu | [3] sampling 4 candidate MCVPs (openai)"
+FlashLoanCallback_U06.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,76.2,smtchecker,"[readonly] invariant: rule inapplicable -- closure member supply writes footprint bookValue,liquid; falling th | [3] sampling 4 candidate MCVPs (openai)"

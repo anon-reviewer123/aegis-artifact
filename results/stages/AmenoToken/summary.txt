@@ -1,0 +1,33 @@
+
+======================================================================
+AmenoToken
+harness  : DOES NOT COMPILE  (204 lines)
+    Error: Expected primary expression.  (line 68)
+           65 |         require(exposed && inFlight == amount, "phase mismatch");
+           66 |         if (__branch0) {
+           67 | 
+      >>   68 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingMarketingFee = 0; };
+           69 |         inFlight -= amount;
+           70 |         exposed   = false;
+           71 |     }
+Iexp     : pendingMarketingFee == snapPre + inFlight
+OBL_pre                     : compiles  (113 lines)
+OBL_cb_claimMarketingFees   : compiles  (113 lines)
+OBL_post                    : DOES NOT COMPILE  (124 lines)
+    Error: Expected primary expression.  (line 41)
+           38 |         require(exposed && inFlight == amount, "phase mismatch");
+           39 |         if (__branch0) {
+           40 | 
+      >>   41 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingMarketingFee = 0; };
+           42 |         inFlight -= amount;
+           43 |         exposed   = false;
+           44 |     }
+OBL_stable_implies_target   : DOES NOT COMPILE  (152 lines)
+    Error: Expected primary expression.  (line 45)
+           42 |         require(exposed && inFlight == amount, "phase mismatch");
+           43 |         if (__branch0) {
+           44 | 
+      >>   45 |         require(success, "Address: unable to extract value, tx may have reverted"); pendingMarketingFee = 0; };
+           46 |         inFlight -= amount;
+           47 |         exposed   = false;
+           48 |     }

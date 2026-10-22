@@ -1,0 +1,13 @@
+== Aegis on 955b9dBc6c00d136FeE91698180A5b037E0f31F6_SafePaymentVault.sol ==
+target property: TotalBalance == address(this).balance
+[eth-model] address(this).balance -> _ethBal; property now: TotalBalance == _ethBal
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['BranchTeamName', 'BranchTeamRegistered', 'CallBranchTeamFunction', 'DepositTotalForOneBranch', 'Deposits', 'MinWeiDeposit', 'MinimumAccountFunds', 'MsgSender', 'RanMakeDeposit', 'RetailSite', 'TXorigin', 'TotalBalance', 'WithdrawalAddress', '_ethBal', 'addrThis', 'owner']
+[2] exposure site: Withdraw -> .call (low-level value transfer can re-enter)
+    conservative closure: ['GetTotalBalance', 'MakeDeposit', 'UpdateBranchName']
+[access] outside the closure under the trusted-roles assumption: ['EmptyAndCloseVault', 'GetDepositTotalForOneBranch', 'SetMinimumDeposit', 'Withdraw']
+    EmptyAndCloseVault: modifier onlyForOwner: msg.sender == owner
+    GetDepositTotalForOneBranch: modifier onlyForOwner: msg.sender == owner
+    SetMinimumDeposit: modifier onlyForOwner: msg.sender == owner
+    Withdraw: modifier onlyForOwner: msg.sender == owner
+[!] closure member(s) ['UpdateBranchName'] may write storage no analysis can bound (delegatecall or storage-writing assembly); a callback may call them, so no proof is possible

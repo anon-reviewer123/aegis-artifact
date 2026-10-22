@@ -1,0 +1,66 @@
+{
+ "contract": "QuantumEnergy",
+ "closure": {
+  "site_function": "sendFee",
+  "site_call": ".balanceOf",
+  "functions": [
+   "claimReward",
+   "getReward",
+   "transfer",
+   "transferFrom"
+  ],
+  "justification": "These functions interact with the exposed storage variables LiqQueue and feeQueue, which are relevant to the target property."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "claimReward",
+   "getReward",
+   "transfer",
+   "transferFrom"
+  ],
+  "nesting_bound": {
+   "claimReward": 1,
+   "getReward": 1,
+   "transfer": 1,
+   "transferFrom": 1
+  }
+ },
+ "phases": {
+  "function": "sendFee",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_balanceOf"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_balanceOf",
+   "to_marker": "after_balanceOf"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_balanceOf",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_balanceOf"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "The amount of assets in transit during the callback window.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "feeQueue + LiqQueue == balanceOf[address(this)] + inFlight",
+  "stable_formula": "feeQueue + LiqQueue == balanceOf[address(this)]",
+  "kind": "additive",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "feeQueue + LiqQueue <= balanceOf[address(this)]",
+  "rule": "The exposure invariant ensures that the sum of feeQueue and LiqQueue is accounted for during the callback window, maintaining the target property."
+ }
+}

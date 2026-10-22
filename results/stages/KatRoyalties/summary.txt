@@ -1,0 +1,8 @@
+
+======================================================================
+KatRoyalties
+harness  : compiles  (134 lines)
+Iexp     : _sum_balances == winnerFunds + inFlight
+OBL_pre                     : compiles  (66 lines)
+OBL_cb_spin                 : compiles  (80 lines)
+OBL_post                    : compiles  (73 lines)

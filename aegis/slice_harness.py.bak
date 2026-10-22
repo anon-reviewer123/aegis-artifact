@@ -1,0 +1,251 @@
+import re
+
+from .harness_synth import _guard_span, _clean_chunk
+
+_ELEM = r"(?:u?int\d*|address(?:\s+payable)?|bool|bytes\d*|string)"
+_KEYWORDS = {
+    "if", "else", "for", "while", "do", "return", "returns", "require",
+    "assert", "revert", "emit", "new", "delete", "this", "super", "msg",
+    "block", "tx", "abi", "true", "false", "memory", "storage", "calldata",
+    "public", "private", "internal", "external", "view", "pure", "payable",
+    "constant", "immutable", "virtual", "override", "unchecked", "type",
+    "keccak256", "sha256", "ecrecover", "addmod", "mulmod", "selfdestruct",
+    "gasleft", "blockhash", "now", "wei", "gwei", "ether", "seconds",
+    "minutes", "hours", "days", "weeks", "uint", "int", "byte", "bytes",
+    "string", "address", "bool", "mapping", "struct", "enum", "function",
+    "modifier", "event", "contract", "interface", "library", "using", "is",
+    "try", "catch", "assembly", "let", "continue", "break", "constructor",
+    "receive", "fallback", "indexed", "anonymous",
+}
+
+
+class SliceUnsupported(Exception):
+    pass
+
+
+def _match(src, open_idx):
+    depth = 0
+    for i in range(open_idx, len(src)):
+        if src[i] == "{":
+            depth += 1
+        elif src[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return i
+    return -1
+
+
+def _strip(text):
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    text = re.sub(r"//[^\n]*", " ", text)
+    return text
+
+
+def contract_body(src, name):
+    for m in re.finditer(r"\b(?:abstract\s+)?contract\s+" + re.escape(name) +
+                         r"\b[^{]*\{", src):
+        end = _match(src, m.end() - 1)
+        if end != -1:
+            return src[m.end():end], m.group(0)
+    return "", ""
+
+
+def base_names(header):
+    m = re.search(r"\bis\b([^{]*)\{?", header)
+    if not m:
+        return []
+    return [x.strip().split("(")[0].strip()
+            for x in m.group(1).split(",") if x.strip()]
+
+
+def full_body(src, name, seen=None):
+    """Contract body concatenated with its base contracts' bodies."""
+    seen = seen or set()
+    if name in seen:
+        return ""
+    seen.add(name)
+    body, header = contract_body(src, name)
+    if not body:
+        return ""
+    out = body
+    for b in base_names(header):
+        out += "\n" + full_body(src, b, seen)
+    return out
+
+
+def state_vars(body):
+    """name -> declared type, for storage declarations at contract level."""
+    spans = []
+    for m in re.finditer(r"function\s+\w*\s*\([^;{]*\{", body):
+        end = _match(body, m.end() - 1)
+        if end != -1:
+            spans.append((m.start(), end))
+    out = {}
+    pat = re.compile(
+        r"^[ \t]*((?:mapping\s*\(.*?\)|%s|[A-Z]\w*)(?:\s*\[[^\]]*\])*)"
+        r"((?:\s+(?:public|private|internal|constant|immutable|override))*)"
+        r"\s+([A-Za-z_]\w*)\s*(?:=[^;]*)?;" % _ELEM, re.M)
+    for m in pat.finditer(body):
+        if any(a <= m.start() <= b for a, b in spans):
+            continue
+        if "constant" in m.group(2) or "immutable" in m.group(2):
+            continue
+        out[m.group(3)] = m.group(1).strip()
+    return out
+
+
+def find_function(body, name):
+    for m in re.finditer(r"function\s+" + re.escape(name) + r"\s*\(", body):
+        depth, j = 0, m.end() - 1
+        while j < len(body):
+            if body[j] == "(":
+                depth += 1
+            elif body[j] == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+            j += 1
+        params = body[m.end():j]
+        brace = body.find("{", j)
+        semi = body.find(";", j)
+        if brace == -1 or (semi != -1 and semi < brace):
+            continue
+        header = body[j + 1:brace]
+        end = _match(body, brace)
+        if end == -1:
+            continue
+        return params, header, body[brace + 1:end]
+    return None, None, None
+
+
+def identifiers(text):
+    """Free identifiers, excluding member-access names and call targets.
+
+    `msg.sender` and `a.length` must not contribute `sender` or `length`: they
+    are members of another value, not names the slice has to declare.
+    """
+    text = _strip(text)
+    out = set()
+    for m in re.finditer(r"(\.\s*)?\b([A-Za-z_]\w*)\b\s*(\()?", text):
+        if m.group(1) or m.group(3):
+            continue
+        if m.group(2) in _KEYWORDS:
+            continue
+        out.add(m.group(2))
+    return out
+
+
+def used_state(text, svars):
+    return {v for v in svars if re.search(r"\b%s\b" % re.escape(v), text)}
+
+
+def havoc_calls(body, known):
+    """Replace calls to functions we did not slice in with a symbolic read."""
+    def repl(m):
+        name = m.group(1)
+        if name in known or name in _KEYWORDS:
+            return m.group(0)
+        return "_havoc"
+    return re.sub(r"\b([A-Za-z_]\w*)\s*\([^()]*\)", repl, body)
+
+
+def declare(vtype, name):
+    t = vtype.strip()
+    if t.startswith("mapping"):
+        return "    %s %s;" % (t, name)
+    if re.match(r"^[A-Z]", t.split("[")[0]):
+        base = t.split("[")[0]
+        rest = t[len(base):]
+        return "    address%s %s;" % (rest, name)
+    return "    %s %s;" % (t, name)
+
+
+def build_slice_harness(src, contract, exposure_fn, view_fn):
+    """Emit a minimal contract containing only what the read-only obligation
+    mentions: the exposure function split into pre/post phases, the flagged
+    view, and the state variables those two touch.
+
+    Reconstructing the whole contract forces the harness to reproduce every
+    type, base contract and helper it declares, most of which the assertion
+    never mentions. Slicing to the property's criterion removes that surface.
+    Calls not carried into the slice are replaced with an unconstrained value
+    rather than dropped, so an omitted effect widens the reachable states
+    instead of silently fixing them.
+    """
+    src = _strip(src)
+    body = full_body(src, contract)
+    if not body:
+        return None, "contract body not found"
+
+    svars = state_vars(body)
+    if not svars:
+        return None, "no state variables"
+
+    e_params, e_header, e_body = find_function(body, exposure_fn)
+    if e_body is None:
+        return None, "exposure function not found"
+    v_params, v_header, v_body = find_function(body, view_fn)
+    if v_body is None:
+        return None, "view function not found"
+
+    m = re.search(r"\.call\s*[({]|\.\s*on[A-Z]\w*\s*\(|"
+                  r"\.tokensReceived\s*\(|\.onFlashLoan\s*\(", e_body)
+    if not m:
+        return None, "no external call in exposure function"
+    cs, ce = _guard_span(e_body, m.start())
+    pre = _clean_chunk(e_body[:cs], keep_requires=False)
+    post = _clean_chunk(e_body[ce:], keep_requires=False)
+
+    ret = re.search(r"returns\s*\(([^)]*)\)", v_header or "")
+    if not ret:
+        return None, "view has no return type"
+    rtypes = [t.strip().split()[0] for t in ret.group(1).split(",")
+              if t.strip()]
+    if len(rtypes) != 1 or not re.match(_ELEM + r"$", rtypes[0]):
+        return None, "view return type not comparable"
+    rtype = rtypes[0]
+
+    relevant = used_state(pre + post + v_body, svars)
+    if not relevant:
+        return None, "no shared state between phases and view"
+
+    decls = "\n".join(declare(svars[v], v) for v in sorted(relevant))
+
+    known = set(relevant) | {"beginExposed", "endExposed", exposure_fn,
+                             view_fn, "_havoc"}
+    pre = havoc_calls(pre, known)
+    post = havoc_calls(post, known)
+    v_body = havoc_calls(v_body, known)
+
+    pnames = {n for _, n in
+              (p.strip().rsplit(" ", 1) for p in (e_params or "").split(",")
+               if p.strip() and " " in p.strip())}
+    free = (identifiers(pre) | identifiers(post) | identifiers(v_body)) \
+        - relevant - known - pnames - {"amount"}
+    extra = "\n".join("    uint256 %s;" % f for f in sorted(free)
+                      if re.match(r"^[A-Za-z_]\w*$", f))
+
+    name = "%sSlice" % contract
+    return ("""// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+/// Property slice for {contract}: exposure `{exposure_fn}` vs view `{view_fn}`.
+contract {name} {{
+{decls}
+{extra}
+    uint256 _havoc;
+
+    function beginExposed(uint256 amount) public {{
+{pre}
+    }}
+
+    function endExposed(uint256 amount) public {{
+{post}
+    }}
+
+    function observed() public view returns ({rtype}) {{
+{v_body}
+    }}
+}}
+""".format(contract=contract, exposure_fn=exposure_fn, view_fn=view_fn,
+           name=name, decls=decls, extra=extra, pre=pre, post=post,
+           rtype=rtype, v_body=v_body), "")

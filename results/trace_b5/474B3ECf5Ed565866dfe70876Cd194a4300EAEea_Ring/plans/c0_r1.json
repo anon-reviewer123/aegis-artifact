@@ -1,0 +1,54 @@
+{
+ "contract": "Ring",
+ "closure": {
+  "site_function": "addLiquidity",
+  "site_call": ".call",
+  "functions": [
+   "burn",
+   "transfer",
+   "transferFrom"
+  ],
+  "justification": "public functions sharing exposed accounting state"
+ },
+ "protocol": {
+  "during_phase": "addLiquidity.exposed",
+  "allowed_callbacks": [
+   "burn",
+   "transfer",
+   "transferFrom"
+  ],
+  "nesting_bound": {
+   "addLiquidity": 1
+  }
+ },
+ "phases": {
+  "function": "addLiquidity",
+  "pre": {
+   "name": "pre",
+   "from_marker": "function_entry",
+   "to_marker": "before_external_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "external_call",
+   "to_marker": "call_return"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_external_call",
+   "to_marker": "function_exit"
+  },
+  "linearization_point": "effect commit in pre-phase"
+ },
+ "ghost_state": [],
+ "exposure_invariant": {
+  "formula": "_sum__balances + _swapLimit == _totalSupply",
+  "stable_formula": "_sum__balances + _swapLimit == _totalSupply",
+  "kind": "additive",
+  "derived_from_pre": true
+ },
+ "composition": {
+  "target_property": "_sum__balances + _swapLimit == _totalSupply",
+  "rule": "If pre establishes I_exp, every admissible callback preserves I_exp, the protocol over-approximates concrete callbacks, and post restores I_stable, then the target property holds under adversarial callbacks."
+ }
+}

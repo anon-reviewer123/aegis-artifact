@@ -1,0 +1,371 @@
+"""
+static_analysis.py - Modules 1 & 2 of Aegis.
+
+Module 1 (Front-End): parse the contract, list functions, storage vars,
+                       visibility, and external-call sites.
+Module 2 (Exposure Analyzer): classify which call sites are callback-capable
+                       and compute write-before-call / write-after-call sets.
+
+Design note for the paper's soundness story: the SET OF CALLBACK-REACHABLE
+FUNCTIONS used downstream must be a SOUND OVER-APPROXIMATION. This module
+therefore computes a conservative closure = {all public/external functions
+that touch any storage variable exposed at the call site}. The LLM may
+*propose* a smaller closure, but the validator (validator.py) checks the
+LLM's closure against THIS conservative set and rejects/expands if the LLM
+dropped a reachable function. That is the hook that keeps the LLM out of the
+trusted base.
+"""
+from __future__ import annotations
+from dataclasses import dataclass, field
+import json
+import re
+import shutil
+import subprocess
+import tempfile
+import os
+
+
+@dataclass
+class FunctionInfo:
+    name: str
+    visibility: str                       # public/external/internal/private
+    mutability: str = "nonpayable"        # view/pure/payable/nonpayable
+    param_types: list = field(default_factory=list)  # solidity param types
+    reads: set[str] = field(default_factory=set)
+    writes: set[str] = field(default_factory=set)
+    external_calls: list[str] = field(default_factory=list)
+    # storage written before / after the (first) external call
+    write_before_call: set[str] = field(default_factory=set)
+    write_after_call: set[str] = field(default_factory=set)
+
+
+@dataclass
+class ExposureSite:
+    function: str
+    call: str
+    callback_capable: bool
+    reason: str
+    exposed_storage: set[str] = field(default_factory=set)
+    write_before_call: set[str] = field(default_factory=set)
+    write_after_call: set[str] = field(default_factory=set)
+
+
+@dataclass
+class ContractFacts:
+    contract: str
+    storage_vars: list[str]
+    functions: dict[str, FunctionInfo]
+    exposure_sites: list[ExposureSite]
+    # Declared Solidity type of each storage variable, taken verbatim from the
+    # solc AST (the `typeString` of each VariableDeclaration), e.g.
+    #   "balanceOf" -> "mapping(address => uint256)"
+    #   "hook"      -> "address"
+    #   "totalSupply" -> "uint256"
+    # Empty when the regex analyzer produced the facts (solc unavailable); in
+    # that case downstream consumers fall back to their prior heuristics, so
+    # this field is purely additive and changes no existing behavior.
+    var_types: dict[str, str] = field(default_factory=dict)
+
+    def conservative_closure(self, site: ExposureSite) -> set[str]:
+        """Sound over-approximation of callback-reachable functions:
+        every public/external function that touches any exposed storage var."""
+        result = set()
+        for fn in self.functions.values():
+            if fn.visibility not in ("public", "external"):
+                continue
+            # A function that does NOT WRITE any exposed storage cannot break the
+            # exposure invariant during the callback window, so it is not part of
+            # the preservation closure. This excludes pure/view readers such as
+            # invariant()/price() that only READ exposed state (and would
+            # otherwise produce malformed view-returning obligations).
+            if fn.writes & site.exposed_storage:
+                result.add(fn.name)
+        return result
+
+
+# Patterns that indicate a callback-capable external call.
+#
+# We classify three levels of specificity. Specific named hooks are recognized
+# by their ERC-standard names; low-level transfers (.call / .send / .transfer)
+# are recognized syntactically; finally a *general* pattern detects any call to
+# a function whose name follows a callback naming convention
+# (on...Received, on...Hook, notify..., onFlashLoan, executeOperation, fallback,
+# receive) regardless of the interface used to type the receiver. The general
+# pattern is what lets the analyzer recognize unknown adversary interfaces
+# the way IReceiver(receiver).onTokensReceived(...) is recognized without
+# being hard-coded.
+_CALLBACK_PATTERNS = [
+    # specific well-known ERC-standard hooks
+    (r"\.onAssetReceived\s*\(", "ERC777-style asset hook can re-enter"),
+    (r"\.tokensReceived\s*\(", "ERC777 tokensReceived hook can re-enter"),
+    (r"\.onTokensReceived\s*\(", "token receiver hook can re-enter"),
+    (r"\.onERC1155Received\s*\(", "ERC1155 receiver hook can re-enter"),
+    (r"\.onERC1155BatchReceived\s*\(", "ERC1155 batch receiver hook can re-enter"),
+    (r"\.onERC721Received\s*\(", "ERC721 safeTransfer callback can re-enter"),
+    # low-level transfers
+    (r"\.call\s*\{", "low-level call can re-enter"),
+    (r"\.call\s*\(", "low-level call can re-enter"),
+    (r"\.send\s*\(", "send may trigger fallback"),
+    (r"\.transfer\s*\(", "transfer may trigger fallback"),
+    # flash-loan callbacks
+    (r"\.executeOperation\s*\(", "flash-loan callback can re-enter"),
+    (r"executeOperation\s*\(", "flash-loan callback can re-enter"),
+    (r"\.onFlashLoan\s*\(", "ERC-3156 flash-loan callback can re-enter"),
+    # GENERAL conventions: any method named on...Received / on...Hook / notify...
+    # called on an externally-controlled address. This is what makes detection
+    # contract-agnostic: an unknown adversary interface whose hook follows the
+    # convention is still recognized as callback-capable.
+    (r"\.onCallback\s*\(", "generic external callback can re-enter"),
+    (r"\.onReadOnly\w*\s*\(", "read-only reentrancy callback can re-enter"),
+    (r"\.on[A-Z]\w*Received\s*\(", "generic 'on*Received' callback can re-enter"),
+    (r"\.on[A-Z]\w*\s*\(", "generic 'on*' callback can re-enter"),
+    (r"\.on[A-Z]\w*Hook\s*\(", "generic 'on*Hook' callback can re-enter"),
+    (r"\.notify[A-Z]\w*\s*\(", "notify-style callback can re-enter"),
+]
+
+
+def _solc_available() -> bool:
+    return shutil.which("solc") is not None
+
+
+def _try_solc_ast(sol_path: str) -> dict | None:
+    """Return solc compact AST JSON, or None if solc unavailable/failed."""
+    if not _solc_available():
+        return None
+    try:
+        out = subprocess.run(
+            ["solc", "--ast-compact-json", sol_path],
+            capture_output=True, text=True, timeout=60,
+        )
+        # solc prints a header line then JSON per source; extract the JSON blob.
+        text = out.stdout
+        start = text.find("{")
+        if start == -1:
+            return None
+        return json.loads(text[start:])
+    except Exception:
+        return None
+
+
+# Records which analyzer produced the most recent facts. The pipeline reports
+# this; a SOUNDNESS claim is only valid when this is "ast".
+LAST_ANALYZER = "none"
+
+
+
+def _rank_exposure_sites(facts):
+    """Order exposure sites so the pipeline's facts.exposure_sites[0] is the one
+    most worth verifying: a genuine exposed window (numeric storage written
+    AFTER the external call) ranks above a windowless site (e.g. a bare
+    .transfer with nothing after it). Among windowed sites, prefer those with
+    writes on BOTH sides of the call, then the larger exposed set. Deterministic
+    and stable so repeated runs pick the same site."""
+    def _num(v):
+        t = (facts.var_types.get(v, "uint256") or "uint256") if getattr(
+            facts, "var_types", None) else "uint256"
+        return t.startswith("uint") or t.startswith("int")
+
+    def key(s):
+        after = [v for v in s.write_after_call if _num(v)]
+        before = [v for v in s.write_before_call if _num(v)]
+        has_after = bool(after)
+        both_sides = bool(after) and bool(before)
+        window = len(set(after) | set(before))
+        return (has_after, both_sides, window, s.function)
+
+    facts.exposure_sites.sort(key=key, reverse=True)
+    return facts
+
+
+def analyze(sol_path: str) -> ContractFacts:
+    """Top-level entry: prefer the real solc-AST analyzer (sound), fall back to
+    the regex analyzer (best-effort, for environments without a working solc)."""
+    global LAST_ANALYZER
+    # Import here to avoid a circular import at module load.
+    from . import ast_analysis
+    try:
+        facts = ast_analysis.analyze_ast(sol_path)
+        if facts is not None:
+            LAST_ANALYZER = "ast"
+            return _rank_exposure_sites(facts)
+    except Exception:
+        pass  # fall through to regex on any AST surprise
+    LAST_ANALYZER = "regex"
+    return _analyze_from_regex(sol_path)
+
+
+# --------------------------------------------------------------------------
+# Regex fallback (works with NO solc installed). Good enough for the vault
+# class of contracts; the AST path is the production route.
+# --------------------------------------------------------------------------
+def _analyze_from_regex(sol_path: str) -> ContractFacts:
+    src = open(sol_path).read()
+    # strip BOTH block and line comments to avoid false hits. A doc comment like
+    # `/* This contract manages ... */` would otherwise make the contract-name
+    # regex match `manages` (the lottery mis-selection bug).
+    src_nc = re.sub(r"/\*.*?\*/", "", src, flags=re.DOTALL)
+    src_nc = re.sub(r"//[^\n]*", "", src_nc)
+
+    # Select the MAIN contract, not merely the first `contract X` match. On
+    # flattened multi-contract files the first match is usually a base/library
+    # (or a fragment), which is the `OwnableH`/`manages` mis-selection bug. We
+    # find every top-level `contract X { ... }` span (brace-balanced) and pick
+    # the one whose body defines the most functions -- the contract that carries
+    # the actual logic and the exposure site.
+    def _pick_main_contract(text: str) -> str:
+        best_name, best_fns = None, -1
+        for cm in re.finditer(r"\bcontract\s+(\w+)[^{]*\{", text):
+            nm = cm.group(1)
+            body = _extract_body(text, cm.end() - 1)
+            nfns = len(re.findall(r"\bfunction\s+\w+\s*\(", body))
+            if nfns > best_fns:
+                best_name, best_fns = nm, nfns
+        return best_name
+    contract = _pick_main_contract(src_nc) or os.path.basename(sol_path)
+
+    # storage vars: top-level state declarations inside the contract body.
+    storage_vars: list[str] = []
+    # mappings
+    for m in re.finditer(r"mapping\s*\([^)]*\)\s+(?:public\s+|private\s+|internal\s+)?(\w+)\s*;", src_nc):
+        storage_vars.append(m.group(1))
+    # scalar state vars (uint/bool/address ...). Heuristic: declared with a
+    # type then names, at contract scope (lines not inside a function).
+    for m in re.finditer(r"\b(?:uint256|uint|bool|address|int256)\s+(?:public\s+|private\s+|internal\s+)?([\w,\s]+);", src_nc):
+        names = m.group(1)
+        # avoid local declarations: keep only ones that appear before first function? simple heuristic below
+        for nm in names.split(","):
+            nm = nm.strip()
+            if nm and nm.isidentifier() and nm not in storage_vars:
+                storage_vars.append(nm)
+
+    # crude pruning: keep only vars referenced as bare storage (drop obvious locals)
+    storage_vars = [v for v in storage_vars if re.search(rf"\b{re.escape(v)}\b", src_nc)]
+
+    functions: dict[str, FunctionInfo] = {}
+    exposure_sites: list[ExposureSite] = []
+
+    # capture each function body
+    for fm in re.finditer(
+        r"function\s+(\w+)\s*\([^)]*\)\s*([a-zA-Z0-9_\s]*?)\{",
+        src_nc,
+    ):
+        name = fm.group(1)
+        header_mods = fm.group(2)
+        vis = "public"
+        for v in ("external", "public", "internal", "private"):
+            if re.search(rf"\b{v}\b", header_mods):
+                vis = v
+                break
+        # extract balanced body
+        body = _extract_body(src_nc, fm.end() - 1)
+        info = FunctionInfo(name=name, visibility=vis)
+
+        # reads/writes over storage vars
+        for v in storage_vars:
+            if re.search(rf"\b{re.escape(v)}\b\s*(\[[^\]]*\])?\s*(=|\+=|-=|\*=|/=)", body):
+                info.writes.add(v)
+            if re.search(rf"\b{re.escape(v)}\b", body):
+                info.reads.add(v)
+
+        # external calls + first-call split
+        first_call_pos = None
+        for pat, _reason in _CALLBACK_PATTERNS:
+            cm = re.search(pat, body)
+            if cm:
+                if first_call_pos is None or cm.start() < first_call_pos:
+                    first_call_pos = cm.start()
+                # record the call token
+                token = body[cm.start():cm.start()+40].split("(")[0].strip()
+                info.external_calls.append(token)
+
+        if first_call_pos is not None:
+            before = body[:first_call_pos]
+            after = body[first_call_pos:]
+            for v in storage_vars:
+                if re.search(rf"\b{re.escape(v)}\b\s*(\[[^\]]*\])?\s*(=|\+=|-=)", before):
+                    info.write_before_call.add(v)
+                if re.search(rf"\b{re.escape(v)}\b\s*(\[[^\]]*\])?\s*(=|\+=|-=)", after):
+                    info.write_after_call.add(v)
+
+            # build an exposure site for the first callback-capable call
+            reason = "external call may re-enter"
+            for pat, rsn in _CALLBACK_PATTERNS:
+                if re.search(pat, body):
+                    reason = rsn
+                    break
+            call_token = info.external_calls[0] if info.external_calls else "external_call"
+            exposed = info.write_before_call | info.write_after_call | (info.reads & info.writes)
+            exposure_sites.append(ExposureSite(
+                function=name,
+                call=call_token,
+                callback_capable=True,
+                reason=reason,
+                exposed_storage=set(exposed),
+                write_before_call=set(info.write_before_call),
+                write_after_call=set(info.write_after_call),
+            ))
+
+        functions[name] = info
+
+    return _rank_exposure_sites(
+        ContractFacts(contract, storage_vars, functions, exposure_sites))
+
+
+def _extract_body(src: str, brace_open_idx: int) -> str:
+    depth = 0
+    i = brace_open_idx
+    n = len(src)
+    while i < n:
+        if src[i] == "{":
+            depth += 1
+        elif src[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return src[brace_open_idx + 1:i]
+        i += 1
+    return src[brace_open_idx + 1:]
+
+
+def _analyze_from_ast(sol_path: str, ast: dict) -> ContractFacts:
+    # A full AST walker is straightforward but verbose; for the prototype we
+    # reuse the regex extractor (which is sound enough for the vault class)
+    # and keep this hook so a production AST walk can replace it later.
+    return _analyze_from_regex(sol_path)
+
+
+if __name__ == "__main__":
+    import sys
+    facts = analyze(sys.argv[1])
+    print("contract:", facts.contract)
+    print("storage:", facts.storage_vars)
+    for f in facts.functions.values():
+        print(f"  fn {f.name} [{f.visibility}] writes={sorted(f.writes)} "
+              f"ext_calls={f.external_calls} wbc={sorted(f.write_before_call)} "
+              f"wac={sorted(f.write_after_call)}")
+    print("exposure sites:")
+    for s in facts.exposure_sites:
+        print(f"  {s.function} -> {s.call} | {s.reason}")
+        print(f"     exposed_storage={sorted(s.exposed_storage)}")
+        print(f"     conservative_closure={sorted(facts.conservative_closure(s))}")
+
+
+def view_closure(facts, exposed_function):
+    """Public/external view functions that read any storage exposed during the
+    callback window of `exposed_function`. These are the read-only reentrancy
+    surface: a consumer calling one mid-callback observes state under I_exp."""
+    exposed = set()
+    for site in facts.exposure_sites:
+        if site.function == exposed_function:
+            exposed |= set(site.write_before_call) | set(site.write_after_call)
+    fi = facts.functions.get(exposed_function)
+    if fi is not None:
+        exposed |= (set(fi.reads) & set(fi.writes))
+    out = []
+    for name, info in facts.functions.items():
+        if info.visibility not in ("public", "external"):
+            continue
+        if info.mutability not in ("view", "pure"):
+            continue
+        if set(info.reads) & exposed:
+            out.append(name)
+    return out

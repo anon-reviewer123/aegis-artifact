@@ -1,0 +1,24 @@
+== Aegis on 2922f84ca65D587af9B32Fc93ffcbC073E82efE8_GoodMorning.sol ==
+target property: sum(_rOwned) == _totalProportion
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['DEAD', 'TeamFeeBuy', 'TeamFeeReceiver', 'TeamFeeSell', 'WETH', 'ZERO', '_allowances', '_decimals', '_maxTxAmount', '_maxWalletSize', '_name', '_owner', '_rOwned', '_symbol', '_totalProportion', '_totalSupply', 'alternateSwaps', 'autoLiquidityReceiver', 'claimingFees', 'feeDenominator', 'inSwap', 'isFeeExempt', 'isTxLimitExempt', 'largeSwapThreshold', 'liquidityFeeBuy', 'liquidityFeeSell', 'marketingFeeBuy', 'marketingFeeReceiver', 'marketingFeeSell', 'pair', 'reflectionFeeBuy', 'reflectionFeeSell', 'router', 'smallSwapThreshold', 'swapThreshold', 'targetLiquidity', 'targetLiquidityDenominator', 'totalFeeBuy', 'totalFeeSell', 'tradingOpen']
+[2] exposure site: swapBack -> .addLiquidityETH (value-forwarding external call can re-enter)
+    conservative closure: ['setSwapBackSettings', 'transfer', 'transferFrom']
+[harness] reusing synthesized harness 2922f84ca65D587af9B32Fc93ffcbC073E82efE8_GoodMorning.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 13 functions, 40 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['sum']
+  [validator] exposure invariant uses unknown identifiers ['sum']
+  [validator] exposure invariant uses unknown identifiers ['sum']
+  [validator] exposure invariant uses unknown identifiers ['sum']

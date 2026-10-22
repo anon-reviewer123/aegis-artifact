@@ -1,0 +1,26 @@
+== Aegis on bfb98e8229a196ef6a13b04b121d310afec43574_AxiomV0StoragePf.sol ==
+target property: none
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['axiomAddress', 'slotAttestations', 'verifierAddress']
+[2] exposure site: attestSlots -> .call (low-level call can re-enter)
+    conservative closure: ['attestSlots']
+[harness] reusing synthesized harness bfb98e8229a196ef6a13b04b121d310afec43574_AxiomV0StoragePf.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 4 functions, 7 public state vars)
+[readonly] 1 public view(s) admitted by the footprint premise on the window opened by attestSlots
+      OBL_view_isSlotAttestationValid: CANARY DID NOT FIRE (status unknown); harness did not compile -- reporting UNKNOWN for this view :: solc compile error: Error: Identifier not found or not unique.
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

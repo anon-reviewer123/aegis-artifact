@@ -1,0 +1,15 @@
+
+======================================================================
+WAsgard
+harness  : DOES NOT COMPILE  (174 lines)
+    Error: Undeclared identifier. Did you mean "_balances"?  (line 165)
+          162 |     /// Closure callback: wraps unwrap so OBL_cb_unwrap can drive it.
+          163 |     function unwrap(uint256 amount) public {
+          164 |         require(amount > 0, "WAsgard: Unwrap amount must be greater than 0");
+      >>  165 |         require(amount <= balance, "WAsgard: You do not have enough tokens to unwrap");
+          166 |         require(block.timestamp-lastWrapped[msg.sender] > weekInSeconds, "Must wrap for at last a week");
+          167 |         return;
+          168 |     }
+Iexp     : _sum__balances == _totalSupply + inFlight
+OBL_pre                     : compiles  (90 lines)
+OBL_post                    : compiles  (99 lines)

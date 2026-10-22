@@ -1,0 +1,7 @@
+contract,family,arm,label,expected,status,outcome,seconds,backend,reason
+FlashLoanCallback_S01.sol,flash_loan,general,safe,VERIFIED,BUG_FOUND,FP,275.8,smtchecker,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S02.sol,flash_loan,general,safe,VERIFIED,BUG_FOUND,FP,282.3,smtchecker,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_S03.sol,flash_loan,general,safe,VERIFIED,BUG_FOUND,FP,288.4,smtchecker,[readonly] 1 public view(s) admitted by the footprint premise on the window opened by flashLoan | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U01.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,81.1,smtchecker,[readonly] invariant: rule inapplicable -- closure member depositDuringCallback writes footprint totalAssets;  | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U02.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,83.0,smtchecker,[readonly] invariant: rule inapplicable -- closure member depositDuringCallback writes footprint totalAssets;  | [3] sampling 4 candidate MCVPs (openai)
+FlashLoanCallback_U03.sol,flash_loan,general,unsafe,BUG_FOUND,BUG_FOUND,TP,83.7,smtchecker,[readonly] invariant: rule inapplicable -- closure member depositDuringCallback writes footprint totalAssets;  | [3] sampling 4 candidate MCVPs (openai)

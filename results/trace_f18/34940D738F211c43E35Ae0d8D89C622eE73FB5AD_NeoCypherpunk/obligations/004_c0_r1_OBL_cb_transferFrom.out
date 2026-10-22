@@ -1,0 +1,62 @@
+status: unknown
+
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmpqc8uv2nf/Obligation.sol:89:9:
+   |
+89 |         uint amount;
+   |         ^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpqc8uv2nf/Obligation.sol:87:27:
+   |
+87 |     function beginExposed(uint256 amount) public {
+   |                           ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpqc8uv2nf/Obligation.sol:34:55:
+   |
+34 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpqc8uv2nf/Obligation.sol:34:69:
+   |
+34 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpqc8uv2nf/Obligation.sol:58:27:
+   |
+58 |     function __havoc_arg2(address __x0, address __x1, address __x2, address __x3, address __x4) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpqc8uv2nf/Obligation.sol:58:69:
+   |
+58 |     function __havoc_arg2(address __x0, address __x1, address __x2, address __x3, address __x4) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpqc8uv2nf/Obligation.sol:58:83:
+   |
+58 |     function __havoc_arg2(address __x0, address __x1, address __x2, address __x3, address __x4) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpqc8uv2nf/Obligation.sol:87:27:
+   |
+87 |     function beginExposed(uint256 amount) public {
+   |                           ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpqc8uv2nf/Obligation.sol:305:52:
+    |
+305 |     function __h_addLiquidity(uint256 tokenAmount, uint256 ethAmount) internal {
+    |                                                    ^^^^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmpqc8uv2nf/Obligation.sol:370:17:
+    |
+370 |                 assert(v.pendingmarketingFees() <= v._balances(address(v)));            // I_exp must still hold
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

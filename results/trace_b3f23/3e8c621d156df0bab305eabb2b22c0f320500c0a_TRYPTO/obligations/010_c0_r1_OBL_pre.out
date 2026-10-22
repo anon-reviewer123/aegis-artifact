@@ -1,0 +1,11 @@
+status: verified
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp1kglltb8/Obligation.sol:27:25:
+   |
+27 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Info: CHC: 1 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.
+

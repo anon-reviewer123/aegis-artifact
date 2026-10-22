@@ -1,0 +1,156 @@
+status: verified
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp25czcoig/OneStep.sol:198:9:
+    |
+198 |         uint256 ethToSend = distributeBalance;
+    |         ^^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp25czcoig/OneStep.sol:92:5:
+   |
+92 |     uint256 public ethToSend;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp25czcoig/OneStep.sol:211:9:
+    |
+211 |         uint256 ethToSend = treasuryBalance;
+    |         ^^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp25czcoig/OneStep.sol:92:5:
+   |
+92 |     uint256 public ethToSend;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp25czcoig/OneStep.sol:311:9:
+    |
+311 |         uint256 ethToSend = distributeBalance;
+    |         ^^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp25czcoig/OneStep.sol:92:5:
+   |
+92 |     uint256 public ethToSend;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp25czcoig/OneStep.sol:324:9:
+    |
+324 |         uint256 ethToSend = treasuryBalance;
+    |         ^^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp25czcoig/OneStep.sol:92:5:
+   |
+92 |     uint256 public ethToSend;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:104:25:
+    |
+104 |     function depositFor(address who, uint256 amount) public {
+    |                         ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:146:37:
+    |
+146 |     function freezeBalanceThreshold(uint256 amount) public {
+    |                                     ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:152:37:
+    |
+152 |     function freezeDistributeTarget(uint256 amount) public {
+    |                                     ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:158:35:
+    |
+158 |     function freezeTreasuryTarget(uint256 amount) public {
+    |                                   ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:164:26:
+    |
+164 |     function processFees(uint256 amount) public {
+    |                          ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:189:32:
+    |
+189 |     function renounceOwnership(uint256 amount) public {
+    |                                ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:194:36:
+    |
+194 |     function sendDistributeBalance(uint256 amount) public {
+    |                                    ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:207:34:
+    |
+207 |     function sendTreasuryBalance(uint256 amount) public {
+    |                                  ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:227:36:
+    |
+227 |     function setDistributionTarget(uint256 amount) public {
+    |                                    ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:247:40:
+    |
+247 |     function setLiquidityTokenReceiver(uint256 amount) public {
+    |                                        ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:258:29:
+    |
+258 |     function setOffRampPair(uint256 amount) public {
+    |                             ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:265:24:
+    |
+265 |     function setRouter(uint256 amount) public {
+    |                        ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:285:32:
+    |
+285 |     function setTreasuryTarget(uint256 amount) public {
+    |                                ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:297:32:
+    |
+297 |     function transferOwnership(uint256 amount) public {
+    |                                ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp25czcoig/OneStep.sol:339:24:
+    |
+339 |     function __preBody(uint256 amount) internal {
+    |                        ^^^^^^^^^^^^^^
+
+Warning: Function state mutability can be restricted to view
+   --> /tmp/tmp25czcoig/OneStep.sol:265:5:
+    |
+265 |     function setRouter(uint256 amount) public {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning: Function state mutability can be restricted to view
+   --> /tmp/tmp25czcoig/OneStep.sol:350:5:
+    |
+350 |     function __aegis_check() public {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmp25czcoig/OneStep.sol:353:17:
+    |
+353 |                 assert(distributeBalance + treasuryBalance + liquidityBalance <= _ethBal);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

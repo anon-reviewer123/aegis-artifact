@@ -1,0 +1,44 @@
+{
+ "status": "UNKNOWN",
+ "candidates_tried": 3,
+ "repair_rounds": 1,
+ "obligations": [
+  {
+   "obligation": "OBL_pre",
+   "module": "phases",
+   "status": "unknown",
+   "detail": "solc wall-clock timeout"
+  },
+  {
+   "obligation": "OBL_cb_transfer",
+   "module": "closure",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  },
+  {
+   "obligation": "OBL_cb_transferFrom",
+   "module": "closure",
+   "status": "unknown",
+   "detail": "SMTChecker could not prove (timeout/unsupported)"
+  },
+  {
+   "obligation": "OBL_post",
+   "module": "phases",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  },
+  {
+   "obligation": "OBL_reach_transfer_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "BMC completed the callback from a state satisfying the assumption [one-step witness]"
+  },
+  {
+   "obligation": "OBL_reach_transferFrom_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "BMC completed the callback from a state satisfying the assumption [one-step witness]"
+  }
+ ],
+ "exposure_invariant": "pendingMarketingFee + pendingBurnFee + inFlight <= _balances[address(this)]"
+}

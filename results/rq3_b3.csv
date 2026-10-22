@@ -1,0 +1,6 @@
+contract,path,stage,detail
+TRYPTO,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/3e/3e8c621d156df0bab305eabb2b22c0f320500c0a_TRYPTO.sol,obligation undecided,OBL_post: solc wall-clock timeout
+SimpleSalesEth,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/bd/BdCF455Bd54988eA3E3aB96c4E8555B73956aC9E_SimpleSalesEth.sol,obligation undecided,OBL_pre: SMTChecker could not prove (timeout/unsupported)
+DLAND,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/22/220699e10f80f7c1753b87d67cfdce0aac4491f9_DLAND.sol,obligation undecided,OBL_post: solc wall-clock timeout
+SimpleSalesEth,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/d7/d7fdb58f09b69d49f55d91f449b3b5241c185a93_SimpleSalesEth.sol,obligation undecided,OBL_pre: SMTChecker could not prove (timeout/unsupported)
+KatRoyalties,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/dd/dDd1058242d75a9d61CAACc2C08dA4F39bd1548d_KatRoyalties.sol,obligation undecided,OBL_cb_spin: SMTChecker could not prove (timeout/unsupported)

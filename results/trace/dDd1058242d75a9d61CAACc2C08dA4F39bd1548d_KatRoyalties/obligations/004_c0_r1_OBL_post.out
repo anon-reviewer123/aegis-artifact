@@ -1,0 +1,39 @@
+status: verified
+
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmp2hybun5h/Obligation.sol:84:9:
+   |
+84 |         uint256 amount = address(this).balance - winnerFunds;
+   |         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp2hybun5h/Obligation.sol:78:19:
+   |
+78 |     function spin(uint256 amount) public {
+   |                   ^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp2hybun5h/Obligation.sol:109:9:
+    |
+109 |         uint256 amount = balances[msg.sender];
+    |         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+   --> /tmp/tmp2hybun5h/Obligation.sol:106:23:
+    |
+106 |     function withdraw(uint256 amount) public {
+    |                       ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp2hybun5h/Obligation.sol:78:19:
+   |
+78 |     function spin(uint256 amount) public {
+   |                   ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp2hybun5h/Obligation.sol:106:23:
+    |
+106 |     function withdraw(uint256 amount) public {
+    |                       ^^^^^^^^^^^^^^
+
+Info: CHC: 3 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.
+

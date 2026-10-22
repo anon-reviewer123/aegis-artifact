@@ -1,0 +1,99 @@
+{
+  "contract": "CrossFunctionVault.sol",
+  "llm": "openai",
+  "status": "VERIFIED",
+  "expected": "VERIFIED",
+  "match": true,
+  "backend": "smtchecker",
+  "repair_rounds": 1,
+  "total_repairs": 0,
+  "first_try_verified": true,
+  "llm_first_plan_sound_as_proposed": true,
+  "obligations": [
+    {
+      "obligation": "OBL_pre",
+      "module": "phases",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    },
+    {
+      "obligation": "OBL_cb_deposit",
+      "module": "closure",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    },
+    {
+      "obligation": "OBL_cb_transfer",
+      "module": "closure",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    },
+    {
+      "obligation": "OBL_post",
+      "module": "phases",
+      "status": "verified",
+      "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+    }
+  ],
+  "seconds": 71.8,
+  "llm_generated_mcvp": {
+    "contract": "CrossFunctionVault",
+    "closure": {
+      "site_function": "withdraw",
+      "site_call": ".onAssetReceived",
+      "functions": [
+        "deposit",
+        "transfer",
+        "withdraw"
+      ],
+      "justification": "All functions that read or write storage exposed during the risky callback are included."
+    },
+    "protocol": {
+      "during_phase": "exposed",
+      "allowed_callbacks": [
+        "deposit",
+        "transfer"
+      ],
+      "nesting_bound": {
+        "deposit": 1,
+        "transfer": 1
+      }
+    },
+    "phases": {
+      "function": "withdraw",
+      "pre": {
+        "name": "pre",
+        "from_marker": "start",
+        "to_marker": "before onAssetReceived"
+      },
+      "exposed": {
+        "name": "exposed",
+        "from_marker": "before onAssetReceived",
+        "to_marker": "after onAssetReceived"
+      },
+      "post": {
+        "name": "post",
+        "from_marker": "after onAssetReceived",
+        "to_marker": "end"
+      },
+      "linearization_point": "after onAssetReceived"
+    },
+    "ghost_state": [
+      {
+        "name": "totalAssets_temporary",
+        "sol_type": "uint256",
+        "meaning": "Temporarily records the totalAssets value prior to exposure",
+        "backed_by_storage": false
+      }
+    ],
+    "exposure_invariant": {
+      "formula": "totalAssets == totalShares + inFlight",
+      "stable_formula": "totalAssets == totalShares"
+    },
+    "composition": {
+      "target_property": "totalAssets == totalShares",
+      "rule": "If the exposure invariant holds and only deposit and transfer can callback with bounded nesting, then the stable formula implies the target property outside exposure."
+    }
+  },
+  "ag_spec_rendered": "Assume-Guarantee specification for CrossFunctionVault\n  target property phi : totalAssets == totalShares\n\n  [A_cb]  ASSUMPTION (assumption)\n          During withdraw's exposed phase, re-entrant control is confined to the callback closure ['deposit', 'transfer', 'withdraw']; every such callback is admitted by the protocol, with bounded nesting.\n          formal: admissible_callbacks=['deposit', 'transfer', 'withdraw'], nesting={'deposit': 1, 'transfer': 1}\n          discharged by: ['OBL_closure_soundness']\n\n  [G_pre] GUARANTEE\n          If the stable invariant holds on entry, the pre-phase establishes the exposure invariant before the external call.\n          formal: {totalAssets == totalShares} pre-phase {totalAssets == totalShares + inFlight}\n          discharged by: ['OBL_pre']\n\n  [G_exp] GUARANTEE\n          Every callback admitted by A_cb preserves the exposure invariant while the contract is externally exposed.\n          formal: forall f in A_cb. {totalAssets == totalShares + inFlight} f {totalAssets == totalShares + inFlight}\n          discharged by: ['OBL_cb_deposit', 'OBL_cb_transfer']\n\n  [G_post] GUARANTEE\n          When the external call returns, the post-phase restores the stable invariant and fully settles the in-flight ghost state.\n          formal: {totalAssets == totalShares + inFlight} post-phase {totalAssets == totalShares /\\ inFlight==0}\n          discharged by: ['OBL_post']\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => totalAssets == totalShares\n      where callbacks are confined to admissible_callbacks=['deposit', 'transfer', 'withdraw'], nesting={'deposit': 1, 'transfer': 1}"
+}

@@ -1,0 +1,82 @@
+== Aegis on ceaf9dfe40f9c0ba586f2990c4b33c4c98a53d8b_QuantumEnergy.sol ==
+target property: feeQueue + LiqQueue <= balanceOf[address(this)]
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['BuyFeePercent', 'Dev', 'ETH', 'LPtoken', 'LiqQueue', 'SellFeePercent', 'allowance', 'balanceOf', 'cTime', 'decimals', 'deployer', 'deployerALT', 'duration', 'ended', 'endtime', 'feeQueue', 'gelato', 'gelatoCaller', 'hSellFeePercent', 'hasBought', 'hasSold', 'immuneFromFee', 'immuneToMaxWallet', 'lastTx', 'maxWalletPercent', 'name', 'ops', 'order', 'pendingReward', 'proxy', 'renounced', 'rewardPerTokenStored', 'rewardRate', 'rewards', 'router', 'started', 'symbol', 'targetGwei', 'threshold', 'totalEligible', 'totalSupply', 'transferFee', 'updatedAt', 'userRewardPerTokenPaid', 'wETH', 'yieldPerBlock']
+[2] exposure site: sendFee -> .balanceOf (external interface callback may re-enter)
+    conservative closure: ['claimReward', 'getReward', 'transfer', 'transferFrom']
+[access] outside the closure under the trusted-roles assumption: ['StartAirdrop', 'SweepToken', 'configImmuneToFee', 'configImmuneToMaxWallet', 'editBuyFee', 'editFee', 'editMaxWalletPercent', 'editSellFee', 'editTransferFee', 'editcTime', 'flashInitalize', 'renounceContract', 'sendFee', 'setGelatoCaller', 'setLPtoken', 'setThreshold', 'sweep']
+    StartAirdrop: modifier onlyDeployer: deployer == msg.sender
+    SweepToken: modifier onlyDeployALT: deployerALT == msg.sender
+    configImmuneToFee: modifier onlyDeployer: deployer == msg.sender
+    configImmuneToMaxWallet: modifier onlyDeployer: deployer == msg.sender
+    editBuyFee: modifier onlyDeployer: deployer == msg.sender
+    editFee: modifier onlyDeployALT: deployerALT == msg.sender
+    editMaxWalletPercent: modifier onlyDeployer: deployer == msg.sender
+    editSellFee: modifier onlyDeployer: deployer == msg.sender
+    editTransferFee: modifier onlyDeployer: deployer == msg.sender
+    editcTime: modifier onlyDeployALT: deployerALT == msg.sender
+    flashInitalize: modifier onlyDeployer: deployer == msg.sender
+    renounceContract: modifier onlyDeployer: deployer == msg.sender
+    sendFee: require msg.sender == gelatoCaller || msg.sender == deployerALT
+    setGelatoCaller: modifier onlyDeployer: deployer == msg.sender
+    setLPtoken: modifier onlyDeployer: deployer == msg.sender
+    setThreshold: modifier onlyDeployALT: deployerALT == msg.sender
+    sweep: modifier onlyDeployALT: deployerALT == msg.sender
+[harness] cached ceaf9dfe40f9c0ba586f2990c4b33c4c98a53d8b_QuantumEnergy.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to ceaf9dfe40f9c0ba586f2990c4b33c4c98a53d8b_QuantumEnergy.harness.sol (17543 chars)
+[harness] conforms to interface (found 38 functions, 60 public state vars)
+[readonly] 2 exposure site(s) with a window; decomposing each separately
+[readonly] --- site sendFee.balanceOf#7
+[readonly] --- site flashInitalize.deposit#1
+[readonly] earned: rule inapplicable -- closure member claimReward reaches an unbounded construct; falling through to the general arm
+[3] deterministic candidate -- computed from what the pre-phase moves: feeQueue + LiqQueue <= balanceOf[address(this)]
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 10 obligations: ['OBL_pre', 'OBL_cb_claimReward', 'OBL_cb_getReward', 'OBL_cb_transfer', 'OBL_cb_transferFrom', 'OBL_post', 'OBL_reach_claimReward_canary', 'OBL_reach_getReward_canary', 'OBL_reach_transfer_canary', 'OBL_reach_transferFrom_canary']
+  [round 1] sliced harness: up to 65 state variables -> at most 24 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_claimReward [closure]: VERIFIED
+      OBL_cb_getReward [closure]: VERIFIED
+      OBL_cb_transfer [closure]: VERIFIED
+      OBL_cb_transferFrom [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_post [phases]: VERIFIED
+      OBL_reach_claimReward_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_getReward_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transfer_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transferFrom_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 1] every open obligation is undecided; the plan is not repairable -- moving to the next candidate
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 1 --
+  [round 1] validation passed
+  [round 1] compiled 11 obligations: ['OBL_pre', 'OBL_cb_claimReward', 'OBL_cb_getReward', 'OBL_cb_transfer', 'OBL_cb_transferFrom', 'OBL_post', 'OBL_reach_claimReward_canary', 'OBL_reach_getReward_canary', 'OBL_reach_transfer_canary', 'OBL_reach_transferFrom_canary', 'OBL_stable_implies_target']
+  [round 1] sliced harness: up to 65 state variables -> at most 45 per obligation
+      OBL_pre [phases]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_cb_claimReward [closure]: VERIFIED
+      OBL_cb_getReward [closure]: VERIFIED
+      OBL_cb_transfer [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_cb_transferFrom [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_reach_claimReward_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_getReward_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transfer_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transferFrom_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_stable_implies_target [composition]: VERIFIED
+  [round 1] every open obligation is undecided; the plan is not repairable -- moving to the next candidate
+-- candidate 2 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation passed
+  [round 2] compiled 11 obligations: ['OBL_pre', 'OBL_cb_claimReward', 'OBL_cb_getReward', 'OBL_cb_transfer', 'OBL_cb_transferFrom', 'OBL_post', 'OBL_reach_claimReward_canary', 'OBL_reach_getReward_canary', 'OBL_reach_transfer_canary', 'OBL_reach_transferFrom_canary', 'OBL_stable_implies_target']
+  [round 2] sliced harness: up to 65 state variables -> at most 45 per obligation
+      OBL_pre [phases]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_cb_claimReward [closure]: VERIFIED
+      OBL_cb_getReward [closure]: VERIFIED
+      OBL_cb_transfer [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_cb_transferFrom [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_reach_claimReward_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_getReward_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transfer_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transferFrom_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_stable_implies_target [composition]: VERIFIED
+  [round 2] every open obligation is undecided; the plan is not repairable -- moving to the next candidate
+no candidate verified -> UNKNOWN

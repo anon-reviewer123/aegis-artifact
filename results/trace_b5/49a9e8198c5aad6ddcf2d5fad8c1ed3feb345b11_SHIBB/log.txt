@@ -1,0 +1,31 @@
+== Aegis on 49a9e8198c5aad6ddcf2d5fad8c1ed3feb345b11_SHIBB.sol ==
+target property: _ethReserves + _liquidityReserves <= _balances[address(this)]
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_allowances', '_balances', '_buyBlock', '_decimals', '_ethReserves', '_isBot', '_isExcludedFromFees', '_isExcludedMaxTransactionAmount', '_isExcludedMaxWalletAmount', '_isSniper', '_liquidityReserves', '_name', '_owner', '_supply', '_symbol', '_totalSupply', 'addToETH', 'addToLiquidity', 'automatedMarketMakerPairs', 'botBlock', 'botsCaught', 'buyBlock', 'entryFees', 'inSwapAndLiquify', 'lastBuy', 'lastSell', 'lastTrade', 'lpEntryFees', 'lpWithdrawFees', 'marketing', 'maxTxAmount', 'maxWalletAmount', 'mevRepel', 'onlyDev', 'reserves', 'sameBlockActive', 'sellBlock', 'snipeBlockAmt', 'snipersCaught', 'tradingActive', 'tradingActiveBlock', 'uniswapV2Pair', 'uniswapV2Router', 'withdrawFees']
+[2] exposure site: transferFrom -> .call (low-level value transfer can re-enter via _transfer)
+    conservative closure: ['deposit', 'transfer', 'transferFrom']
+[access] outside the closure under the trusted-roles assumption: ['antibotEnabled', 'burnBot', 'burnSniper', 'changeFees', 'changeMarketingWallet', 'changeMaxTxAmount', 'changeMaxWalletAmount', 'delegate', 'excludeFromFees', 'excludeFromMaxTransaction', 'excludeFromMaxWallet', 'mevRepelEnabled', 'openTrading', 'removeBot', 'removeSniper', 'renounceOwnership', 'setAutomatedMarketMakerPair', 'spool', 'transferOwnership', 'withdraw', 'withdrawETH']
+    antibotEnabled: modifier onlyOwner -> _checkOwner()
+    burnBot: require msg.sender == marketing
+    burnSniper: require msg.sender == marketing
+    changeFees: modifier onlyOwner -> _checkOwner()
+    changeMarketingWallet: modifier onlyOwner -> _checkOwner()
+    changeMaxTxAmount: modifier onlyOwner -> _checkOwner()
+    changeMaxWalletAmount: modifier onlyOwner -> _checkOwner()
+    delegate: require _msgSender() == marketing
+    excludeFromFees: modifier onlyOwner -> _checkOwner()
+    excludeFromMaxTransaction: modifier onlyOwner -> _checkOwner()
+    excludeFromMaxWallet: modifier onlyOwner -> _checkOwner()
+    mevRepelEnabled: modifier onlyOwner -> _checkOwner()
+    openTrading: modifier onlyOwner -> _checkOwner()
+    removeBot: modifier onlyOwner -> _checkOwner()
+    removeSniper: modifier onlyOwner -> _checkOwner()
+    renounceOwnership: modifier onlyOwner -> _checkOwner()
+    setAutomatedMarketMakerPair: require msg.sender == marketing
+    spool: require _msgSender() == marketing
+    transferOwnership: modifier onlyOwner -> _checkOwner()
+    withdraw: require _msgSender() == marketing
+    withdrawETH: require _msgSender() == marketing
+[harness] cached 49a9e8198c5aad6ddcf2d5fad8c1ed3feb345b11_SHIBB.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 49a9e8198c5aad6ddcf2d5fad8c1ed3feb345b11_SHIBB.harness.sol (21591 chars)
+[!] HARNESS UNSUPPORTED: the exposure call is not in transferFrom itself (reached through a helper)

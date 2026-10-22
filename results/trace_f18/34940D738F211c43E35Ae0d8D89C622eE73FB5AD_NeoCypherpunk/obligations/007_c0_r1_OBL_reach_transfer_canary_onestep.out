@@ -1,0 +1,122 @@
+status: failed
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmpiv9_1ivn/OneStep.sol:91:9:
+   |
+91 |         uint amount;
+   |         ^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpiv9_1ivn/OneStep.sol:89:27:
+   |
+89 |     function beginExposed(uint256 amount) public {
+   |                           ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpiv9_1ivn/OneStep.sol:34:55:
+   |
+34 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpiv9_1ivn/OneStep.sol:34:69:
+   |
+34 |     function __havoc_cfg0(uint256 __x0, uint256 __x1, address __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpiv9_1ivn/OneStep.sol:59:69:
+   |
+59 |     function __havoc_arg2(address __x0, address __x1, address __x2, address __x3, address __x4) public {
+   |                                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpiv9_1ivn/OneStep.sol:59:83:
+   |
+59 |     function __havoc_arg2(address __x0, address __x1, address __x2, address __x3, address __x4) public {
+   |                                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpiv9_1ivn/OneStep.sol:89:27:
+   |
+89 |     function beginExposed(uint256 amount) public {
+   |                           ^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpiv9_1ivn/OneStep.sol:321:52:
+    |
+321 |     function __h_addLiquidity(uint256 tokenAmount, uint256 ethAmount) internal {
+    |                                                    ^^^^^^^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmpiv9_1ivn/OneStep.sol:377:13:
+    |
+377 |             assert(false);       
+    |             ^^^^^^^^^^^^^
+Note: Counterexample:
+   = 3
+  __a16_to = 2
+  __a17_from = 0
+  __a18_to = 0
+  __branch0 = true
+  _allowances[owner][spender] = 122
+  _balances[account] = 125
+  _balances[address(this)] = 125
+  _balances[from] = 75
+  _balances[to] = 114
+  _balances[who] = 72
+  _isBlacklisted[from] = false
+  _isBlacklisted[to] = false
+  _isExcludedFromFees[from] = false
+  _isExcludedFromFees[to] = false
+  _isExcludedFromLimits[from] = false
+  _isExcludedFromLimits[to] = false
+  _owner = 3
+  _pendingMarketingFee = 122
+  account = 25
+  address(this).balance = 124
+  amount = 5
+  automatedMarketMakerPairs[from] = true
+  automatedMarketMakerPairs[to] = false
+  buyLPFee = 39
+  buyMarketingFee = 20
+  canSwap = false
+  contractTokenBalanceforlp = 3
+  ethAmount = 128
+  exposed = true
+  from = 1
+  fromBalance = 75
+  half = 94
+  inFlight = 124
+  initialBalance = 106
+  lpfee = 0
+  maxTxAmount = 6
+  maxWalletAmount = 120
+  mfee = 0
+  newBalance = 126
+  otherHalf = 93
+  owner = 25
+  pendingmarketingFees = 123
+  sellLPFee = 34
+  sellMarketingFee = 39
+  snapPre = 122
+  spender = 38
+  swapTokensAtAmount = 5
+  swapping = false
+  takeFee = true
+  this = 25
+  to = 2
+  tokenAmount = 113
+  tokens = 96
+  totalfee = 0
+  tradingOpen = true
+  uniswapV2Pair = 1
+  uniswapV2Router = 38
+  who = 1
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

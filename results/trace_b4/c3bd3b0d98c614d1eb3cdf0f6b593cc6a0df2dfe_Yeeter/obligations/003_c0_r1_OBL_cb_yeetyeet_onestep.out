@@ -1,0 +1,21 @@
+status: verified
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+  --> /tmp/tmpt7e2qh9h/OneStep.sol:96:9:
+   |
+96 |         uint256 newValue = numUnits * pricePerUnit;
+   |         ^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpt7e2qh9h/OneStep.sol:43:5:
+   |
+43 |     uint256 public newValue;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpt7e2qh9h/OneStep.sol:116:17:
+    |
+116 |                 assert(_sum_deposits == balance);            
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,24 @@
+== Aegis on 29e65d6f3e7a609e0138a1331d42d23159124b8e_Custodian.sol ==
+target property: refunded[txHash][transferIndex] == 1 after that refund is successfully paid
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['crossChainPolicy', 'isPermitted', 'newOwner', 'owner', 'refunded']
+[2] exposure site: refund -> .onTransfer (external interface callback may re-enter)
+    conservative closure: ['refund']
+[harness] reusing synthesized harness 29e65d6f3e7a609e0138a1331d42d23159124b8e_Custodian.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 8 functions, 7 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['transferIndex', 'txHash']
+  [validator] exposure invariant uses unknown identifiers ['transferIndex', 'txHash']
+  [validator] exposure invariant uses unknown identifiers ['transferIndex', 'txHash']
+  [validator] exposure invariant uses unknown identifiers ['transferIndex', 'txHash']

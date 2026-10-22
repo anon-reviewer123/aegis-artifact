@@ -1,0 +1,37 @@
+contract,arm,cause
+Coin,loop,validator rejected every plan (mostly: exposure_invariant)
+Unleashedplatinum,loop,compile error: Undeclared identifier
+OCTOPUS_MINT,loop,"compile error: ""break"" has to be in a ""for"" or ""while"" loop"
+AlphaSharkSweep,loop,validator rejected every plan (mostly: exposure_invariant)
+KinaInuBetting,loop,compile error: Expected type name
+EnderDragon,loop,validator rejected every plan (mostly: exposure_invariant)
+CapsuleMachine,loop,validator rejected every plan (mostly: exposure_invariant)
+SeaportSweeper,loop,validator rejected every plan (mostly: exposure_invariant)
+RiftV1Withdraw,loop,validator rejected every plan (mostly: exposure_invariant)
+PokeXVerse,loop,compile error: Undeclared identifier
+MistfitsNFTV2,read_only,solver timeout on an obligation
+NFT,read_only,compile error: Type mapping(address => uint256) is not implicitly convertible to expe
+X7Pioneer,read_only,compile error: Identifier already declared
+NFT,read_only,compile error: Undeclared identifier
+AxiomV0StoragePf,read_only,compile error: Identifier not found or not unique
+ProxyWallet,general,validator rejected every plan (mostly: exposure_invariant)
+BPYC,general,validator rejected every plan (mostly: exposure_invariant)
+Untracer,general,validator rejected every plan (mostly: exposure_invariant)
+KoalaDividendTracker,general,validator rejected every plan (mostly: exposure_invariant)
+BULLRUNNERSCLUB,general,compile error: Operator += not compatible with types address and uint256
+ReservaX,general,"compile error: Function, variable, struct or modifier declaration expected"
+FeeDistributor,general,validator rejected every plan (mostly: exposure_invariant)
+DLAND,general,compile error: Undeclared identifier
+GoodMorning,general,validator rejected every plan (mostly: exposure_invariant)
+Custodian,general,validator rejected every plan (mostly: exposure_invariant)
+CelestialSecrets,general,timeout
+TraderSpirits,general,timeout
+Retrogression,general,solver timeout on an obligation
+X7RLiquidityHub,general,timeout
+MosHotPotato,general,compile error: Expected '(' but got identifier
+X7DAOLiquidityHub,general,timeout
+SafePaymentVault,general,compile error: No matching declaration found after argument-dependent lookup
+Twap,general,compile error: Built-in binary operator == cannot be applied to types bytes32 and uin
+QuantumEnergy,general,timeout
+Yeeter,general,harness: nonconforming
+ICOEth,general,harness: nonconforming

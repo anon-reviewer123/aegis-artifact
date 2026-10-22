@@ -1,0 +1,33 @@
+== Aegis on 8d4b523fdeb692dea3e53a8d0f2af57a5db274db_CapsuleMachine.sol ==
+target property: address(this).balance >= sum(allCapsules[i].betPool)
+[eth-model] address(this).balance -> _ethBal; property now: _ethBal >= sum(allCapsules[i].betPool)
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['COORDINATOR', '_ethBal', '_owner', 'allCapsules', 'betFee', 'callbackGasLimit', 'capIdToHost', 'capsuleCommission', 'finishedCapsuleIDs', 'hostPrerequisite', 'isNFTinCapsule', 'keyHash', 'numOfFinishedCapsules', 'requestConfirmations', 's_owner', 's_randomWords', 's_requestId', 's_requestIdToAddress', 's_requestIdToCapsuleID', 's_subscriptionId', 'vrfCoordinator', 'whitelistedNFTs']
+[loop] 1 loop-call site(s) detected
+[loop] isHostValid: unsupported loop shape (skipped)
+[loop] loop verification: UNKNOWN
+[2] exposure site: rawFulfillRandomWords -> .call (low-level value transfer can re-enter via fulfillRandomWords)
+    conservative closure: ['hostClaim', 'rawFulfillRandomWords', 'setupMachine']
+[harness] reusing synthesized harness 8d4b523fdeb692dea3e53a8d0f2af57a5db274db_CapsuleMachine.ethmodel.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 13 functions, 21 public state vars)
+[readonly] 2 exposure site(s) with a window; decomposing each separately
+[readonly] --- site rawFulfillRandomWords.call#0
+[readonly] --- site fulfillRandomWords.call#1
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['closure', 'exposure_invariant']
+  [round 2] validation flagged: ['protocol', 'exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] closure UNSOUND: missing reachable callbacks ['setupMachine'] (conservative=['hostClaim', 'rawFulfillRandomWords', 'setupMachine'])
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] protocol UNSOUND: closure callbacks ['setupMachine'] are not admitted by the protocol (under-approximation)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

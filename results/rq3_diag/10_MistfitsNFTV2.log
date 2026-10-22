@@ -1,0 +1,26 @@
+== Aegis on 121493cc5fe3F62C9ab3D72D1a52b4Ef37747Eb6_MistfitsNFTV2.sol ==
+target property: totalSupply() <= maxSupply
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['OPERATOR_FILTER_REGISTRY', '_BITMASK_ADDRESS', '_BITMASK_ADDRESS_DATA_ENTRY', '_BITMASK_AUX_COMPLEMENT', '_BITMASK_BURNED', '_BITMASK_EXTRA_DATA_COMPLEMENT', '_BITMASK_NEXT_INITIALIZED', '_BITPOS_AUX', '_BITPOS_EXTRA_DATA', '_BITPOS_NEXT_INITIALIZED', '_BITPOS_NUMBER_BURNED', '_BITPOS_NUMBER_MINTED', '_BITPOS_START_TIMESTAMP', '_ENTERED', '_MAX_MINT_ERC2309_QUANTITY_LIMIT', '_NOT_ENTERED', '_TRANSFER_EVENT_SIGNATURE', '__gap', '_defaultRoyaltyInfo', '_initialized', '_initializing', '_owner', '_paused', '_status', '_tokenRoyaltyInfo', 'freeSupply', 'hiddenMetadataUri', 'maxMintAmountPerTxPublic', 'maxMintAmountPerTxWhitelist', 'maxSupply', 'merkleRoot', 'publicCost', 'publicMintEnabled', 'reserveAddresses', 'reserveClaimed', 'reserveSize', 'revealed', 'upgraded', 'uriPrefix', 'uriSuffix', 'version', 'walletAddress', 'whitelistClaimed', 'whitelistCost', 'whitelistMintEnabled', 'whitelistMinted', 'whitelistSupply']
+[2] exposure site: whitelistMint -> .call (low-level value transfer can re-enter)
+    conservative closure: ['whitelistMint']
+[harness] reusing synthesized harness 121493cc5fe3F62C9ab3D72D1a52b4Ef37747Eb6_MistfitsNFTV2.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 22 functions, 41 public state vars)
+[readonly] 1 public view(s) admitted by the footprint premise on the window opened by whitelistMint
+      OBL_view_freeLeft: CANARY DID NOT FIRE (status unknown); harness did not compile -- reporting UNKNOWN for this view :: solc compile error: Error: Undeclared identifier.
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

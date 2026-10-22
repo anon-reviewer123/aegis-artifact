@@ -1,0 +1,9 @@
+status: failed
+
+
+Warning: CHC: Assertion violation happens here.
+  --> /tmp/tmpkcvsz5ab/Obligation.sol:74:17:
+   |
+74 |                 assert(v._sum_balances() == v._ethBal() + v.inFlight());            // I_exp must still hold
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,95 @@
+status: failed
+
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:139:41:
+    |
+139 |     function __h_withdrawableDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp4wxz7zt4/Obligation.sol:18:5:
+   |
+18 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:168:41:
+    |
+168 |     function __h_accumulativeDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp4wxz7zt4/Obligation.sol:18:5:
+   |
+18 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:192:9:
+    |
+192 |         bool success;
+    |         ^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp4wxz7zt4/Obligation.sol:27:5:
+   |
+27 |     bool public success = true;   // success flag of an excised call
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:202:34:
+    |
+202 |     function withdrawnDividendOf(address _owner) public view  returns(uint256) {
+    |                                  ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp4wxz7zt4/Obligation.sol:18:5:
+   |
+18 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp4wxz7zt4/Obligation.sol:28:27:
+   |
+28 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:186:24:
+    |
+186 |     function __preBody(uint256 amount) internal {
+    |                        ^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:192:9:
+    |
+192 |         bool success;
+    |         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:195:25:
+    |
+195 |     function __postBody(uint256 amount) internal {
+    |                         ^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:213:17:
+    |
+213 |                 uint256 r_entry   = withdrawnDividendOf(a0);       // view AT ENTRY (sigma_0)
+    |                 ^^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:215:17:
+    |
+215 |                 uint256 r_exposed = withdrawnDividendOf(a0);           // view DURING the window
+    |                 ^^^^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:217:17:
+    |
+217 |                 uint256 r_stable  = withdrawnDividendOf(a0);       // view AFTER settlement
+    |                 ^^^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation happens here.
+   --> /tmp/tmp4wxz7zt4/Obligation.sol:218:17:
+    |
+218 |                 assert(false);                               // quiescent iff it matches one of them
+    |                 ^^^^^^^^^^^^^
+

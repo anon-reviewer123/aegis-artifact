@@ -1,0 +1,7 @@
+
+======================================================================
+TRYPTO
+harness  : compiles  (177 lines)
+Iexp     : marketing_balance + growth_balance <= address(this).balance + inFlight
+OBL_pre                     : compiles  (89 lines)
+OBL_post                    : compiles  (96 lines)

@@ -1,0 +1,60 @@
+== Aegis on 15526af86721e8265139e4f3d759c343ac1d53ce_ReservaX.sol ==
+target property: withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_ENTERED', '_NOT_ENTERED', '_balances', '_operatorApprovals', '_owner', '_status', '_totalSupply', '_uri', 'addresses', 'amounts', 'creatorOne', 'creatorTwo', 'levels', 'maxSupplyEach', 'maxTxEarly', 'maxTxPublic', 'mintPrice', 'name', 'paused', 'preSaleWindowCloses', 'preSaleWindowOpens', 'publicWindowCloses', 'publicWindowOpens', 'purchaseTxs', 'purchaseTxsEarly', 'signerRole', 'symbol', 'withdrawNine', 'withdrawTen']
+[2] exposure site: withdraw -> .call (low-level value transfer can re-enter)
+    conservative closure: []
+[access] outside the closure under the trusted-roles assumption: ['newCost', 'pauseContract', 'renounceOwnership', 'setAddresses', 'setAmounts', 'setCreators', 'setLevels', 'setMaxEarly', 'setMaxPublic', 'setMaxSupply', 'setUri', 'setWindows', 'transferOwnership', 'withdraw']
+    newCost: modifier onlyOwner: owner() == _msgSender()
+    pauseContract: modifier onlyOwner: owner() == _msgSender()
+    renounceOwnership: modifier onlyOwner: owner() == _msgSender()
+    setAddresses: modifier onlyOwner: owner() == _msgSender()
+    setAmounts: modifier onlyOwner: owner() == _msgSender()
+    setCreators: modifier onlyOwner: owner() == _msgSender()
+    setLevels: modifier onlyOwner: owner() == _msgSender()
+    setMaxEarly: modifier onlyOwner: owner() == _msgSender()
+    setMaxPublic: modifier onlyOwner: owner() == _msgSender()
+    setMaxSupply: modifier onlyOwner: owner() == _msgSender()
+    setUri: modifier onlyOwner: owner() == _msgSender()
+    setWindows: modifier onlyOwner: owner() == _msgSender()
+    transferOwnership: modifier onlyOwner: owner() == _msgSender()
+    withdraw: modifier onlyOwner: owner() == _msgSender()
+[harness] cached 15526af86721e8265139e4f3d759c343ac1d53ce_ReservaX.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 15526af86721e8265139e4f3d759c343ac1d53ce_ReservaX.harness.sol (18844 chars)
+[harness] conforms to interface (found 41 functions, 47 public state vars)
+[3] deterministic candidate -- the pre-phase writes none of the target's variables, so the target itself holds at the call
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 2 obligations: ['OBL_pre', 'OBL_post']
+  [round 1] sliced harness: up to 59 state variables -> at most 9 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_post [phases]: VERIFIED
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'exposure_invariant', 'phases', 'composition'] in_progress=[]
+  [round 1] FIXPOINT -> VERIFIED (real solver)
+
+Assume-Guarantee specification for ReservaX
+  target property phi : withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]
+
+  [A_cb]  ASSUMPTION (assumption)
+          During withdraw's exposed phase, re-entrant control is confined to the callback closure []; every such callback is admitted by the protocol, with bounded nesting.
+          formal: admissible_callbacks=[], nesting={'withdraw': 1}
+          discharged by: ['OBL_closure_soundness']
+
+  [G_pre] GUARANTEE
+          If the stable invariant holds on entry, the pre-phase establishes the exposure invariant before the external call.
+          formal: {withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]} pre-phase {withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]}
+          discharged by: ['OBL_pre']
+
+  [G_exp] GUARANTEE
+          Every callback admitted by A_cb preserves the exposure invariant while the contract is externally exposed.
+          formal: forall f in A_cb. {withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]} f {withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]}
+          discharged by: []
+
+  [G_post] GUARANTEE
+          When the external call returns, the post-phase restores the stable invariant and fully settles the in-flight ghost state.
+          formal: {withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]} post-phase {withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10] /\ inFlight==0}
+          discharged by: ['OBL_post']
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => withdrawNine <= _totalSupply[9] && withdrawTen <= _totalSupply[10]
+      where callbacks are confined to admissible_callbacks=[], nesting={'withdraw': 1}

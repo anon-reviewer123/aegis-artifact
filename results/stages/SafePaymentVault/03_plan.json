@@ -1,0 +1,59 @@
+{
+ "contract": "SafePaymentVault",
+ "closure": {
+  "site_function": "Withdraw",
+  "site_call": ".call",
+  "functions": [
+   "GetTotalBalance",
+   "MakeDeposit",
+   "Withdraw"
+  ],
+  "justification": "These functions interact with TotalBalance, which is exposed during the callback in Withdraw."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "GetTotalBalance",
+   "MakeDeposit"
+  ],
+  "nesting_bound": {
+   "Withdraw": 1
+  }
+ },
+ "phases": {
+  "function": "Withdraw",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "The amount of assets in-flight during the callback window.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "TotalBalance == address(this).balance + inFlight",
+  "stable_formula": "TotalBalance == address(this).balance",
+  "kind": "additive"
+ },
+ "composition": {
+  "target_property": "TotalBalance == address(this).balance",
+  "rule": "The exposure invariant ensures that TotalBalance accounts for in-flight assets during the callback."
+ }
+}

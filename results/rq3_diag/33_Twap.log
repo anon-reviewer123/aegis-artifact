@@ -1,0 +1,46 @@
+== Aegis on b26169efffcdebf24dd86136fdcbd80efb636469_Twap.sol ==
+target property: token.balanceOf(address(this)) == 0 after withdraw
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['AUGUSTUS_SWAPPER_ADDR', 'STEP_PENDING', 'STEP_PROCESSED', '_ENTERED', '_NOT_ENTERED', '_deadlines', '_owner', '_requests', '_status', '_stepStates', '_wasInitialized', 'operator']
+[2] exposure site: withdraw -> .transfer (transfer may trigger fallback)
+    conservative closure: ['acceptFeed', 'createTopic', 'withdraw']
+[harness] reusing synthesized harness b26169efffcdebf24dd86136fdcbd80efb636469_Twap.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 7 functions, 17 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 5 obligations: ['OBL_pre', 'OBL_cb_acceptFeed', 'OBL_cb_createTopic', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_acceptFeed [closure]: UNKNOWN :: solc compile error: Error: Built-in binary operator == cannot be applied to types bytes32 and uint256.
+      OBL_cb_createTopic [closure]: VERIFIED
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Expected ',' but got reserved keyword 'after'
+  [round 1] correct=['protocol', 'ghost_state', 'exposure_invariant', 'phases'] in_progress=['closure', 'composition']
+  [round 2] validation flagged: ['closure', 'protocol']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation passed
+  [round 1] compiled 5 obligations: ['OBL_pre', 'OBL_cb_acceptFeed', 'OBL_cb_createTopic', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_acceptFeed [closure]: UNKNOWN :: solc compile error: Error: Built-in binary operator == cannot be applied to types bytes32 and uint256.
+      OBL_cb_createTopic [closure]: VERIFIED
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Expected ',' but got reserved keyword 'after'
+  [round 1] correct=['protocol', 'ghost_state', 'exposure_invariant', 'phases'] in_progress=['closure', 'composition']
+  [round 2] validation flagged: ['closure', 'protocol']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] closure UNSOUND: missing reachable callbacks ['acceptFeed', 'createTopic'] (conservative=['acceptFeed', 'createTopic', 'withdraw'])
+  [validator] protocol references non-closure functions ['acceptFeed', 'createTopic']
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] closure UNSOUND: missing reachable callbacks ['acceptFeed', 'createTopic'] (conservative=['acceptFeed', 'createTopic', 'withdraw'])
+  [validator] protocol references non-closure functions ['acceptFeed', 'createTopic']
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain

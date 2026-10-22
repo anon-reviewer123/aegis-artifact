@@ -1,0 +1,53 @@
+analyzer : ast
+target   : _sum__rOwned == _totalProportion
+
+  DEAD                             address
+  TeamFeeBuy                       uint256
+  TeamFeeReceiver                  address
+  TeamFeeSell                      uint256
+  WETH                             address
+  ZERO                             address
+  _allowances                      mapping(address => mapping(address => uint256))
+  _decimals                        uint8
+  _maxTxAmount                     uint256
+  _maxWalletSize                   uint256
+  _name                            string
+  _owner                           address
+  _rOwned                          mapping(address => uint256)
+  _symbol                          string
+  _totalProportion                 uint256
+  _totalSupply                     uint256
+  alternateSwaps                   bool
+  autoLiquidityReceiver            address
+  claimingFees                     bool
+  feeDenominator                   uint256
+  inSwap                           bool
+  isFeeExempt                      mapping(address => bool)
+  isTxLimitExempt                  mapping(address => bool)
+  largeSwapThreshold               uint256
+  liquidityFeeBuy                  uint256
+  liquidityFeeSell                 uint256
+  marketingFeeBuy                  uint256
+  marketingFeeReceiver             address
+  marketingFeeSell                 uint256
+  pair                             address
+  reflectionFeeBuy                 uint256
+  reflectionFeeSell                uint256
+  router                           contract IDEXRouter
+  smallSwapThreshold               uint256
+  swapThreshold                    uint256
+  targetLiquidity                  uint256
+  targetLiquidityDenominator       uint256
+  totalFeeBuy                      uint256
+  totalFeeSell                     uint256
+  tradingOpen                      bool
+
+sites:
+  swapBack.addLiquidityETH#2 before=[] after=['swapThreshold']
+  swapBack.call#0 before=[] after=[]
+  swapBack.call#1 before=[] after=[]
+  manualSend.call#0 before=[] after=[]
+  clearERC20Token.balanceOf#0 before=[] after=[]
+  clearERC20Token.transfer#1 before=[] after=[]
+
+closure : ['setSwapBackSettings', 'transfer', 'transferFrom']

@@ -1,0 +1,320 @@
+pragma solidity 0.4.26;
+library SafeMath {
+
+  /**
+  * @dev Multiplies two numbers, throws on overflow.
+  */
+  function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {
+    if (a == 0) {
+      return 0;
+    }
+    c = a * b;
+    assert(c / a == b);
+    return c;
+  }
+
+  /**
+  * @dev Integer division of two numbers, truncating the quotient.
+  */
+  function div(uint256 a, uint256 b) internal pure returns (uint256) {
+    // assert(b > 0); // Solidity automatically throws when dividing by 0
+    // uint256 c = a / b;
+    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+    return a / b;
+  }
+
+  /**
+  * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
+  */
+  function sub(uint256 a, uint256 b) internal pure returns (uint256 p) {
+    assert(b <= a);
+    p = a - b;
+return p;
+  }
+
+  /**
+  * @dev Adds two numbers, throws on overflow.
+  */
+  function add(uint256 a, uint256 b) internal pure returns (uint256 c) {
+    c = a + b;
+    assert(c >= a);
+    return c;
+  }
+}
+
+/*
+* Contract that is working with ERC223 tokens
+*/
+ 
+contract ContractReceiver {
+	function tokenFallback(address _from, uint _value, bytes _data) public pure {
+	}
+	function doTransfer(address _to, uint256 _index) public returns (uint256 price, address owner);
+}
+
+contract Owned {
+	address public owner;
+	address public newOwner;
+
+	event OwnershipTransferred(address indexed _from, address indexed _to);
+
+	function Owned() public {
+		owner = msg.sender;
+	}
+
+	modifier onlyOwner {
+		require(msg.sender == owner);
+		_;
+	}
+
+	function transferOwnership(address _newOwner) public onlyOwner {
+		newOwner = _newOwner;
+	}
+address zero;
+	function acceptOwnership() public {
+		require(msg.sender == newOwner);
+		emit OwnershipTransferred(owner, newOwner);
+		owner = newOwner;
+		newOwner = zero;
+	}
+}
+
+// ----------------------------------------------------------------------------
+// ERC Token Standard #20 Interface
+// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md
+// ----------------------------------------------------------------------------
+contract ERC20Interface {
+    function totalSupply() public view returns (uint p);
+    function balanceOf(address tokenOwner) public constant returns (uint);
+    function allowance(address tokenOwner, address spender) public constant returns (uint);
+    function transfer(address to, uint tokens) public returns (bool);
+    function approve(address spender, uint tokens) public returns (bool);
+    function transferFrom(address from, address to, uint tokens) public returns (bool);
+
+	function name() public view returns (string);
+	function symbol() public view returns (string);
+	function decimals() public view returns (uint8 p);
+
+    event Transfer(address indexed from, address indexed to, uint tokens);
+    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
+}
+
+
+ /**
+ * ERC223 token by Dexaran
+ *
+ * https://github.com/Dexaran/ERC223-token-standard
+ */
+ 
+
+ /* New ERC223 contract interface */
+ 
+contract ERC223 is ERC20Interface {
+	function transfer(address to, uint value, bytes data) public returns (bool);
+	
+	event Transfer(address indexed from, address indexed to, uint tokens);
+	event Transfer(address indexed from, address indexed to, uint value, bytes data);
+}
+
+ 
+contract NeoWorldCash is ERC223, Owned {
+
+	using SafeMath for uint256;
+
+	mapping(address => uint) balances;
+    mapping(address => mapping(address => uint)) allowed;
+	
+	string public name;
+	string public symbol;
+	uint8 public decimals;
+	uint256 public totalSupply;
+
+    event Burn(address indexed from, uint256 value);
+	
+	// ------------------------------------------------------------------------
+	// Constructor
+	// ------------------------------------------------------------------------
+	function NeoWorldCash() public {
+		// symbol = "NASH";
+		// name = "NEOWORLD CASH";
+		decimals = 18;
+		totalSupply = 100000000000 * 10**uint(decimals);
+		balances[msg.sender] = totalSupply;
+		emit Transfer(zero, msg.sender, totalSupply, "");
+	}
+	
+	
+	// Function to access name of token .
+	function name() public view returns (string) {
+		return name;
+	}
+	// Function to access symbol of token .
+	function symbol() public view returns (string) {
+		return symbol;
+	}
+	// Function to access decimals of token .
+	function decimals() public view returns (uint8 p) {
+		return decimals;
+	}
+	// Function to access total supply of tokens .
+	function totalSupply() public view returns (uint256) {
+		return totalSupply;
+	}
+	
+	// Function that is called when a user or another contract wants to transfer funds .
+	function transfer(address _to, uint _value, bytes _data) public returns (bool p) {
+		bool p1 = isContract(_to);
+		if(p1 == true) {
+			p = transferToContract(_to, _value, _data);
+		}
+		else {
+			p = transferToAddress(_to, _value, _data);
+		}
+		return p;
+	}
+	
+	// Standard function transfer similar to ERC20 transfer with no _data .
+	// Added due to backwards compatibility reasons .
+	function transfer(address _to, uint _value) public returns (bool p) {
+		//standard function transfer similar to ERC20 transfer with no _data
+		//added due to backwards compatibility reasons
+		bytes memory empty;
+		bool p1 = isContract(_to);
+		if(p1 == true) {
+			p = transferToContract(_to, _value, empty);
+		}
+		else {
+			p = transferToAddress(_to, _value, empty);
+		}
+		return p;
+	}
+
+	//assemble the given address bytecode. If bytecode exists then the _addr is a contract.
+	function isContract(address _addr) private view returns (bool p) {
+		uint length;
+		assembly {
+			//retrieve the size of the code on target address, this needs assembly
+			length := extcodesize(_addr)
+		}
+		if (length>0){
+			p = true;
+		}
+		else{
+			p = false;
+		}
+		return p;
+	}
+
+	//function that is called when transaction target is an address
+	function transferToAddress(address _to, uint _value, bytes _data) private returns (bool) {
+		uint p1 = balanceOf(msg.sender);
+        if (p1 < _value) require(true == false);
+		balances[msg.sender] = p1-(_value);
+		uint p2 = balanceOf(_to);
+		balances[_to] = p2+(_value);
+		emit Transfer(msg.sender, _to, _value);
+		emit Transfer(msg.sender, _to, _value, _data);
+		return true;
+	}
+	
+	//function that is called when transaction target is a contract
+	function transferToContract(address _to, uint _value, bytes _data) private returns (bool) {
+	
+		ContractReceiver receiver = ContractReceiver(_to);
+		uint256 price;
+		address owner;
+		uint p4 = bytesToUint(_data);
+		(price, owner) = receiver.doTransfer(msg.sender, p4);
+		uint p3 = balanceOf(msg.sender);
+		require (p3 >= price);
+		balances[msg.sender] = p3-(price);
+		uint p5 = balanceOf(owner);
+		balances[owner] = p5+(price);
+		receiver.tokenFallback(msg.sender, price, _data);
+		emit Transfer(msg.sender, _to, _value);
+		emit Transfer(msg.sender, _to, _value, _data);
+		return true;
+	}
+
+	function balanceOf(address _owner) public view returns (uint p) {
+		return balances[_owner];
+	}  
+
+	function burn(uint256 _value) public returns (bool) {
+		require (_value > 0); 
+		uint p1 = balanceOf(msg.sender);
+		require (p1 >= _value);            // Check if the sender has enough
+		uint p2 = balanceOf(msg.sender);
+		balances[msg.sender] = p2-(_value);                      // Subtract from the sender
+		totalSupply = totalSupply-(_value);                                // Updates totalSupply
+		emit Burn(msg.sender, _value);
+		return true;
+	}
+
+	function bytesToUint(bytes b) private pure returns (uint result) {
+		// uint i;
+		// result = 0;
+		// for (i = 0; i < b.length; i++) {
+		// 	uint c = uint(b[i]);
+		// 	if (c >= 48 && c <= 57) {
+		// 		result = result * 10 + (c - 48);
+		// 	}
+		// }
+		return result;
+	}
+
+    // ------------------------------------------------------------------------
+    // Token owner can approve for `spender` to transferFrom(...) `tokens`
+    // from the token owner's account
+    //
+    // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md
+    // recommends that there are no checks for the approval double-spend attack
+    // as this should be implemented in user interfaces 
+    // ------------------------------------------------------------------------
+    function approve(address spender, uint tokens) public returns (bool) {
+        allowed[msg.sender][spender] = tokens;
+        emit Approval(msg.sender, spender, tokens);
+        return true;
+    }
+
+
+    // ------------------------------------------------------------------------
+    // Transfer `tokens` from the `from` account to the `to` account
+    // 
+    // The calling account must already have sufficient tokens approve(...)-d
+    // for spending from the `from` account and
+    // - From account must have sufficient balance to transfer
+    // - Spender must have sufficient allowance to transfer
+    // - 0 value transfers are allowed
+    // ------------------------------------------------------------------------
+    function transferFrom(address from, address to, uint tokens) public returns (bool) {
+        balances[from] = balances[from]-(tokens);
+        allowed[from][msg.sender] = allowed[from][msg.sender]-(tokens);
+        balances[to] = balances[to]+(tokens);
+        emit Transfer(from, to, tokens);
+        return true;
+    }
+
+    // ------------------------------------------------------------------------
+    // Returns the amount of tokens approved by the owner that can be
+    // transferred to the spender's account
+    // ------------------------------------------------------------------------
+    function allowance(address tokenOwner, address spender) public constant returns (uint) {
+        return allowed[tokenOwner][spender];
+    }
+
+    // ------------------------------------------------------------------------
+    // Don't accept ETH
+    // ------------------------------------------------------------------------
+    function () public payable {
+        require(true == false);
+    }
+
+    // ------------------------------------------------------------------------
+    // Owner can transfer out any accidentally sent ERC20 tokens
+    // ------------------------------------------------------------------------
+    function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool p) {
+        return ERC20Interface(tokenAddress).transfer(owner, tokens);
+		
+    }	
+}

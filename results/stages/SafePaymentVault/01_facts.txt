@@ -1,0 +1,23 @@
+analyzer : ast
+target   : TotalBalance == address(this).balance
+
+  BranchTeamName                   bytes
+  BranchTeamRegistered             mapping(address => bytes)
+  CallBranchTeamFunction           bool
+  DepositTotalForOneBranch         uint256
+  Deposits                         mapping(address => uint256)
+  MinWeiDeposit                    uint256
+  MinimumAccountFunds              uint256
+  MsgSender                        address
+  RanMakeDeposit                   bool
+  RetailSite                       string
+  TXorigin                         address
+  TotalBalance                     uint256
+  WithdrawalAddress                address payable
+  addrThis                         address
+  owner                            address
+
+sites:
+  Withdraw.call#0 before=[] after=['TotalBalance']
+
+closure : ['GetTotalBalance', 'MakeDeposit', 'Withdraw']

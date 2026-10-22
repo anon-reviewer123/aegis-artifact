@@ -1,0 +1,50 @@
+status: verified
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmpa1fi8ove/OneStep.sol:105:9:
+    |
+105 |         uint256 newValue = numUnits * pricePerUnit;
+    |         ^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpa1fi8ove/OneStep.sol:42:5:
+   |
+42 |     uint256 public newValue;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmpa1fi8ove/OneStep.sol:124:9:
+    |
+124 |         uint256 newValue = numUnits * pricePerUnit;
+    |         ^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpa1fi8ove/OneStep.sol:42:5:
+   |
+42 |     uint256 public newValue;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpa1fi8ove/OneStep.sol:86:25:
+   |
+86 |     function __fallback(uint256 amount) public {
+   |                         ^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpa1fi8ove/OneStep.sol:143:13:
+    |
+143 |             assert(_sum_deposits == balance);             
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpa1fi8ove/OneStep.sol:144:13:
+    |
+144 |             assert(inFlight == 0);     
+    |             ^^^^^^^^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpa1fi8ove/OneStep.sol:145:13:
+    |
+145 |             assert(!exposed);             
+    |             ^^^^^^^^^^^^^^^^
+

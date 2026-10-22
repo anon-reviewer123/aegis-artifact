@@ -1,0 +1,26 @@
+== Aegis on A0234021E5f0f2307355F77B6c6dF747a7B955e7_RiftV1Withdraw.sol ==
+target property: address(this).balance / (IERC20(vault).totalSupply() - vaultRedeemedSupply) == the pre-withdraw redemption ratio
+[eth-model] address(this).balance -> _ethBal; property now: _ethBal / (IERC20(vault).totalSupply() - vaultRedeemedSupply) == the pre-withdraw redemption ratio
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (regex): storage=['poolToToken', 'poolRedeemedSupply', '_ethBal', 'guardian', 'vault', 'vaultRedeemedSupply', 'i']
+[1] NOTE: regex analyzer used (no working solc AST); soundness claim requires the AST analyzer
+[2] exposure site: rescueETH -> .call{ value: ethBalance } (low-level call can re-enter)
+    conservative closure: ['rescueETH', 'withdrawETH']
+[harness] reusing synthesized harness A0234021E5f0f2307355F77B6c6dF747a7B955e7_RiftV1Withdraw.ethmodel.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 7 functions, 15 public state vars)
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant (too strong for the exposed phase)
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

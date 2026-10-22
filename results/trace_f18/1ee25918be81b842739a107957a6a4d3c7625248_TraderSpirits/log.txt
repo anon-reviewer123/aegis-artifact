@@ -1,0 +1,51 @@
+== Aegis on 1ee25918be81b842739a107957a6a4d3c7625248_TraderSpirits.sol ==
+target property: publicMinted <= publicMintLimit
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_balances', '_name', '_operatorApprovals', '_owner', '_owners', '_symbol', '_tokenApprovals', 'airDropMinted', 'baseUri', 'giftMintId', 'giftMintLimit', 'giftMinted', 'isHalted', 'isPaused', 'mintPrice', 'notRevealedUri', 'owners', 'perTxQuantity', 'perWalletQuantity', 'privateSaleIsActive', 'publicMintId', 'publicMintLimit', 'publicMinted', 'publicSaleIsActive', 'revealed', 'totalMinted', 'totalOwners', 'walletMinted']
+[2] exposure site: mintByUser -> .call (low-level value transfer can re-enter)
+    conservative closure: ['mintByUser']
+[access] outside the closure under the trusted-roles assumption: ['_setNotRevealURI', '_setbaseURI', 'addOwner', 'airDropToken', 'giftMint', 'mintByOwner', 'removeOwner', 'reveal', 'setApprovalForAll', 'setGiftMintId', 'setGiftMintLimit', 'setHaltStatus', 'setMintPrice', 'setPauseStatus', 'setPerTxQuantity', 'setPerWalletQuantity', 'setPublicMintLimit', 'setSaleStatus', 'transferOwnership']
+    _setNotRevealURI: modifier onlyOwner: owners[_msgSender()] == true
+    _setbaseURI: modifier onlyOwner: owners[_msgSender()] == true
+    addOwner: modifier onlyOwner: owners[_msgSender()] == true
+    airDropToken: modifier onlyOwner: owners[_msgSender()] == true
+    giftMint: modifier onlyOwner: owners[_msgSender()] == true
+    mintByOwner: modifier onlyOwner: owners[_msgSender()] == true
+    removeOwner: modifier onlyOwner: owners[_msgSender()] == true
+    reveal: modifier onlyOwner: owners[_msgSender()] == true
+    setApprovalForAll: require operator != _msgSender()
+    setGiftMintId: modifier onlyOwner: owners[_msgSender()] == true
+    setGiftMintLimit: modifier onlyOwner: owners[_msgSender()] == true
+    setHaltStatus: modifier onlyOwner: owners[_msgSender()] == true
+    setMintPrice: modifier onlyOwner: owners[_msgSender()] == true
+    setPauseStatus: modifier onlyOwner: owners[_msgSender()] == true
+    setPerTxQuantity: modifier onlyOwner: owners[_msgSender()] == true
+    setPerWalletQuantity: modifier onlyOwner: owners[_msgSender()] == true
+    setPublicMintLimit: modifier onlyOwner: owners[_msgSender()] == true
+    setSaleStatus: modifier onlyOwner: owners[_msgSender()] == true
+    transferOwnership: modifier onlySuperOwner: owner() == _msgSender()
+[harness] cached 1ee25918be81b842739a107957a6a4d3c7625248_TraderSpirits.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 1ee25918be81b842739a107957a6a4d3c7625248_TraderSpirits.harness.sol (19464 chars)
+[harness] conforms to interface (found 50 functions, 40 public state vars)
+[3] deterministic candidate -- the pre-phase writes none of the target's variables, so the target itself holds at the call
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 4 obligations: ['OBL_pre', 'OBL_cb_mintByUser', 'OBL_post', 'OBL_reach_mintByUser_canary']
+  [round 1] sliced harness: up to 45 state variables -> at most 19 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_mintByUser [closure]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+      OBL_reach_mintByUser_canary [phases]: UNKNOWN :: SMTChecker could not prove (timeout/unsupported)
+  [round 1] every open obligation is undecided; the plan is not repairable -- moving to the next candidate
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  [round 3] validation flagged: ['exposure_invariant']
+  repair budget (3) exhausted -> UNKNOWN
+-- candidate 2 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  [round 3] validation flagged: ['exposure_invariant']
+  repair budget (3) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN

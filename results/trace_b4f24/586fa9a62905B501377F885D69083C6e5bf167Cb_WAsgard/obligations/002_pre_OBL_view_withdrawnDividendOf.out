@@ -1,0 +1,73 @@
+status: verified
+
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp09utb6_u/Obligation.sol:139:41:
+    |
+139 |     function __h_withdrawableDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp09utb6_u/Obligation.sol:18:5:
+   |
+18 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp09utb6_u/Obligation.sol:168:41:
+    |
+168 |     function __h_accumulativeDividendOf(address _owner) internal view returns (uint256) {
+    |                                         ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp09utb6_u/Obligation.sol:18:5:
+   |
+18 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp09utb6_u/Obligation.sol:192:9:
+    |
+192 |         bool success;
+    |         ^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp09utb6_u/Obligation.sol:27:5:
+   |
+27 |     bool public success = true;   // success flag of an excised call
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp09utb6_u/Obligation.sol:202:34:
+    |
+202 |     function withdrawnDividendOf(address _owner) public view  returns(uint256) {
+    |                                  ^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp09utb6_u/Obligation.sol:18:5:
+   |
+18 |     address public _owner;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp09utb6_u/Obligation.sol:28:27:
+   |
+28 |     function __havoc_cfg0(address __x0, address __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp09utb6_u/Obligation.sol:186:24:
+    |
+186 |     function __preBody(uint256 amount) internal {
+    |                        ^^^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> /tmp/tmp09utb6_u/Obligation.sol:192:9:
+    |
+192 |         bool success;
+    |         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmp09utb6_u/Obligation.sol:195:25:
+    |
+195 |     function __postBody(uint256 amount) internal {
+    |                         ^^^^^^^^^^^^^^
+
+Info: CHC: 1 verification condition(s) proved safe! Enable the model checker option "show proved safe" to see all of them.
+

@@ -1,0 +1,64 @@
+status: failed
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp5zui4l5f/OneStep.sol:105:9:
+    |
+105 |         uint256 newValue = numUnits * pricePerUnit;
+    |         ^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp5zui4l5f/OneStep.sol:42:5:
+   |
+42 |     uint256 public newValue;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp5zui4l5f/OneStep.sol:124:9:
+    |
+124 |         uint256 newValue = numUnits * pricePerUnit;
+    |         ^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp5zui4l5f/OneStep.sol:42:5:
+   |
+42 |     uint256 public newValue;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp5zui4l5f/OneStep.sol:86:25:
+   |
+86 |     function __fallback(uint256 amount) public {
+   |                         ^^^^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmp5zui4l5f/OneStep.sol:143:13:
+    |
+143 |             assert(false);       
+    |             ^^^^^^^^^^^^^
+Note: Counterexample:
+  __prev0 = 77
+  _sum_deposits = 83
+  amount = 41
+  balance = 83
+  deposits[msg.sender] = 118
+  deposits[who] = 36
+  exposed = true
+  inFlight = 42
+  maxTarget = 44
+  maxUnitsPerAddr = 41
+  moloch = 1
+  newValue = 41
+  numUnits = 1
+  pricePerUnit = 41
+  raiseEndTime = 103
+  raiseStartTime = 42
+  snapPre = 42
+  success = true
+  this = 2
+  who = 0
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

@@ -1,0 +1,139 @@
+status: failed
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:37:93:
+   |
+37 |     function __havoc_cfg0(uint8 __x0, uint8 __x1, address __x2, address __x3, address __x4, address __x5, uint8 __x6, address __x7) public {
+   |                                                                                             ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:37:119:
+   |
+37 |     function __havoc_cfg0(uint8 __x0, uint8 __x1, address __x2, address __x3, address __x4, address __x5, uint8 __x6, address __x7) public {
+   |                                                                                                                       ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:46:27:
+   |
+46 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                           ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:46:53:
+   |
+46 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                                                     ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:46:121:
+   |
+46 |     function __havoc_cfg1(uint16 __x0, uint16 __x1, uint16 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint16 __x6, address __x7) public {
+   |                                                                                                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:54:27:
+   |
+54 |     function __havoc_cfg2(address __x0, uint8 __x1, uint8 __x2, uint8 __x3, uint8 __x4) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:66:27:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                           ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:66:82:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                  ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:66:96:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:66:110:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                              ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:66:124:
+   |
+66 |     function __havoc_arg2(uint32 __x0, address __x1, address __x2, address __x3, address __x4, address __x5, address __x6, address __x7) public {
+   |                                                                                                                            ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpic7sbde2/OneStep.sol:84:25:
+   |
+84 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+   --> /tmp/tmpic7sbde2/OneStep.sol:166:54:
+    |
+166 |     function __h__addLiquidity(uint256 _tokenAmount, uint256 _ethAmountWei, bool autoburn) internal {
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^
+
+Warning: SMTChecker: 1 unsupported language feature(s). Enable the model checker option "show unsupported" to see all of them.
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmpic7sbde2/OneStep.sol:299:13:
+    |
+299 |             assert(false);       
+    |             ^^^^^^^^^^^^^
+Note: Counterexample:
+   = 30612
+  __a17_recipient = 0
+  __a18_sender = 0
+  __a19_recipient = 0
+  __prev0 = 30613
+  _antiMevBlock = 0
+  _balances[_primaryLP] = 30612
+  _balances[account] = 30612
+  _balances[address(this)] = 281
+  _buyTaxRate = 0
+  _decimals = 0
+  _ethAmountWei = 28100
+  _launchBlock = 0
+  _lpOwner = 0
+  _maxTxAmount = 0
+  _maxWalletAmount = 0
+  _owner = 0
+  _primaryLP = 7
+  _sellTaxRate = 0
+  _sum__balances = 0
+  _swapLimit = 1
+  _taxSharesLP = 0
+  _taxSwapMax = 0
+  _taxSwapMin = 0
+  _tokenAmount = 281
+  _tokensAvailable = 30612
+  _totalSupply = 2
+  _totalTaxShares = 0
+  account = 7
+  address(this).balance = 28100
+  amount = 0
+  antiSnipeBlocks1 = 0
+  antiSnipeBlocks2 = 0
+  antiSnipeTax1 = 0
+  antiSnipeTax2 = 0
+  autoburn = false
+  exposed = true
+  fromWallet = 7
+  inFlight = 0
+  lpTokenRecipient = 0
+  snapPre = 0
+  this = 6
+  who = 7
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

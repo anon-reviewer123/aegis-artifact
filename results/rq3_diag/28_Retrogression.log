@@ -1,0 +1,36 @@
+== Aegis on 304243a820d4a3718becc89a3f33513586162cf0_Retrogression.sol ==
+target property: none
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_allowances', '_balances', '_buyFilmCribFee', '_buyMarketingFee', '_buyProductionFee', '_canAddLiquidity', '_isBlacklisted', '_isExcludedFromFees', '_maxBuy', '_maxSell', '_maxWallet', '_name', '_owner', '_sellFilmCribFee', '_sellMarketingFee', '_sellProductionFee', '_symbol', '_totalSupply', 'alreadyStarted', 'automatedMarketMakerPairs', 'blacklistFee', 'filmCribWallet', 'lpAdded', 'marketingWallet', 'productionWallet', 'sendTokens', 'stakingAllowed', 'starting', 'swapTokensAtAmount', 'swapping', 'totalBuyFees', 'totalSellFees', 'trading', 'uniswapV2Pair', 'uniswapV2Router']
+[2] exposure site: withdrawRemainingETH -> .call (low-level value transfer can re-enter)
+    conservative closure: []
+[harness] reusing synthesized harness 304243a820d4a3718becc89a3f33513586162cf0_Retrogression.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 27 functions, 36 public state vars)
+[readonly] 3 exposure site(s) with a window; decomposing each separately
+[readonly] --- site transferFrom.call#0
+[readonly] --- site transfer.call#0
+[readonly] --- site _transfer.call#2
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 2 obligations: ['OBL_pre', 'OBL_post']
+      OBL_pre [phases]: VERIFIED
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'exposure_invariant', 'phases', 'composition'] in_progress=[]
+[gate:coverage] 3 further exposure site(s) not covered by this decomposition: _transfer.call#2, transfer.call#0, transferFrom.call#0
+[gate] obligations discharged, but the verdict does not cover the whole contract -- reporting UNKNOWN instead of VERIFIED
+-- candidate 1 --
+  [round 1] validation passed
+  [round 1] compiled 2 obligations: ['OBL_pre', 'OBL_post']
+      OBL_pre [phases]: VERIFIED
+      OBL_post [phases]: UNKNOWN :: solc wall-clock timeout
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'exposure_invariant', 'phases', 'composition'] in_progress=[]
+[gate:coverage] 3 further exposure site(s) not covered by this decomposition: _transfer.call#2, transfer.call#0, transferFrom.call#0
+[gate] obligations discharged, but the verdict does not cover the whole contract -- reporting UNKNOWN instead of VERIFIED
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] template shape check skipped: no post-phase writes and no ghost declared, so there is no ghost placement to constrain

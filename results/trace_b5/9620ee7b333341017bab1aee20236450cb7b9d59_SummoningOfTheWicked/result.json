@@ -1,0 +1,20 @@
+{
+ "status": "VERIFIED",
+ "candidates_tried": 0,
+ "repair_rounds": 0,
+ "obligations": [
+  {
+   "obligation": "OBL_view_totalSupply_canary",
+   "module": "readonly",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  },
+  {
+   "obligation": "OBL_view_totalSupply",
+   "module": "readonly",
+   "status": "verified",
+   "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+  }
+ ],
+ "exposure_invariant": null
+}

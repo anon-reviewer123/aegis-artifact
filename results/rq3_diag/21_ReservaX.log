@@ -1,0 +1,39 @@
+== Aegis on 15526af86721e8265139e4f3d759c343ac1d53ce_ReservaX.sol ==
+target property: withdrawNine <= totalSupply(9) && withdrawTen <= totalSupply(10)
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_ENTERED', '_NOT_ENTERED', '_balances', '_operatorApprovals', '_owner', '_status', '_totalSupply', '_uri', 'addresses', 'amounts', 'creatorOne', 'creatorTwo', 'levels', 'maxSupplyEach', 'maxTxEarly', 'maxTxPublic', 'mintPrice', 'name', 'paused', 'preSaleWindowCloses', 'preSaleWindowOpens', 'publicWindowCloses', 'publicWindowOpens', 'purchaseTxs', 'purchaseTxsEarly', 'signerRole', 'symbol', 'withdrawNine', 'withdrawTen']
+[2] exposure site: withdraw -> .call (low-level value transfer can re-enter)
+    conservative closure: ['withdraw']
+[harness] reusing synthesized harness 15526af86721e8265139e4f3d759c343ac1d53ce_ReservaX.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 20 functions, 30 public state vars)
+[3] sampling 2 candidate MCVPs (openai)
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 3 obligations: ['OBL_pre', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Function, variable, struct or modifier declaration expected.
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Function, variable, struct or modifier declaration expected.
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Function, variable, struct or modifier declaration expected.
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'phases'] in_progress=['composition', 'exposure_invariant']
+  [round 1] CEGAR refinement constraint built for exposure_invariant
+  [round 2] validation passed
+  [round 2] compiled 3 obligations: ['OBL_pre', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Function, variable, struct or modifier declaration expected.
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Function, variable, struct or modifier declaration expected.
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Function, variable, struct or modifier declaration expected.
+  [round 2] correct=['closure', 'protocol', 'ghost_state', 'phases'] in_progress=['composition', 'exposure_invariant']
+  [round 2] CEGAR refinement constraint built for exposure_invariant
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation passed
+  [round 2] compiled 3 obligations: ['OBL_pre', 'OBL_post', 'OBL_stable_implies_target']
+      OBL_pre [phases]: UNKNOWN :: solc compile error: Error: Function, variable, struct or modifier declaration expected.
+      OBL_post [phases]: UNKNOWN :: solc compile error: Error: Function, variable, struct or modifier declaration expected.
+      OBL_stable_implies_target [composition]: UNKNOWN :: solc compile error: Error: Function, variable, struct or modifier declaration expected.
+  [round 2] correct=['closure', 'protocol', 'ghost_state', 'phases'] in_progress=['composition', 'exposure_invariant']
+  [round 2] CEGAR refinement constraint built for exposure_invariant
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['inFlightNine', 'inFlightTen', 'snapTotalSupplyNine', 'snapTotalSupplyTen']

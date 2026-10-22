@@ -1,0 +1,38 @@
+analyzer : ast
+target   : pendingmarketingFees <= _balances[address(this)]
+
+  _allowances                      mapping(address => mapping(address => uint256))
+  _balances                        mapping(address => uint256)
+  _isBlacklisted                   mapping(address => bool)
+  _isExcludedFromFees              mapping(address => bool)
+  _isExcludedFromLimits            mapping(address => bool)
+  _name                            string
+  _owner                           address
+  _symbol                          string
+  _totalSupply                     uint256
+  automatedMarketMakerPairs        mapping(address => bool)
+  buyLPFee                         uint256
+  buyMarketingFee                  uint256
+  marketingAddress                 address payable
+  maxFeePercent                    uint256
+  maxTxAmount                      uint256
+  maxWalletAmount                  uint256
+  pendingmarketingFees             uint256
+  sellLPFee                        uint256
+  sellMarketingFee                 uint256
+  swapTokensAtAmount               uint256
+  swapping                         bool
+  tradingOpen                      bool
+  uniswapV2Pair                    address
+  uniswapV2Router                  contract IUniswapV2Router02
+
+sites:
+  feeClaim.call#0 before=[] after=['pendingmarketingFees']
+  claimMarketingFees.call#0 before=['swapping'] after=['pendingmarketingFees', 'swapping']
+  updateUniswapV2Router.createPair#0 before=['uniswapV2Router'] after=['uniswapV2Pair']
+  retrieveStuckTokens.balanceOf#0 before=[] after=[]
+  retrieveStuckTokens.transfer#1 before=[] after=[]
+  retrieveStuckEth.call#0 before=[] after=[]
+  addLiquidity.addLiquidityETH#0 before=[] after=[]
+
+closure : ['claimMarketingFees', 'transfer', 'transferFrom']

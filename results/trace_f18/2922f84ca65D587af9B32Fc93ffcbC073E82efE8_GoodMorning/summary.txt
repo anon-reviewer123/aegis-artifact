@@ -1,0 +1,60 @@
+STATUS: VERIFIED
+exposure invariant: _sum__rOwned == _totalProportion
+candidates tried: 1   repair rounds: 1
+
+[1] static analysis (ast): storage=['DEAD', 'TeamFeeBuy', 'TeamFeeReceiver', 'TeamFeeSell', 'WETH', 'ZERO', '_allowances', '_decimals', '_maxTxAmount', '_maxWalletSize', '_name', '_owner', '_rOwned', '_symbol', '_totalProportion', '_totalSupply', 'alternateSwaps', 'autoLiquidityReceiver', 'claimingFees', 'feeDenominator', 'inSwap', 'isFeeExempt', 'isTxLimitExempt', 'largeSwapThreshold', 'liquidityFeeBuy', 'liquidityFeeSell', 'marketingFeeBuy', 'marketingFeeReceiver', 'marketingFeeSell', 'pair', 'reflectionFeeBuy', 'reflectionFeeSell', 'router', 'smallSwapThreshold', 'swapThreshold', 'targetLiquidity', 'targetLiquidityDenominator', 'totalFeeBuy', 'totalFeeSell', 'tradingOpen']
+[2] exposure site: swapBack -> .addLiquidityETH (value-forwarding external call can re-enter)
+    conservative closure: ['transfer', 'transferFrom']
+[access] outside the closure under the trusted-roles assumption: ['clearERC20Token', 'openTrading', 'removeLimits', 'renounceOwnership', 'setFees', 'setSwapBackSettings', 'transferOwnership']
+[harness] cached 2922f84ca65D587af9B32Fc93ffcbC073E82efE8_GoodMorning.harness.sol is stale (contract or synthesizer changed since it was written); regenerating
+[harness] wrote synthesized harness to 2922f84ca65D587af9B32Fc93ffcbC073E82efE8_GoodMorning.harness.sol (18006 chars)
+[harness] conforms to interface (found 35 functions, 58 public state vars)
+[3] deterministic candidate -- the pre-phase writes none of the target's variables, so the target itself holds at the call
+-- candidate 0 --
+  [round 1] validation passed
+  [round 1] compiled 6 obligations: ['OBL_pre', 'OBL_cb_transfer', 'OBL_cb_transferFrom', 'OBL_post', 'OBL_reach_transfer_canary', 'OBL_reach_transferFrom_canary']
+  [round 1] sliced harness: up to 61 state variables -> at most 31 per obligation
+      OBL_pre [phases]: VERIFIED
+      OBL_cb_transfer [closure]: VERIFIED
+      OBL_cb_transferFrom [closure]: VERIFIED
+      OBL_post [phases]: VERIFIED
+      OBL_reach_transfer_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+      OBL_reach_transferFrom_canary [phases]: FAILED :: BMC completed the callback from a state satisfying the assumption [one-step witness]
+  [round 1] correct=['closure', 'protocol', 'ghost_state', 'exposure_invariant', 'phases', 'composition'] in_progress=[]
+  [round 1] FIXPOINT -> VERIFIED (real solver)
+Assume-Guarantee specification for GoodMorning
+  target property phi : _sum__rOwned == _totalProportion
+
+  [A_cb]  ASSUMPTION (assumption)
+          During swapBack's exposed phase, re-entrant control is confined to the callback closure ['transfer', 'transferFrom']; every such callback is admitted by the protocol, with bounded nesting.
+          formal: admissible_callbacks=['transfer', 'transferFrom'], nesting={'swapBack': 1}
+          discharged by: ['OBL_closure_soundness']
+
+  [G_pre] GUARANTEE
+          If the stable invariant holds on entry, the pre-phase establishes the exposure invariant before the external call.
+          formal: {_sum__rOwned == _totalProportion} pre-phase {_sum__rOwned == _totalProportion}
+          discharged by: ['OBL_pre']
+
+  [G_exp] GUARANTEE
+          Every callback admitted by A_cb preserves the exposure invariant while the contract is externally exposed.
+          formal: forall f in A_cb. {_sum__rOwned == _totalProportion} f {_sum__rOwned == _totalProportion}
+          discharged by: ['OBL_cb_transfer', 'OBL_cb_transferFrom']
+
+  [G_post] GUARANTEE
+          When the external call returns, the post-phase restores the stable invariant and fully settles the in-flight ghost state.
+          formal: {_sum__rOwned == _totalProportion} post-phase {_sum__rOwned == _totalProportion /\ inFlight==0}
+          discharged by: ['OBL_post']
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => _sum__rOwned == _totalProportion
+      where callbacks are confined to admissible_callbacks=['transfer', 'transferFrom'], nesting={'swapBack': 1}
+
+obligation files (in order):
+  001_c0_r1_OBL_pre_onestep                            status: verified
+  002_c0_r1_OBL_cb_transfer_onestep                    status: verified
+  003_c0_r1_OBL_cb_transferFrom_onestep                status: verified
+  004_c0_r1_OBL_post_onestep                           status: verified
+  005_c0_r1_OBL_reach_transfer_canary                  status: unknown
+  006_c0_r1_OBL_reach_transfer_canary_onestep          status: failed
+  007_c0_r1_OBL_reach_transferFrom_canary              status: unknown
+  008_c0_r1_OBL_reach_transferFrom_canary_onestep      status: failed

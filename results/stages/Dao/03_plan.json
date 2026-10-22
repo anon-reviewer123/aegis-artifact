@@ -1,0 +1,63 @@
+{
+ "contract": "Dao",
+ "closure": {
+  "site_function": "withdraw",
+  "site_call": ".call",
+  "functions": [
+   "deposit",
+   "withdraw"
+  ],
+  "justification": "Both deposit and withdraw functions touch the balances storage variable, which is exposed during the risky call in withdraw."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "deposit"
+  ],
+  "nesting_bound": {
+   "withdraw": 1
+  }
+ },
+ "phases": {
+  "function": "withdraw",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before .call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before .call",
+   "to_marker": "after .call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after .call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after .call"
+ },
+ "ghost_state": [
+  {
+   "name": "_sum_balances",
+   "sol_type": "uint256",
+   "meaning": "Sum of all balances in the contract",
+   "backed_by_storage": true
+  },
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Amount in-flight during the callback window",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_sum_balances == address(this).balance + inFlight",
+  "stable_formula": "_sum_balances == address(this).balance",
+  "kind": "conserve"
+ },
+ "composition": {
+  "target_property": "_sum_balances == address(this).balance",
+  "rule": "The exposure invariant ensures that the sum of balances is conserved across the callback window, accounting for in-flight transfers."
+ }
+}

@@ -1,0 +1,47 @@
+analyzer : ast
+target   : _sum__balances + _swapLimit == _totalSupply
+
+  _allowances                      mapping(address => mapping(address => uint256))
+  _antiMevBlock                    uint256
+  _balances                        mapping(address => uint256)
+  _buyTaxRate                      uint8
+  _decimals                        uint8
+  _inTaxSwap                       bool
+  _isLP                            mapping(address => bool)
+  _launchBlock                     uint256
+  _lpOwner                         address
+  _maxTxAmount                     uint256
+  _maxWalletAmount                 uint256
+  _name                            string
+  _noFees                          mapping(address => bool)
+  _noLimits                        mapping(address => bool)
+  _owner                           address
+  _primaryLP                       address
+  _primarySwapRouter               contract IUniswapV2Router02
+  _sellTaxRate                     uint8
+  _swapLimit                       uint256
+  _swapRouterAddress               address
+  _symbol                          string
+  _taxSharesDevelopment            uint16
+  _taxSharesLP                     uint16
+  _taxSharesMarketing              uint16
+  _taxSwapMax                      uint256
+  _taxSwapMin                      uint256
+  _totalSupply                     uint256
+  _totalTaxShares                  uint16
+  _tradingOpen                     bool
+  _walletDevelopment               address payable
+  _walletMarketing                 address payable
+  antiSnipeBlocks1                 uint8
+  antiSnipeBlocks2                 uint8
+  antiSnipeTax1                    uint8
+  antiSnipeTax2                    uint8
+
+sites:
+  addLiquidity.call#1 before=['_balances', '_primaryLP'] after=['_isLP']
+  addLiquidity.createPair#0 before=[] after=['_balances', '_primaryLP']
+  _distributeTaxEth.transfer#0 before=[] after=[]
+  _distributeTaxEth.transfer#1 before=[] after=[]
+  _addLiquidity.addLiquidityETH#0 before=[] after=[]
+
+closure : ['addLiquidity', 'burn', 'manualTaxSwapAndSend', 'transfer', 'transferFrom']

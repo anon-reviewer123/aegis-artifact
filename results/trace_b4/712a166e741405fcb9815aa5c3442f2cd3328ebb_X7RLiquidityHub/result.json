@@ -1,0 +1,74 @@
+{
+ "status": "BUG_FOUND",
+ "candidates_tried": 2,
+ "repair_rounds": 1,
+ "obligations": [
+  {
+   "obligation": "OBL_pre",
+   "module": "phases",
+   "status": "verified",
+   "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+  },
+  {
+   "obligation": "OBL_cb___fallback",
+   "module": "closure",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  },
+  {
+   "obligation": "OBL_cb_processFees",
+   "module": "closure",
+   "status": "unknown",
+   "detail": "SMTChecker could not prove (timeout/unsupported)"
+  },
+  {
+   "obligation": "OBL_cb_sendDistributeBalance",
+   "module": "closure",
+   "status": "verified",
+   "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+  },
+  {
+   "obligation": "OBL_cb_sendTreasuryBalance",
+   "module": "closure",
+   "status": "verified",
+   "detail": "SMTChecker (CHC/Eldarica) proved the assertion safe"
+  },
+  {
+   "obligation": "OBL_post",
+   "module": "phases",
+   "status": "unknown",
+   "detail": "solc wall-clock timeout"
+  },
+  {
+   "obligation": "OBL_reach___fallback_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "SMTChecker found an assertion violation"
+  },
+  {
+   "obligation": "OBL_reach_processFees_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "BMC completed the callback from a state satisfying the assumption [one-step witness]"
+  },
+  {
+   "obligation": "OBL_reach_sendDistributeBalance_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "BMC completed the callback from a state satisfying the assumption [one-step witness]"
+  },
+  {
+   "obligation": "OBL_reach_sendTreasuryBalance_canary",
+   "module": "phases",
+   "status": "failed",
+   "detail": "BMC completed the callback from a state satisfying the assumption [one-step witness]"
+  },
+  {
+   "obligation": "OBL_stable_implies_target",
+   "module": "composition",
+   "status": "verified",
+   "detail": "BMC proved the single-step triple from an arbitrary state [one-step]"
+  }
+ ],
+ "exposure_invariant": "_ethBal == distributeBalance + treasuryBalance + liquidityBalance + inFlight"
+}

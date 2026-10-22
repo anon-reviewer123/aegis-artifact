@@ -1,0 +1,8 @@
+contract,path,stage,detail
+BULLRUNNERSCLUB,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/13/1334cbc8883b4f6aa4a77997558e8164e7c9d514_BULLRUNNERSCLUB.sol,VERIFIED,
+BPYC,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/04/0498E07A28165CB91F6895aEa92884495d60ce87_BPYC.sol,obligation undecided,OBL_reach_transfer_canary: SMTChecker could not prove (timeout/unsupported)
+TraderSpirits,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/1e/1ee25918be81b842739a107957a6a4d3c7625248_TraderSpirits.sol,obligation undecided,OBL_cb_mintByUser: SMTChecker could not prove (timeout/unsupported)
+GoodMorning,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/29/2922f84ca65D587af9B32Fc93ffcbC073E82efE8_GoodMorning.sol,obligation undecided,OBL_reach_transfer_canary: SMTChecker could not prove (timeout/unsupported)
+NeoCypherpunk,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/34/34940D738F211c43E35Ae0d8D89C622eE73FB5AD_NeoCypherpunk.sol,obligation undecided,OBL_cb_transfer: SMTChecker could not prove (timeout/unsupported)
+QuantumEnergy,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/ce/ceaf9dfe40f9c0ba586f2990c4b33c4c98a53d8b_QuantumEnergy.sol,obligation undecided,OBL_cb_transfer: SMTChecker could not prove (timeout/unsupported)
+AmenoToken,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/fe/fe5842df00dc32734d36e0c2b40b858426981b9b_AmenoToken.sol,timeout,wall-clock budget

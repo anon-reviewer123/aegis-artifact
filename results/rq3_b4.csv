@@ -1,0 +1,6 @@
+contract,path,stage,detail
+WAsgard,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/58/586fa9a62905B501377F885D69083C6e5bf167Cb_WAsgard.sol,compile error,OBL_view_withdrawnDividendOf: solc compile error: Error: Undeclared identifier.  @  _sum_deposits  +
+X7DAOLiquidityHub,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/7d/7da0a524d323cddaf3d465ba617230f6b91d3ebb_X7DAOLiquidityHub.sol,harness nonconforming,HARNESS UNSUPPORTED: the exposure call is not in processFees itself (reached through a helper)
+Yeeter,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/c3/c3bd3b0d98c614d1eb3cdf0f6b593cc6a0df2dfe_Yeeter.sol,VERIFIED,
+X7RLiquidityHub,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/71/712a166e741405fcb9815aa5c3442f2cd3328ebb_X7RLiquidityHub.sol,BUG_FOUND,
+BadBunnyNFTS,/home/kartik/Downloads/aegis_dist/../scs-eth/contracts/mainnet/da/dae0dc58403e6a4df419471f2920e486fb577810_BadBunnyNFTS.sol,timeout,wall-clock budget

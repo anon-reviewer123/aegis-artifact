@@ -1,0 +1,63 @@
+{
+ "contract": "WAsgard",
+ "closure": {
+  "site_function": "claimInactiveAccountDividends",
+  "site_call": ".call",
+  "functions": [
+   "claimDividends",
+   "unwrap",
+   "wrap"
+  ],
+  "justification": "Functions claimDividends, unwrap, and wrap manipulate state that could affect or be affected by the dividends and deposit balances during reentrant calls to claimInactiveAccountDividends."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "claimDividends",
+   "unwrap",
+   "wrap"
+  ],
+  "nesting_bound": {
+   "unwrap": 1,
+   "wrap": 1,
+   "claimDividends": 1
+  }
+ },
+ "phases": {
+  "function": "claimInactiveAccountDividends",
+  "pre": {
+   "name": "pre",
+   "from_marker": "entry",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "exit"
+  },
+  "linearization_point": "before_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Amount of balances being adjusted by in-transit dividends during the exposed phase",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_sum__balances == _totalSupply + inFlight",
+  "stable_formula": "_sum__balances == _totalSupply",
+  "kind": "conserve",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "_sum__balances == _totalSupply",
+  "rule": "The invariant conserves the balance sum across the reentrant exposure window, ensuring callback actions do not violate the target property."
+ }
+}

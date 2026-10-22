@@ -1,0 +1,9 @@
+status: unknown
+
+
+Warning: CHC: Assertion violation might happen here.
+   --> /tmp/tmptqog_m_o/Obligation.sol:181:13:
+    |
+181 |             assert(false);       // must be REFUTED: this state is reachable
+    |             ^^^^^^^^^^^^^
+

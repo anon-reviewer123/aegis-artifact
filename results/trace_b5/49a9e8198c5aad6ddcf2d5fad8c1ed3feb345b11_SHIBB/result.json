@@ -1,0 +1,14 @@
+{
+ "status": "HARNESS_NONCONFORMING",
+ "candidates_tried": 0,
+ "repair_rounds": 0,
+ "obligations": [
+  {
+   "obligation": "harness_interface",
+   "module": "harness",
+   "status": "failed",
+   "detail": "HARNESS UNSUPPORTED: the exposure call is not in transferFrom itself (reached through a helper)"
+  }
+ ],
+ "exposure_invariant": null
+}

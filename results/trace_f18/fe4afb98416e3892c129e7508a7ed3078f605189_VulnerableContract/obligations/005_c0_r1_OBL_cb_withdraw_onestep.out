@@ -1,0 +1,31 @@
+status: unknown
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmphbuedokh/OneStep.sol:52:23:
+   |
+52 |     function withdraw(uint256 amount) public {
+   |                       ^^^^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+  --> /tmp/tmphbuedokh/OneStep.sol:64:17:
+   |
+64 |                 assert(_sum_balances == _ethBal);            
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: Counterexample:
+  __prev1 = 8366
+  _ethBal = 8366
+  _sum_balances = 0
+  amount = 0
+  balances[msg.sender] = 8366
+  exposed = true
+  inFlight = 0
+  snapPre = 0
+  this = 1
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

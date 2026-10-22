@@ -1,0 +1,9 @@
+
+======================================================================
+SafePaymentVault
+harness  : compiles  (115 lines)
+Iexp     : TotalBalance == address(this).balance + inFlight
+OBL_pre                     : compiles  (75 lines)
+OBL_cb_GetTotalBalance      : compiles  (77 lines)
+OBL_cb_MakeDeposit          : compiles  (76 lines)
+OBL_post                    : compiles  (85 lines)

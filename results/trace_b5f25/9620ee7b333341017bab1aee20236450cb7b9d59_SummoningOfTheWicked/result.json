@@ -1,0 +1,14 @@
+{
+ "status": "UNKNOWN",
+ "candidates_tried": 0,
+ "repair_rounds": 0,
+ "obligations": [
+  {
+   "obligation": "target",
+   "module": "target",
+   "status": "unknown",
+   "detail": "target is a tautology"
+  }
+ ],
+ "exposure_invariant": null
+}

@@ -1,0 +1,63 @@
+status: unknown
+
+[solc]
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpfka9novf/OneStep.sol:24:27:
+   |
+24 |     function __havoc_cfg1(bool __x0, bool __x1, uint256 __x2, uint256 __x3, address __x4) public {
+   |                           ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpfka9novf/OneStep.sol:24:38:
+   |
+24 |     function __havoc_cfg1(bool __x0, bool __x1, uint256 __x2, uint256 __x3, address __x4) public {
+   |                                      ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpfka9novf/OneStep.sol:24:63:
+   |
+24 |     function __havoc_cfg1(bool __x0, bool __x1, uint256 __x2, uint256 __x3, address __x4) public {
+   |                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpfka9novf/OneStep.sol:24:77:
+   |
+24 |     function __havoc_cfg1(bool __x0, bool __x1, uint256 __x2, uint256 __x3, address __x4) public {
+   |                                                                             ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpfka9novf/OneStep.sol:45:25:
+   |
+45 |     function depositFor(address who, uint256 amount) public {
+   |                         ^^^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmpfka9novf/OneStep.sol:191:13:
+    |
+191 |             assert(team_balance == _ethBal);             
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: Counterexample:
+  _ethBal = 1
+  amount = 0
+  exposed = false
+  inFlight = 0
+  snapPre = 0
+  team_balance = 0
+  this = 5854
+
+Note: Callstack:
+Note:
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpfka9novf/OneStep.sol:192:13:
+    |
+192 |             assert(inFlight == 0);     
+    |             ^^^^^^^^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpfka9novf/OneStep.sol:193:13:
+    |
+193 |             assert(!exposed);             
+    |             ^^^^^^^^^^^^^^^^
+

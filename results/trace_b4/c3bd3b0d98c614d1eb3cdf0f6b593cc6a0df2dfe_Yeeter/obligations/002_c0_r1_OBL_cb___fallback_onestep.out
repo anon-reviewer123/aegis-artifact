@@ -1,0 +1,27 @@
+status: verified
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmpegwfnjii/OneStep.sol:100:9:
+    |
+100 |         uint256 newValue = numUnits * pricePerUnit;
+    |         ^^^^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmpegwfnjii/OneStep.sol:43:5:
+   |
+43 |     uint256 public newValue;   // [cross-phase] PRE local used in POST
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmpegwfnjii/OneStep.sol:79:25:
+   |
+79 |     function __fallback(uint256 amount) public {
+   |                         ^^^^^^^^^^^^^^
+
+Info: BMC: Assertion violation check is safe!
+   --> /tmp/tmpegwfnjii/OneStep.sol:118:17:
+    |
+118 |                 assert(_sum_deposits == balance);            
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+

@@ -1,0 +1,15 @@
+status: failed
+
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp34h6aqy1/Obligation.sol:71:23:
+   |
+71 |     function withdraw(uint256 amount) public {
+   |                       ^^^^^^^^^^^^^^
+
+Warning: CHC: Assertion violation happens here.
+  --> /tmp/tmp34h6aqy1/Obligation.sol:90:13:
+   |
+90 |             assert(false);       // must be REFUTED: this state is reachable
+   |             ^^^^^^^^^^^^^
+

@@ -1,0 +1,61 @@
+{
+ "contract": "BPYC",
+ "closure": {
+  "site_function": "swapBack",
+  "site_call": ".addLiquidityETH",
+  "functions": [
+   "swapBack",
+   "setSwapBackSettings",
+   "transfer",
+   "transferFrom"
+  ],
+  "justification": "These functions interact with the exposed storage variables 'inSwap' and 'swapThreshold'."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "setSwapBackSettings",
+   "transfer",
+   "transferFrom"
+  ],
+  "nesting_bound": {
+   "swapBack": 1
+  }
+ },
+ "phases": {
+  "function": "swapBack",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_addLiquidityETH"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_addLiquidityETH",
+   "to_marker": "after_addLiquidityETH"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_addLiquidityETH",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_addLiquidityETH"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Tracks the amount of '_rOwned' in-flight during the callback window.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_sum__rOwned == _totalProportion + inFlight",
+  "stable_formula": "_sum__rOwned == _totalProportion",
+  "kind": "conserve"
+ },
+ "composition": {
+  "target_property": "_sum__rOwned == _totalProportion",
+  "rule": "The exposure invariant ensures that the sum of '_rOwned' is conserved across the callback window, accounting for in-flight changes."
+ }
+}

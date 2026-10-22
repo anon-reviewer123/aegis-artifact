@@ -1,0 +1,27 @@
+== Aegis on 70000299ee8910ccacd97b1bb560e34f49c9e4f7_X7Pioneer.sol ==
+target property: rewardsClaimed[tokenId] <= totalRewards / totalSupply()
+[backend] REAL SMTChecker (solc on PATH) -- results are sound
+[1] static analysis (ast): storage=['_ENTERED', '_NOT_ENTERED', '_allTokens', '_allTokensIndex', '_balances', '_internalBaseURI', '_name', '_operatorApprovals', '_ownedTokens', '_ownedTokensIndex', '_owner', '_owners', '_status', '_symbol', '_tokenApprovals', 'airdropActive', 'allowTokenOwnerVariantSelection', 'lastETHBalance', 'receivedAirdrop', 'rewardsClaimed', 'selectedVariantIndex', 'totalRewards', 'transferUnlockFee', 'transferUnlockFeeDestination', 'transferUnlocked']
+[2] exposure site: claimRewards -> .call (low-level value transfer can re-enter)
+    conservative closure: ['claimRewards']
+[harness] reusing synthesized harness 70000299ee8910ccacd97b1bb560e34f49c9e4f7_X7Pioneer.harness.sol (fingerprint matches)
+[harness] conforms to interface (found 16 functions, 27 public state vars)
+[readonly] 1 public view(s) admitted by the footprint premise on the window opened by claimRewards
+      OBL_view_unclaimedRewards: CANARY DID NOT FIRE (status unknown); harness did not compile -- reporting UNKNOWN for this view :: solc compile error: Error: Identifier already declared.
+[3] sampling 2 candidate MCVPs (stub)
+-- candidate 0 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+-- candidate 1 --
+  [round 1] validation flagged: ['exposure_invariant']
+  [round 2] validation flagged: ['exposure_invariant']
+  repair budget (2) exhausted -> UNKNOWN
+no candidate verified -> UNKNOWN
+
+--- stderr ---
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant equals stable invariant, accepted: this site writes no storage after the call, so nothing is exposed in a torn state
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']
+  [validator] exposure invariant uses unknown identifiers ['totalAssets', 'totalShares']

@@ -1,0 +1,60 @@
+{
+ "contract": "TRYPTO",
+ "closure": {
+  "site_function": "take_marketing",
+  "site_call": ".call",
+  "functions": [
+   "transfer",
+   "transferFrom"
+  ],
+  "justification": "All functions that can affect _ethBal, marketing_balance, or growth_balance are included."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "transfer",
+   "transferFrom"
+  ],
+  "nesting_bound": {
+   "transfer": 1,
+   "transferFrom": 1
+  }
+ },
+ "phases": {
+  "function": "take_marketing",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before_call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before_call",
+   "to_marker": "after_call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after_call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after_call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Amount of ETH in-flight during the callback window",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_ethBal == marketing_balance + growth_balance + inFlight",
+  "stable_formula": "_ethBal == marketing_balance + growth_balance",
+  "kind": "additive",
+  "derived_from_pre": false
+ },
+ "composition": {
+  "target_property": "marketing_balance + growth_balance <= _ethBal",
+  "rule": "The exposure invariant ensures that the sum of marketing_balance and growth_balance, plus any in-flight ETH, does not exceed _ethBal."
+ }
+}

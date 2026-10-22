@@ -1,0 +1,126 @@
+status: failed
+
+[solc]
+
+Warning: This declaration shadows an existing declaration.
+   --> /tmp/tmp68sljyy7/OneStep.sol:136:9:
+    |
+136 |         address owner,
+    |         ^^^^^^^^^^^^^
+Note: The shadowed declaration is here:
+  --> /tmp/tmp68sljyy7/OneStep.sol:18:5:
+   |
+18 |     address public owner;
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp68sljyy7/OneStep.sol:21:27:
+   |
+21 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp68sljyy7/OneStep.sol:21:41:
+   |
+21 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                         ^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp68sljyy7/OneStep.sol:21:53:
+   |
+21 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                     ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp68sljyy7/OneStep.sol:21:67:
+   |
+21 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                   ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp68sljyy7/OneStep.sol:21:81:
+   |
+21 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                 ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp68sljyy7/OneStep.sol:21:95:
+   |
+21 |     function __havoc_cfg0(address __x0, uint8 __x1, uint256 __x2, uint256 __x3, uint256 __x4, uint256 __x5, uint256 __x6, uint256 __x7) public {
+   |                                                                                               ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp68sljyy7/OneStep.sol:27:27:
+   |
+27 |     function __havoc_cfg2(address __x0, address __x1, bool __x2, bool __x3, address __x4, address __x5) public {
+   |                           ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp68sljyy7/OneStep.sol:27:41:
+   |
+27 |     function __havoc_cfg2(address __x0, address __x1, bool __x2, bool __x3, address __x4, address __x5) public {
+   |                                         ^^^^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp68sljyy7/OneStep.sol:27:55:
+   |
+27 |     function __havoc_cfg2(address __x0, address __x1, bool __x2, bool __x3, address __x4, address __x5) public {
+   |                                                       ^^^^^^^^^
+
+Warning: Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> /tmp/tmp68sljyy7/OneStep.sol:27:66:
+   |
+27 |     function __havoc_cfg2(address __x0, address __x1, bool __x2, bool __x3, address __x4, address __x5) public {
+   |                                                                  ^^^^^^^^^
+
+Warning: BMC: Assertion violation happens here.
+   --> /tmp/tmp68sljyy7/OneStep.sol:216:13:
+    |
+216 |             assert(false);       
+    |             ^^^^^^^^^^^^^
+Note: Counterexample:
+   = 37
+  __a10_recipient = 42
+  __a8_recipient = 0
+  __a9_sender = 3
+  _allowances[owner][spender] = 136
+  _allowances[sender][__h__msgSender()] = 136
+  _balances[recipient] = 113
+  _balances[sender] = 118
+  _balances[who] = 105
+  _ethBal = 20
+  _isExcludedFromFee[from] = false
+  _isExcludedFromFee[to] = false
+  _taxFee = 21
+  _taxFeeOnBuy = 19
+  _taxFeeOnSell = 23
+  _taxesAmount = 88
+  actualTaxes = 90
+  amount = 19
+  exposed = true
+  from = 3
+  growth_balance = 19
+  inFlight = 20
+  isBuy = false
+  isSell = false
+  local_taxes = 95
+  marketing_balance = 19
+  owner = 3
+  perc = 93
+  recipient = 91
+  sender = 89
+  snapPre = 0
+  spender = 37
+  takeFee = false
+  taxedAmount = 94
+  this = 1
+  to = 42
+  uniswapV2Pair = 1
+  uniswapV2Router = 1
+  who = 37
+
+Note: Callstack:
+Note: 
+Note that array aliasing is not supported, therefore all mapping information is erased after a mapping local variable/parameter is assigned.
+You can re-introduce information using require().
+

@@ -1,0 +1,37 @@
+analyzer : ast
+target   : publicMinted <= publicMintLimit
+
+  _balances                        mapping(address => uint256)
+  _name                            string
+  _operatorApprovals               mapping(address => mapping(address => bool))
+  _owner                           address
+  _owners                          mapping(uint256 => address)
+  _symbol                          string
+  _tokenApprovals                  mapping(uint256 => address)
+  airDropMinted                    uint256
+  baseUri                          string
+  giftMintId                       uint256
+  giftMintLimit                    uint256
+  giftMinted                       uint256
+  isHalted                         bool
+  isPaused                         bool
+  mintPrice                        uint256
+  notRevealedUri                   string
+  owners                           mapping(address => bool)
+  perTxQuantity                    uint256
+  perWalletQuantity                uint256
+  privateSaleIsActive              bool
+  publicMintId                     uint256
+  publicMintLimit                  uint256
+  publicMinted                     uint256
+  publicSaleIsActive               bool
+  revealed                         bool
+  totalMinted                      uint256
+  totalOwners                      uint256
+  walletMinted                     mapping(address => uint256)
+
+sites:
+  mintByUser.call#0 before=[] after=['publicMintId', 'publicMinted', 'totalMinted', 'walletMinted']
+  _checkOnERC721Received.onERC721Received#0 before=[] after=[]
+
+closure : ['airDropToken', 'giftMint', 'mintByOwner', 'mintByUser']

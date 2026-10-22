@@ -1,0 +1,63 @@
+{
+ "contract": "WuZeTian",
+ "closure": {
+  "site_function": "addLiquidity",
+  "site_call": ".call",
+  "functions": [
+   "addLiquidity",
+   "burn",
+   "manualTaxSwapAndSend",
+   "transfer",
+   "transferFrom"
+  ],
+  "justification": "These functions interact with the exposed storage variables during the callback window."
+ },
+ "protocol": {
+  "during_phase": "exposed",
+  "allowed_callbacks": [
+   "burn",
+   "manualTaxSwapAndSend",
+   "transfer",
+   "transferFrom"
+  ],
+  "nesting_bound": {
+   "addLiquidity": 1
+  }
+ },
+ "phases": {
+  "function": "addLiquidity",
+  "pre": {
+   "name": "pre",
+   "from_marker": "start",
+   "to_marker": "before .call"
+  },
+  "exposed": {
+   "name": "exposed",
+   "from_marker": "before .call",
+   "to_marker": "after .call"
+  },
+  "post": {
+   "name": "post",
+   "from_marker": "after .call",
+   "to_marker": "end"
+  },
+  "linearization_point": "after .call"
+ },
+ "ghost_state": [
+  {
+   "name": "inFlight",
+   "sol_type": "uint256",
+   "meaning": "Tracks the amount of tokens in transit during the callback window.",
+   "backed_by_storage": false
+  }
+ ],
+ "exposure_invariant": {
+  "formula": "_sum__balances + _swapLimit == _totalSupply + inFlight",
+  "stable_formula": "_sum__balances + _swapLimit == _totalSupply",
+  "kind": "conserve"
+ },
+ "composition": {
+  "target_property": "_sum__balances + _swapLimit == _totalSupply",
+  "rule": "The exposure invariant ensures that the total supply is conserved across the callback window, accounting for in-flight transfers."
+ }
+}
