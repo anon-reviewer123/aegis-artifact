@@ -1,0 +1,67 @@
+{
+ "contract": "GasCappedPayout",
+ "cid": "DP10",
+ "dataset": "deployed_style",
+ "family": "forced_revert_loop",
+ "pair": null,
+ "ground_truth_label": "unknown",
+ "label_rationale": "the branch after the call is taken based on a 2300-gas-limited call's success, which depends on the callee's gas use",
+ "mechanism": "flattened payout using a 2300-gas-capped call whose success drives accounting",
+ "target_property": "totalOwed accounting under gas-capped payout",
+ "arm": "unknown",
+ "arm_reason": "the control flow after the call depends on a 2300-gas-capped transfer whose success is gas-sensitive; the modeled adversary does not reason about gas, so this site is reported UNKNOWN rather than VERIFIED",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "UNKNOWN",
+ "outcome_vs_label": "N/V",
+ "outcome_note": "UNKNOWN",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 0.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "owed",
+    "type": "mapping(address => uint256)",
+    "contract": "GasCappedPayout",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalOwed",
+    "type": "uint256",
+    "contract": "GasCappedPayout",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "settledFlag",
+    "type": "uint256",
+    "contract": "GasCappedPayout",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "GasCappedPayout",
+    "function": "payout",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 29,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "GasCappedPayout",
+   "Context"
+  ]
+ },
+ "scope_boundary": {
+  "model_gap": "gas-sensitive observation",
+  "detail": "the post-call branch reads the success flag of a gas{2300} call; the progress schema's callee outcome ok in {true,false} is sound, but booking settledFlag on a gas-sensitive result is not captured by the depth-one model"
+ },
+ "why_unknown": "the control flow after the call depends on a 2300-gas-capped transfer whose success is gas-sensitive; the modeled adversary does not reason about gas, so this site is reported UNKNOWN rather than VERIFIED"
+}

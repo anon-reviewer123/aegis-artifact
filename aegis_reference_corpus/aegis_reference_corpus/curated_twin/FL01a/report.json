@@ -1,0 +1,271 @@
+{
+ "contract": "LendingPool_FL01a",
+ "cid": "FL01a",
+ "dataset": "curated_twin",
+ "family": "flash_loan",
+ "pair": "FL01",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "repayment is checked only through cash, so a deposit made inside the callback repays the loan and also mints shares",
+ "mechanism": "lending pool: flash-loan repayment is checked against the pool's cash",
+ "target_property": "cash >= totalShares",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 81.8,
+ "static": {
+  "state_vars": [
+   {
+    "name": "FEE",
+    "type": "uint256",
+    "contract": "LendingPool_FL01a",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "shares",
+    "type": "mapping(address => uint256)",
+    "contract": "LendingPool_FL01a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "cash",
+    "type": "uint256",
+    "contract": "LendingPool_FL01a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalShares",
+    "type": "uint256",
+    "contract": "LendingPool_FL01a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "inLoan",
+    "type": "bool",
+    "contract": "LendingPool_FL01a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "LendingPool_FL01a",
+    "function": "flashLoan",
+    "call": ".onFlashLoan",
+    "kind": "receiver hook",
+    "line": 31,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "LendingPool_FL01a"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "deposit",
+    "repay",
+    "flashLoan"
+   ],
+   "footprint": [
+    "cash",
+    "inLoan",
+    "totalShares"
+   ],
+   "mcvp": {
+    "contract": "LendingPool_FL01a",
+    "closure": {
+     "site_function": "flashLoan",
+     "site_call": ".onFlashLoan",
+     "functions": [
+      "deposit",
+      "repay",
+      "flashLoan"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['cash', 'inLoan', 'totalShares']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "deposit",
+      "repay",
+      "flashLoan"
+     ],
+     "nesting_bound": {
+      "flashLoan": 1
+     }
+    },
+    "phases": {
+     "function": "flashLoan",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .onFlashLoan"
+     },
+     "exposed": {
+      "from_marker": "before .onFlashLoan",
+      "to_marker": "after .onFlashLoan"
+     },
+     "post": {
+      "from_marker": "after .onFlashLoan",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .onFlashLoan"
+    },
+    "ghost_state": [
+     {
+      "name": "snapCash",
+      "sol_type": "uint256",
+      "meaning": "cash at loan entry (the repayment baseline)",
+      "backed_by_storage": false
+     }
+    ],
+    "exposure_invariant": {
+     "formula": "snapCash >= totalShares && inLoan",
+     "stable_formula": "cash >= totalShares && !inLoan",
+     "kind": "bounded-drift"
+    },
+    "composition": {
+     "target_property": "cash >= totalShares",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for LendingPool_FL01a\n  target property phi : cash >= totalShares\n  exposure site       : flashLoan.onFlashLoan  (flash-loan callback)\n  ghost state         : uint256 snapCash\n\n  [A_cb]  ASSUMPTION\n          During flashLoan's exposed phase, re-entrant control is confined to the\n          callback closure ['deposit', 'repay', 'flashLoan']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {cash >= totalShares && !inLoan} pre-phase {snapCash >= totalShares && inLoan}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = snapCash >= totalShares && inLoan)\n          discharged by: ['OBL_cb_deposit', 'OBL_cb_repay', 'OBL_cb_flashLoan']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {cash >= totalShares && !inLoan /\\ snapCash==0}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => cash >= totalShares\n      where callbacks are confined to admissible_callbacks=['deposit', 'repay', 'flashLoan'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.53,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 9.46,
+     "purpose": "{I_stable} pre-phase of flashLoan {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_deposit",
+     "module": "closure",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 13.2,
+     "purpose": "callback deposit preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "FEE": "1000000000000000",
+      "cash": "1",
+      "totalShares": "1",
+      "inLoan": "true",
+      "snapCash": "0",
+      "who": "0x0",
+      "p_cash": "0",
+      "p_totalShares": "0",
+      "p_inLoan": "true",
+      "p_snapCash": "0",
+      "p_shares_who": "2446",
+      "value": "1"
+     }
+    },
+    {
+     "obligation": "OBL_cb_repay",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.98,
+     "purpose": "callback repay preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_flashLoan",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 11.17,
+     "purpose": "callback flashLoan preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.37,
+     "purpose": "{I_exp} post-phase of flashLoan {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.06,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_deposit",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.76,
+     "purpose": "public transition deposit preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_repay",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.24,
+     "purpose": "public transition repay preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_cb_deposit"
+   ],
+   "unknown": [],
+   "outcome": "BUG_CANDIDATE",
+   "witness": {
+    "refuting_obligation": "OBL_cb_deposit",
+    "kind": "source-level depth-one witness (modeled semantics)",
+    "explanation": "the admissible callback deposit is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates cash >= totalShares",
+    "counterexample": {
+     "FEE": "1000000000000000",
+     "cash": "1",
+     "totalShares": "1",
+     "inLoan": "true",
+     "snapCash": "0",
+     "who": "0x0",
+     "p_cash": "0",
+     "p_totalShares": "0",
+     "p_inLoan": "true",
+     "p_snapCash": "0",
+     "p_shares_who": "2446",
+     "value": "1"
+    }
+   }
+  }
+ ]
+}

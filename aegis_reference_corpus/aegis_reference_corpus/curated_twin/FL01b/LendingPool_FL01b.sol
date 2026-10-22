@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+interface IFlashBorrower {
+    function onFlashLoan(uint256 amount, uint256 fee) external payable;
+}
+
+contract LendingPool_FL01b {
+    uint256 public constant FEE = 1e15;
+    mapping(address => uint256) public shares;
+    uint256 public cash;
+    uint256 public totalShares;
+    bool public inLoan;
+
+    function deposit() external payable {
+        require(!inLoan, "loan active");
+        shares[msg.sender] += msg.value;
+        totalShares += msg.value;
+        cash += msg.value;
+    }
+
+    function repay() external payable {
+        cash += msg.value;
+    }
+
+    function flashLoan(uint256 amount) external {
+        require(!inLoan, "nested");
+        require(amount <= cash, "liquidity");
+        uint256 before = cash;
+        inLoan = true;
+        cash -= amount;
+        IFlashBorrower(msg.sender).onFlashLoan{value: amount}(amount, FEE);
+        inLoan = false;
+        require(cash >= before + FEE, "not repaid");
+    }
+}

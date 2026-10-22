@@ -1,0 +1,97 @@
+{
+ "contract": "PresaleRefund_LP04b",
+ "cid": "LP04b",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP04",
+ "ground_truth_label": "safe",
+ "label_rationale": "a failed payment is recorded in refundCredit and the loop continues",
+ "mechanism": "cancelled presale: every buyer is refunded in one loop",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 2.2,
+ "static": {
+  "state_vars": [
+   {
+    "name": "buyers",
+    "type": "address[]",
+    "contract": "PresaleRefund_LP04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "paidIn",
+    "type": "mapping(address => uint256)",
+    "contract": "PresaleRefund_LP04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "refundCredit",
+    "type": "mapping(address => uint256)",
+    "contract": "PresaleRefund_LP04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "refundsDone",
+    "type": "bool",
+    "contract": "PresaleRefund_LP04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "PresaleRefund_LP04b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "PresaleRefund_LP04b",
+    "function": "refundAll",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 31,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   },
+   {
+    "contract": "PresaleRefund_LP04b",
+    "function": "claimFailed",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 43,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "PresaleRefund_LP04b"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "verified",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 2.25,
+   "purpose": "progress: no callee outcome halts the batch (finite failure isolation)",
+   "nonvacuity_canary": "refuted"
+  }
+ ],
+ "schema": "progress"
+}

@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  VestingBatch_LP07b   [LP07b]
+======================================================================
+dataset          : curated_twin
+family           : Forced-revert / loop
+twin / incident  : LP07
+ground-truth label: unsafe
+  label rationale : released[b] is updated after the payment call, so release(b) re-entered from the callback credits the same tranche again
+mechanism        : vesting: vested tranches are pushed in a batch loop
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : LOOP  --  a callback-capable call occurs inside a loop; the inductive loop-step rule applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+loop schema      : conservation
+loop-step target : cumulative release to every beneficiary is bounded by its vested entitlement
+exposure fact    : I_exp = released[b] <= vested[b] (entitlement bound for the visited beneficiary)
+closure note     : cbSel 1 = release(b) re-entered from the payment callback
+
+inductive one-iteration obligation (built around the extracted loop body):
+  [REFUTED ] OBL_loop_step              4.72s  canary=refuted
+            counterexample: {'totalVested': '1', 'totalReleased': '2', 'b': '0x0', 'ok': 'true', 'cbSel': '1', 'amt': '1'}
+            witness: the inductive loop step is refuted: some admissible callee outcome breaks cumulative release to every beneficiary is bounded by its vested entitlement
+
+======================================================================

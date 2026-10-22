@@ -1,0 +1,41 @@
+======================================================================
+AEGIS report  --  TipJar_CR02a   [CR02a]
+======================================================================
+dataset          : curated_twin
+family           : Classic reentrancy
+twin / incident  : CR02
+ground-truth label: unsafe
+  label rationale : the caller's tips entry and owed are cleared only after the payout call, so a re-entrant claimTips pays the same balance twice
+mechanism        : tip jar: creators claim accumulated tips
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['tip', 'claimTips']
+footprint : ['cash', 'owed', 'tips']
+I_exp     : cash + inFlight >= owed && tips[caller] >= inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         3.09s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          3.59s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_tip                        5.7s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_claimTips                 6.15s  (closure)  canary=refuted
+            counterexample: {'cash': '0', 'owed': '0', 'inFlight': '1', 'caller': '0x4819', 'who': '0x4819', 'amt': '115792089237316195423570985008687907853269984665640564039457584007913129614028'}
+  [VERIFIED] OBL_post                         4.49s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               3.65s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_tip                     4.08s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_claimTips
+  the admissible callback claimTips is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates cash >= owed
+  witness state       : {'cash': '0', 'owed': '0', 'inFlight': '1', 'caller': '0x4819', 'who': '0x4819', 'amt': '115792089237316195423570985008687907853269984665640564039457584007913129614028'}
+
+repair rounds    : 0
+
+======================================================================

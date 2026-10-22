@@ -1,0 +1,39 @@
+======================================================================
+AEGIS report  --  GenesisDrop_TH02b   [TH02b]
+======================================================================
+dataset          : curated_twin
+family           : Token-receiver hook
+twin / incident  : TH02
+ground-truth label: unsafe
+  label rationale : totalSupply is incremented after the receiver hook, so a re-entrant mint passes the supply check twice
+mechanism        : ERC721 drop with a hard supply cap; safe mint calls onERC721Received
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['mint']
+footprint : ['nextId', 'totalSupply']
+I_exp     : totalSupply + pendingSupply <= 3 && pendingSupply >= 1   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.24s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          7.05s  (phases)  canary=refuted
+  [REFUTED ] OBL_cb_mint                      9.83s  (closure)  canary=refuted
+            counterexample: {'MAX_SUPPLY': '3', 'totalSupply': '3', 'nextId': '1', 'pendingSupply': '1', 'caller': '0x0', 'who': '0x0'}
+  [VERIFIED] OBL_post                         7.01s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               3.67s  (composition)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_mint
+  the admissible callback mint is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates totalSupply <= 3
+  witness state       : {'MAX_SUPPLY': '3', 'totalSupply': '3', 'nextId': '1', 'pendingSupply': '1', 'caller': '0x0', 'who': '0x0'}
+
+repair rounds    : 0
+
+======================================================================

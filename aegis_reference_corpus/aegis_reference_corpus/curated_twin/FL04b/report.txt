@@ -1,0 +1,43 @@
+======================================================================
+AEGIS report  --  FeeVault_FL04b   [FL04b]
+======================================================================
+dataset          : curated_twin
+family           : Flash-loan callback
+twin / incident  : FL04
+ground-truth label: unsafe
+  label rationale : repayment and the fee are measured as cash gained across the callback, so a deposit made inside the loan repays it while also creating a new liability
+mechanism        : fee vault: the loan fee is booked as the cash gained across the callback
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['deposit', 'repay', 'flashLoan']
+footprint : ['cash', 'deposits', 'feesEarned', 'inLoan']
+I_exp     : snapCash >= deposits + feesEarned && inLoan   [bounded-drift]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         7.68s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.91s  (phases)  canary=refuted
+  [REFUTED ] OBL_cb_deposit                  13.06s  (closure)  canary=refuted
+            counterexample: {'FEE': '1000000000000000', 'cash': '161', 'deposits': '161', 'feesEarned': '0', 'inLoan': 'true', 'snapCash': '0', 'who': '0x0', 'value': '161'}
+  [VERIFIED] OBL_cb_repay                     8.14s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_flashLoan                11.76s  (closure)  canary=verified
+  [VERIFIED] OBL_post                          8.9s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               8.84s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_deposit                 8.79s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_repay                   6.32s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_deposit
+  the admissible callback deposit is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates cash >= deposits + feesEarned
+  witness state       : {'FEE': '1000000000000000', 'cash': '161', 'deposits': '161', 'feesEarned': '0', 'inLoan': 'true', 'snapCash': '0', 'who': '0x0', 'value': '161'}
+
+repair rounds    : 0
+
+======================================================================

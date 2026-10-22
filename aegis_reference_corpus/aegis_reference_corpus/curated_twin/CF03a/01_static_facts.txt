@@ -1,0 +1,24 @@
+AEGIS static analysis  --  CoverFund_CF03a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : CoverFund_CF03a
+inheritance      : CoverFund_CF03a
+frozen target    : reserves >= coverage
+
+state variables (resolved across inheritance):
+  cover                        mapping(address => uint256)
+  reserves                     uint256
+  coverage                     uint256
+  pendingOut                   uint256
+  feeRecipient                 address
+  owner                        address
+
+callback-capable external call sites:
+  payClaim.call#0  line 43  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['cover', 'coverage', 'pendingOut', 'reserves']
+conservative closure Closure(s) = ['buyCover', 'topUp', 'rebalance', 'payClaim']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

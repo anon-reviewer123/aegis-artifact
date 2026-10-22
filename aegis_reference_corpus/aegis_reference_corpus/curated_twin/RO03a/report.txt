@@ -1,0 +1,25 @@
+======================================================================
+AEGIS report  --  LendingMarket_RO03a   [RO03a]
+======================================================================
+dataset          : curated_twin
+family           : Read-only reentrancy
+twin / incident  : RO03
+ground-truth label: safe
+  label rationale : same update order, but totalSupplied() reverts while the lock is held, so no exposed value can be observed (label is the local quiescence property, not exploitability)
+mechanism        : lending market: totalSupplied() is read by external rate models
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : READONLY  --  an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies
+AEGIS verdict    : quiescent
+vs. label        : TN (quiescent)
+
+observed view    : totalSupplied()  (obs = cash + totalBorrows)
+observation footprint reads : ['cash', 'totalBorrows']
+
+observational-quiescence obligation  OBL_ro:
+  obs(sigma_e) == obs(sigma_0)  ||  obs(sigma_e) == obs(sigma_1)
+  [VERIFIED] OBL_ro_totalSupplied       4.21s  canary=refuted
+
+read-only outcome: quiescent  (observational property, not a vulnerability label)
+
+======================================================================

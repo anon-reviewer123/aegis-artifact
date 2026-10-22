@@ -1,0 +1,60 @@
+======================================================================
+AEGIS report  --  ArtistEdition_TH05b   [TH05b]
+======================================================================
+dataset          : curated_twin
+family           : Token-receiver hook
+twin / incident  : TH05
+ground-truth label: safe
+  label rationale : mintedBy is incremented before the receiver hook
+mechanism        : ERC721 edition with a per-wallet cap; the frozen target only bounds total supply
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['mint']
+footprint : ['mintedBy', 'totalMinted']
+I_exp     : totalMinted <= MAX_SUPPLY   [stable]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.37s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          7.86s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_mint                      7.79s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         7.61s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               3.38s  (composition)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for ArtistEdition_TH05b
+  target property phi : totalMinted <= MAX_SUPPLY
+  exposure site       : mint.onERC721Received  (receiver hook (via _checkReceiver))
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During mint's exposed phase, re-entrant control is confined to the
+          callback closure ['mint']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {totalMinted <= MAX_SUPPLY} pre-phase {totalMinted <= MAX_SUPPLY}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = totalMinted <= MAX_SUPPLY)
+          discharged by: ['OBL_cb_mint']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {totalMinted <= MAX_SUPPLY /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => totalMinted <= MAX_SUPPLY
+      where callbacks are confined to admissible_callbacks=['mint'], depth-one
+
+repair rounds    : 0
+
+======================================================================

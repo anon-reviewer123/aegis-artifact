@@ -1,0 +1,42 @@
+======================================================================
+AEGIS report  --  VestingStart_PH03b   [PH03b]
+======================================================================
+dataset          : curated_twin
+family           : Phase-ordering desync
+twin / incident  : PH03
+ground-truth label: unsafe
+  label rationale : started is set after the keeper hook, so an allocation registered inside the window is not committed
+mechanism        : vesting schedule: the committed total is frozen when the keeper starts vesting
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['register', 'start']
+footprint : ['committed', 'started', 'totalAllocated']
+I_exp     : !started && committed == totalAllocated   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.48s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.62s  (phases)  canary=refuted
+  [REFUTED ] OBL_cb_register                   5.7s  (closure)  canary=refuted
+            counterexample: {'started': 'false', 'committed': '0', 'totalAllocated': '1', 'value': '1'}
+  [REFUTED ] OBL_cb_start                     5.35s  (closure)  canary=refuted
+            counterexample: {'started': 'true', 'committed': '0', 'totalAllocated': '0'}
+  [VERIFIED] OBL_post                         6.63s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies                6.8s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_register                6.69s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_register
+  the admissible callback register is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates !started || committed == totalAllocated
+  witness state       : {'started': 'false', 'committed': '0', 'totalAllocated': '1', 'value': '1'}
+
+repair rounds    : 0
+
+======================================================================

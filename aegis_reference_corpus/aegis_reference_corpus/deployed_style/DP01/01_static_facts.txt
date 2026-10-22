@@ -1,0 +1,30 @@
+AEGIS static analysis  --  NestMintClub
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : NestMintClub
+inheritance      : NestMintClub <- ReentrancyGuard <- Ownable <- Context
+frozen target    : teamBalance <= address(this).balance
+
+state variables (resolved across inheritance):
+  _supply                      struct Counters.Counter
+  MAX_SUPPLY                   uint256   [constant]
+  mintPrice                    uint256
+  teamBalance                  uint256
+  teamWallet                   address payable
+  ownerOf                      mapping(uint256 => address)
+  balanceOf                    mapping(address => uint256)
+  baseURI                      string
+  _NOT_ENTERED                 uint256   [constant]
+  _ENTERED                     uint256   [constant]
+  _status                      uint256
+  _owner                       address
+
+callback-capable external call sites:
+  withdraw.call#0  line 130  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['_status', 'ethBal', 'teamBalance']
+conservative closure Closure(s) = ['mint']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

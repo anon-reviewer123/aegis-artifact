@@ -1,0 +1,434 @@
+{
+ "contract": "OmniLendVuln",
+ "cid": "IN_OMNI_V",
+ "dataset": "incident",
+ "family": "incident",
+ "pair": "omni_protocol",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "withdrawCollateral debits collateral and calls the owner's onERC721Received before clearing totalCollateral, so the owner re-enters borrow against collateral being removed, leaving debt above collateral",
+ "mechanism": "Omni Protocol (Jul 2022): ERC721 onERC721Received reentrancy; collateral withdrawal notifies the owner before settling, enabling borrow against in-flight collateral",
+ "target_property": "debtOf[u] <= collateralOf[u]",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 1,
+ "approx_solver_seconds": 158.9,
+ "static": {
+  "state_vars": [
+   {
+    "name": "collateralOf",
+    "type": "mapping(address => uint256)",
+    "contract": "OmniLendVuln",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "debtOf",
+    "type": "mapping(address => uint256)",
+    "contract": "OmniLendVuln",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalCollateral",
+    "type": "uint256",
+    "contract": "OmniLendVuln",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "OmniLendVuln",
+    "function": "withdrawCollateral",
+    "call": ".onERC721Received",
+    "kind": "receiver hook",
+    "line": 35,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "OmniLendVuln",
+   "Context"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "depositCollateral",
+    "borrow",
+    "withdrawCollateral"
+   ],
+   "footprint": [
+    "collateralOf",
+    "debtOf",
+    "totalCollateral"
+   ],
+   "mcvp": {
+    "contract": "OmniLendVuln",
+    "closure": {
+     "site_function": "withdrawCollateral",
+     "site_call": ".onERC721Received",
+     "functions": [
+      "depositCollateral",
+      "borrow",
+      "withdrawCollateral"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['collateralOf', 'debtOf', 'totalCollateral']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "depositCollateral",
+      "borrow",
+      "withdrawCollateral"
+     ],
+     "nesting_bound": {
+      "withdrawCollateral": 1
+     }
+    },
+    "phases": {
+     "function": "withdrawCollateral",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .onERC721Received"
+     },
+     "exposed": {
+      "from_marker": "before .onERC721Received",
+      "to_marker": "after .onERC721Received"
+     },
+     "post": {
+      "from_marker": "after .onERC721Received",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .onERC721Received"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "debtOf[caller] <= collateralOf[caller]",
+     "stable_formula": "debtOf[caller] <= collateralOf[caller]",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "debtOf[caller] <= collateralOf[caller]",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for OmniLendVuln\n  target property phi : debtOf[caller] <= collateralOf[caller]\n  exposure site       : withdrawCollateral.onERC721Received  (receiver hook)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During withdrawCollateral's exposed phase, re-entrant control is confined to the\n          callback closure ['depositCollateral', 'borrow', 'withdrawCollateral']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {debtOf[caller] <= collateralOf[caller]} pre-phase {debtOf[caller] <= collateralOf[caller]}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = debtOf[caller] <= collateralOf[caller])\n          discharged by: ['OBL_cb_depositCollateral', 'OBL_cb_borrow', 'OBL_cb_withdrawCollateral']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {debtOf[caller] <= collateralOf[caller] /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => debtOf[caller] <= collateralOf[caller]\n      where callbacks are confined to admissible_callbacks=['depositCollateral', 'borrow', 'withdrawCollateral'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.03,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.67,
+     "purpose": "{I_stable} pre-phase of withdrawCollateral {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_depositCollateral",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.99,
+     "purpose": "callback depositCollateral preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_borrow",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.93,
+     "purpose": "callback borrow preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_withdrawCollateral",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.83,
+     "purpose": "callback withdrawCollateral preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.9,
+     "purpose": "{I_exp} post-phase of withdrawCollateral {I_stable}",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "totalCollateral": "0",
+      "caller": "0x4819",
+      "who": "0x4819",
+      "p_totalCollateral": "115792089237316195423570985008687907853269984665640564039457584007913129639095",
+      "p_collateralOf_caller": "28881",
+      "p_collateralOf_who": "115792089237316195423570985008687907853269984665640564039457584007913129639095",
+      "p_debtOf_caller": "115792089237316195423570985008687907853269984665640564039457584007913129630731",
+      "p_debtOf_who": "115792089237316195423570985008687907853269984665640564039457584007913129630730",
+      "amount": "115792089237316195423570985008687907853269984665640564039457584007913129639095"
+     }
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.34,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_depositCollateral",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 9.66,
+     "purpose": "public transition depositCollateral preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_borrow",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.08,
+     "purpose": "public transition borrow preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_post"
+   ],
+   "unknown": [],
+   "outcome": "PLAN_REFUTED",
+   "repair": "the refuted obligation is a phase/preservation check under a non-inductive exposure invariant; repair strengthens the plan with ghost state and re-verifies"
+  },
+  {
+   "plan": "c1",
+   "closure": [
+    "depositCollateral",
+    "borrow",
+    "withdrawCollateral"
+   ],
+   "footprint": [
+    "collateralOf",
+    "debtOf",
+    "totalCollateral"
+   ],
+   "mcvp": {
+    "contract": "OmniLendVuln",
+    "closure": {
+     "site_function": "withdrawCollateral",
+     "site_call": ".onERC721Received",
+     "functions": [
+      "depositCollateral",
+      "borrow",
+      "withdrawCollateral"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['collateralOf', 'debtOf', 'totalCollateral']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "depositCollateral",
+      "borrow",
+      "withdrawCollateral"
+     ],
+     "nesting_bound": {
+      "withdrawCollateral": 1
+     }
+    },
+    "phases": {
+     "function": "withdrawCollateral",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .onERC721Received"
+     },
+     "exposed": {
+      "from_marker": "before .onERC721Received",
+      "to_marker": "after .onERC721Received"
+     },
+     "post": {
+      "from_marker": "after .onERC721Received",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .onERC721Received"
+    },
+    "ghost_state": [
+     {
+      "name": "pulled",
+      "sol_type": "uint256",
+      "meaning": "collateral committed to leave but not yet debited; a re-entrant borrow sees the full collateralOf and ignores it",
+      "backed_by_storage": false
+     }
+    ],
+    "exposure_invariant": {
+     "formula": "debtOf[caller] + pulled <= collateralOf[caller]",
+     "stable_formula": "debtOf[caller] <= collateralOf[caller]",
+     "kind": "additive"
+    },
+    "composition": {
+     "target_property": "debtOf[caller] <= collateralOf[caller]",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for OmniLendVuln\n  target property phi : debtOf[caller] <= collateralOf[caller]\n  exposure site       : withdrawCollateral.onERC721Received  (receiver hook)\n  ghost state         : uint256 pulled\n\n  [A_cb]  ASSUMPTION\n          During withdrawCollateral's exposed phase, re-entrant control is confined to the\n          callback closure ['depositCollateral', 'borrow', 'withdrawCollateral']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {debtOf[caller] <= collateralOf[caller]} pre-phase {debtOf[caller] + pulled <= collateralOf[caller]}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = debtOf[caller] + pulled <= collateralOf[caller])\n          discharged by: ['OBL_cb_depositCollateral', 'OBL_cb_borrow', 'OBL_cb_withdrawCollateral']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {debtOf[caller] <= collateralOf[caller] /\\ pulled==0}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => debtOf[caller] <= collateralOf[caller]\n      where callbacks are confined to admissible_callbacks=['depositCollateral', 'borrow', 'withdrawCollateral'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.52,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.35,
+     "purpose": "{I_stable} pre-phase of withdrawCollateral {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_depositCollateral",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 12.1,
+     "purpose": "callback depositCollateral preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_borrow",
+     "module": "closure",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 12.76,
+     "purpose": "callback borrow preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "totalCollateral": "0",
+      "pulled": "22117",
+      "caller": "0x5664",
+      "who": "0x5664",
+      "p_totalCollateral": "0",
+      "p_pulled": "22117",
+      "p_collateralOf_caller": "22116",
+      "p_collateralOf_who": "22117",
+      "p_debtOf_caller": "22114",
+      "p_debtOf_who": "0",
+      "amount": "22115"
+     }
+    },
+    {
+     "obligation": "OBL_cb_withdrawCollateral",
+     "module": "closure",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 12.73,
+     "purpose": "callback withdrawCollateral preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "totalCollateral": "0",
+      "pulled": "115792089237316195423570985008687907853269984665640564039457584007913129594436",
+      "caller": "0x52f5",
+      "who": "0x52f5",
+      "p_totalCollateral": "13214",
+      "p_pulled": "115792089237316195423570985008687907853269984665640564039457584007913129594436",
+      "p_collateralOf_caller": "27856",
+      "p_collateralOf_who": "115792089237316195423570985008687907853269984665640564039457584007913129607649",
+      "p_debtOf_caller": "18586",
+      "p_debtOf_who": "0",
+      "amount": "13214"
+     }
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.09,
+     "purpose": "{I_exp} post-phase of withdrawCollateral {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.68,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_depositCollateral",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 9.75,
+     "purpose": "public transition depositCollateral preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_borrow",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.48,
+     "purpose": "public transition borrow preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_cb_borrow",
+    "OBL_cb_withdrawCollateral"
+   ],
+   "unknown": [],
+   "outcome": "BUG_CANDIDATE",
+   "witness": {
+    "refuting_obligation": "OBL_cb_borrow",
+    "kind": "source-level depth-one witness (modeled semantics)",
+    "explanation": "the admissible callback borrow is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates debtOf[caller] <= collateralOf[caller]",
+    "counterexample": {
+     "totalCollateral": "0",
+     "pulled": "22117",
+     "caller": "0x5664",
+     "who": "0x5664",
+     "p_totalCollateral": "0",
+     "p_pulled": "22117",
+     "p_collateralOf_caller": "22116",
+     "p_collateralOf_who": "22117",
+     "p_debtOf_caller": "22114",
+     "p_debtOf_who": "0",
+     "amount": "22115"
+    }
+   }
+  }
+ ]
+}

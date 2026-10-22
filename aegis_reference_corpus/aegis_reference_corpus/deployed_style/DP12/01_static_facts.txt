@@ -1,0 +1,27 @@
+AEGIS static analysis  --  OmniRewardHub
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : OmniRewardHub
+inheritance      : OmniRewardHub <- ReentrancyGuard <- Ownable <- Context
+frozen target    : treasury >= 0 accounting across the reward closure
+
+state variables (resolved across inheritance):
+  balance                      mapping(address => uint256)
+  rewardDebt                   mapping(address => uint256)
+  locked                       mapping(address => uint256)
+  boosted                      mapping(address => uint256)
+  totalBalance                 uint256
+  totalRewardDebt              uint256
+  totalLocked                  uint256
+  accPerShare                  uint256
+  treasury                     uint256
+  _NOT_ENTERED                 uint256   [constant]
+  _ENTERED                     uint256   [constant]
+  _status                      uint256
+  _owner                       address
+
+callback-capable external call sites:
+  harvest.call#0  line 88  (low-level call)
+
+selected arm     : UNKNOWN
+reason           : the closure around treasury is large and involves a reward-per-share product; the backend exhausts its per-obligation budget without a safe/unsafe answer, so Aegis reports UNKNOWN (the honest outcome, not a guessed VERIFIED)

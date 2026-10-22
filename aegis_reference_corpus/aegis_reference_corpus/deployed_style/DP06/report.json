@@ -1,0 +1,107 @@
+{
+ "contract": "ModularTreasury",
+ "cid": "DP06",
+ "dataset": "deployed_style",
+ "family": "cross_function",
+ "pair": null,
+ "ground_truth_label": "unknown",
+ "label_rationale": "the delegated strategy can write any storage slot, so the exposed footprint is unbounded",
+ "mechanism": "flattened treasury with an upgradeable delegatecall strategy module",
+ "target_property": "teamBalance <= address(this).balance",
+ "arm": "unknown",
+ "arm_reason": "delegatecall to a mutable strategy address gives an unbounded write footprint; the conservative closure is not computable, so the general arm declines (UNKNOWN, not VERIFIED)",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "UNKNOWN",
+ "outcome_vs_label": "N/V",
+ "outcome_note": "UNKNOWN",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 0.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "teamBalance",
+    "type": "uint256",
+    "contract": "ModularTreasury",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "strategy",
+    "type": "address",
+    "contract": "ModularTreasury",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "allowedSelectors",
+    "type": "mapping(bytes4 => bool)",
+    "contract": "ModularTreasury",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_owner",
+    "type": "address",
+    "contract": "Ownable",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "ModularTreasury",
+    "function": "execute",
+    "call": ".delegatecall",
+    "kind": "delegatecall",
+    "line": 80,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   },
+   {
+    "contract": "ModularTreasury",
+    "function": "distribute",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 87,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "ModularTreasury",
+   "ReentrancyGuard",
+   "Ownable",
+   "Context"
+  ]
+ },
+ "scope_boundary": {
+  "model_gap": "delegatecall",
+  "detail": "execute() delegatecalls an owner-set strategy; Write*(strategy) is not statically bounded, so the conservative closure and proof footprint cannot be computed"
+ },
+ "why_unknown": "delegatecall to a mutable strategy address gives an unbounded write footprint; the conservative closure is not computable, so the general arm declines (UNKNOWN, not VERIFIED)"
+}

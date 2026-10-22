@@ -1,0 +1,101 @@
+{
+ "contract": "BatchPayout_LP05b",
+ "cid": "LP05b",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP05",
+ "ground_truth_label": "safe",
+ "label_rationale": "topUp() and distribute() are blocked while the distributing flag is set",
+ "mechanism": "batch payout from a pooled balance",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 4.8,
+ "static": {
+  "state_vars": [
+   {
+    "name": "pool",
+    "type": "uint256",
+    "contract": "BatchPayout_LP05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalIn",
+    "type": "uint256",
+    "contract": "BatchPayout_LP05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalOut",
+    "type": "uint256",
+    "contract": "BatchPayout_LP05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "payees",
+    "type": "address[]",
+    "contract": "BatchPayout_LP05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owed",
+    "type": "mapping(address => uint256)",
+    "contract": "BatchPayout_LP05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "distributing",
+    "type": "bool",
+    "contract": "BatchPayout_LP05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "BatchPayout_LP05b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "BatchPayout_LP05b",
+    "function": "distribute",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 47,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "BatchPayout_LP05b"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "verified",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 4.77,
+   "purpose": "mutex: the post-loop write-back pool = snap - spent preserves totalIn == totalOut + pool",
+   "nonvacuity_canary": "refuted"
+  }
+ ],
+ "schema": "mutex"
+}

@@ -1,0 +1,40 @@
+======================================================================
+AEGIS report  --  RewardPool_CR03a   [CR03a]
+======================================================================
+dataset          : curated_twin
+family           : Classic reentrancy
+twin / incident  : CR03
+ground-truth label: unsafe
+  label rationale : the caller's pendingReward entry and rewardDebt are cleared only after the payout call, so a re-entrant claimRewards pays the same balance twice
+mechanism        : reward pool: the owner accrues rewards that users claim
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['accrue', 'claimRewards']
+footprint : ['pendingReward', 'rewardCash', 'rewardDebt']
+I_exp     : rewardCash + inFlight >= rewardDebt && pendingReward[caller] >= inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         3.12s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          3.71s  (phases)  canary=refuted
+  [REFUTED ] OBL_cb_claimRewards               6.4s  (closure)  canary=refuted
+            counterexample: {'rewardCash': '0', 'rewardDebt': '0', 'inFlight': '1', 'caller': '0x0119', 'who': '0x0119', 'user': '0x0119', 'amt': '115792089237316195423570985008687907853269984665640564039457584007913129638611'}
+  [VERIFIED] OBL_post                         4.53s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies                3.9s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_accrue                   3.3s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_claimRewards
+  the admissible callback claimRewards is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates rewardCash >= rewardDebt
+  witness state       : {'rewardCash': '0', 'rewardDebt': '0', 'inFlight': '1', 'caller': '0x0119', 'who': '0x0119', 'user': '0x0119', 'amt': '115792089237316195423570985008687907853269984665640564039457584007913129638611'}
+
+repair rounds    : 0
+
+======================================================================

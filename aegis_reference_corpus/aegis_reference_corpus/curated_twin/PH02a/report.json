@@ -1,0 +1,209 @@
+{
+ "contract": "SaleFinalizer_PH02a",
+ "cid": "PH02a",
+ "dataset": "curated_twin",
+ "family": "phase_ordering",
+ "pair": "PH02",
+ "ground_truth_label": "safe",
+ "label_rationale": "finalized is set before the treasury call, so contribute() reverts inside the window",
+ "mechanism": "token sale: raised funds are sent to the treasury when the sale is finalized",
+ "target_property": "!finalized || withdrawn == raised",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 50.1,
+ "static": {
+  "state_vars": [
+   {
+    "name": "finalized",
+    "type": "bool",
+    "contract": "SaleFinalizer_PH02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "raised",
+    "type": "uint256",
+    "contract": "SaleFinalizer_PH02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "withdrawn",
+    "type": "uint256",
+    "contract": "SaleFinalizer_PH02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "treasury",
+    "type": "address",
+    "contract": "SaleFinalizer_PH02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "contributions",
+    "type": "mapping(address => uint256)",
+    "contract": "SaleFinalizer_PH02a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "SaleFinalizer_PH02a",
+    "function": "finalize",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 26,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "SaleFinalizer_PH02a"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "contribute",
+    "finalize"
+   ],
+   "footprint": [
+    "finalized",
+    "raised",
+    "withdrawn"
+   ],
+   "mcvp": {
+    "contract": "SaleFinalizer_PH02a",
+    "closure": {
+     "site_function": "finalize",
+     "site_call": ".call",
+     "functions": [
+      "contribute",
+      "finalize"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['finalized', 'raised', 'withdrawn']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "contribute",
+      "finalize"
+     ],
+     "nesting_bound": {
+      "finalize": 1
+     }
+    },
+    "phases": {
+     "function": "finalize",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "finalized && withdrawn == raised",
+     "stable_formula": "withdrawn <= raised && (!finalized || withdrawn == raised)",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "!finalized || withdrawn == raised",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for SaleFinalizer_PH02a\n  target property phi : !finalized || withdrawn == raised\n  exposure site       : finalize.call  (low-level call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During finalize's exposed phase, re-entrant control is confined to the\n          callback closure ['contribute', 'finalize']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {withdrawn <= raised && (!finalized || withdrawn == raised)} pre-phase {finalized && withdrawn == raised}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = finalized && withdrawn == raised)\n          discharged by: ['OBL_cb_contribute', 'OBL_cb_finalize']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {withdrawn <= raised && (!finalized || withdrawn == raised) /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => !finalized || withdrawn == raised\n      where callbacks are confined to admissible_callbacks=['contribute', 'finalize'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.84,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.79,
+     "purpose": "{I_stable} pre-phase of finalize {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_contribute",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.43,
+     "purpose": "callback contribute preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_cb_finalize",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.38,
+     "purpose": "callback finalize preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.2,
+     "purpose": "{I_exp} post-phase of finalize {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.29,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_contribute",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.16,
+     "purpose": "public transition contribute preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

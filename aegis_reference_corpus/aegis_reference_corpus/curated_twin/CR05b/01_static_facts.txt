@@ -1,0 +1,22 @@
+AEGIS static analysis  --  ShareRedeemer_CR05b
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : ShareRedeemer_CR05b
+inheritance      : ShareRedeemer_CR05b
+frozen target    : backing >= outstanding
+
+state variables (resolved across inheritance):
+  shares                       mapping(address => uint256)
+  backing                      uint256
+  outstanding                  uint256
+  owner                        address
+
+callback-capable external call sites:
+  redeemAll.call#0  line 31  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['backing', 'outstanding', 'shares']
+conservative closure Closure(s) = ['mint', 'redeemAll']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

@@ -1,0 +1,68 @@
+AEGIS reference corpus -- summary of verdicts
+======================================================================
+total contracts : 100
+by dataset      : curated_twin 80, deployed_style 13, incident 7
+all compile     : True
+
+Curated twins -- discrimination (state-changing + loop arms; read-only shown separately)
+
+Family                 Safe  Unsafe  TN  TP  FN  FP  N/V  arm
+---------------------  ----  ------  --  --  --  --  ---  --------
+Classic reentrancy     6     6       6   6   0   0   0    general
+Cross-function desync  6     6       6   6   0   0   0    general
+Token-receiver hook    5     5       5   4   1   0   0    general
+Flash-loan callback    4     4       4   4   0   0   0    general
+Phase-ordering desync  3     3       3   3   0   0   0    general
+EOA-assumption         3     3       2   3   0   1   0    general
+Forced-revert / loop   8     8       8   8   0   0   0    loop
+Read-only reentrancy   5     5       5   5   0   0   0    readonly
+TOTAL                  40    40      39  39  1   1   0
+
+decided=80  precision=97.50%  decided-case recall=97.50%  accuracy on decided=97.50%
+read-only twins report observational quiescent/non_quiescent (mapped above as TN/TP by the local property, not exploitability).
+
+Deployed-style contracts -- verdict distribution
+
+cid   contract             family                 arm      label    verdict    outcome
+----  -------------------  ---------------------  -------  -------  ---------  -------
+DP01  NestMintClub         Token-receiver hook    general  safe     VERIFIED   TN
+DP02  StakePool            Classic reentrancy     general  safe     VERIFIED   TN
+DP03  RoyaltySplitter      Forced-revert / loop   loop     safe     VERIFIED   TN
+DP04  PerpTreasury         Cross-function desync  general  unsafe   BUG_FOUND  TP
+DP05  SurplusVault         Token-receiver hook    general  unsafe   BUG_FOUND  TP
+DP06  ModularTreasury      Cross-function desync  unknown  unknown  UNKNOWN    N/V
+DP07  DualHookMarket       Cross-function desync  unknown  unknown  UNKNOWN    N/V
+DP08  ConstantProductPool  Read-only reentrancy   unknown  unknown  UNKNOWN    N/V
+DP09  CollateralVault      Read-only reentrancy   unknown  unknown  UNKNOWN    N/V
+DP10  GasCappedPayout      Forced-revert / loop   unknown  unknown  UNKNOWN    N/V
+DP11  RebasingPool         Cross-function desync  unknown  unknown  UNKNOWN    N/V
+DP12  OmniRewardHub        Cross-function desync  unknown  unknown  UNKNOWN    N/V
+DP13  AssemblyRefunder     Classic reentrancy     unknown  unknown  UNKNOWN    N/V
+
+verdicts: VERIFIED 3, BUG_FOUND 2, UNKNOWN 8
+(UNKNOWN cases are the documented scope boundaries: delegatecall, depth-two nesting, nonlinear
+ observation, mutable external state, gas-sensitivity, template family, solver budget, assembly.)
+
+Documented incident reproductions
+
+cid            contract           incident        label   verdict    outcome
+-------------  -----------------  --------------  ------  ---------  -------
+IN_GRIM_V      GrimVaultVuln      grim_finance    unsafe  BUG_FOUND  TP
+IN_GRIM_P      GrimVaultPatched   grim_finance    safe    VERIFIED   TN
+IN_OMNI_V      OmniLendVuln       omni_protocol   unsafe  BUG_FOUND  TP
+IN_OMNI_P      OmniLendPatched    omni_protocol   safe    VERIFIED   TN
+IN_REVEST_V    RevestFNFTVuln     revest_finance  unsafe  BUG_FOUND  TP
+IN_REVEST_P    RevestFNFTPatched  revest_finance  safe    VERIFIED   TN
+IN_PARALUNI_V  ParaluniChefVuln   paraluni        unsafe  BUG_FOUND  TP
+
+vulnerable versions BUG_FOUND: 4/4    patched counterparts VERIFIED: 3/3
+These are source-model reproductions under the modeled depth-one semantics, not concrete-EVM exploit replays.
+
+Overall confusion (all datasets, definitive verdicts)
+  TN=45  TP=45  FN=1  FP=1  N/V=8
+
+Repair rounds (general arm):
+  0 round(s): 57 contracts
+  1 round(s): 8 contracts
+
+mean approx solver time per contract: 41.7s  (sum of per-obligation CHC wall-clock)

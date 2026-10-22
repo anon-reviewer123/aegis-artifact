@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  TicketPool_RO04b   [RO04b]
+======================================================================
+dataset          : curated_twin
+family           : Read-only reentrancy
+twin / incident  : RO04
+ground-truth label: unsafe
+  label rationale : soldTickets drops before the refund call and pot after it, so unbackedPot() is inflated inside the window (label is the local quiescence property, not exploitability)
+mechanism        : ticket pool: unbacked pot (sponsor money) shown to front-ends and prize contracts
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : READONLY  --  an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies
+AEGIS verdict    : non_quiescent
+vs. label        : TP (non_quiescent)
+
+observed view    : unbackedPot()  (obs = pot - soldTickets * PRICE)
+observation footprint reads : ['PRICE', 'pot', 'soldTickets']
+
+observational-quiescence obligation  OBL_ro:
+  obs(sigma_e) == obs(sigma_0)  ||  obs(sigma_e) == obs(sigma_1)
+  [REFUTED ] OBL_ro_unbackedPot         6.36s  canary=refuted
+            witness: the observation during exposure equals neither the entry nor the settled value
+
+read-only outcome: non_quiescent  (observational property, not a vulnerability label)
+
+======================================================================

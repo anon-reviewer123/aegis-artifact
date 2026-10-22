@@ -1,0 +1,22 @@
+AEGIS static analysis  --  ReceiptVault_TH04b
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : ReceiptVault_TH04b
+inheritance      : ReceiptVault_TH04b
+frozen target    : receiptSupply <= totalDeposited
+
+state variables (resolved across inheritance):
+  RECEIPT_ID                   uint256   [constant]
+  receipts                     mapping(address => uint256)
+  receiptSupply                uint256
+  totalDeposited               uint256
+
+callback-capable external call sites:
+  _mintReceipt.onERC1155Received#0  line 30  (receiver hook)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['receiptSupply', 'receipts', 'totalDeposited']
+conservative closure Closure(s) = ['deposit', 'reclaimDust']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

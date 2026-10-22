@@ -1,0 +1,17 @@
+AEGIS static analysis  --  GasCappedPayout
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : GasCappedPayout
+inheritance      : GasCappedPayout <- Context
+frozen target    : totalOwed accounting under gas-capped payout
+
+state variables (resolved across inheritance):
+  owed                         mapping(address => uint256)
+  totalOwed                    uint256
+  settledFlag                  uint256
+
+callback-capable external call sites:
+  payout.call#0  line 29  (low-level call)
+
+selected arm     : UNKNOWN
+reason           : the control flow after the call depends on a 2300-gas-capped transfer whose success is gas-sensitive; the modeled adversary does not reason about gas, so this site is reported UNKNOWN rather than VERIFIED

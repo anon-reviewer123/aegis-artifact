@@ -1,0 +1,99 @@
+{
+ "contract": "DualHookMarket",
+ "cid": "DP07",
+ "dataset": "deployed_style",
+ "family": "cross_function",
+ "pair": null,
+ "ground_truth_label": "unknown",
+ "label_rationale": "the violation needs the first callee to re-enter and the second callee to re-enter again before totalCredit is updated (depth two)",
+ "mechanism": "flattened settlement with two sequential external calls sharing one post-phase",
+ "target_property": "totalCredit <= backing",
+ "arm": "unknown",
+ "arm_reason": "a target-violating schedule requires two levels of nested re-entry (both callbacks active before the post-phase); the depth-one callback model cannot witness it, so the result is UNKNOWN rather than VERIFIED",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "UNKNOWN",
+ "outcome_vs_label": "N/V",
+ "outcome_note": "UNKNOWN",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 0.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "credit",
+    "type": "mapping(address => uint256)",
+    "contract": "DualHookMarket",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalCredit",
+    "type": "uint256",
+    "contract": "DualHookMarket",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "backing",
+    "type": "uint256",
+    "contract": "DualHookMarket",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "DualHookMarket",
+    "function": "settle",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 46,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   },
+   {
+    "contract": "DualHookMarket",
+    "function": "settle",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 48,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 1
+   }
+  ],
+  "inheritance": [
+   "DualHookMarket",
+   "ReentrancyGuard",
+   "Context"
+  ]
+ },
+ "scope_boundary": {
+  "model_gap": "depth-two nesting",
+  "detail": "settle() makes two external calls before its post-phase; a violating schedule requires nested re-entry across both, beyond the modeled depth-one adversary"
+ },
+ "why_unknown": "a target-violating schedule requires two levels of nested re-entry (both callbacks active before the post-phase); the depth-one callback model cannot witness it, so the result is UNKNOWN rather than VERIFIED"
+}

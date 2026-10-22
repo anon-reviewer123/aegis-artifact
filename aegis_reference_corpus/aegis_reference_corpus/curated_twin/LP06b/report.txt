@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  RewardsBatch_LP06b   [LP06b]
+======================================================================
+dataset          : curated_twin
+family           : Forced-revert / loop
+twin / incident  : LP06
+ground-truth label: unsafe
+  label rationale : claimable[r] is cleared only after the call, so a recipient re-entering distribute() is paid twice
+mechanism        : rewards pushed to recipients in one loop
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : LOOP  --  a callback-capable call occurs inside a loop; the inductive loop-step rule applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+loop schema      : mutex
+loop-step target : cumulative payment to every recipient is bounded by the amount funded for it
+exposure fact    : I_exp = paidTo[r] + claimable[r] <= funded[r] for the visited recipient
+closure note     : cbSel 1 = depth-one re-entry of distribute() visiting the same recipient
+
+inductive one-iteration obligation (built around the extracted loop body):
+  [REFUTED ] OBL_loop_step              6.47s  canary=refuted
+            counterexample: {'r': '0x0', 'ok': 'true', 'ok2': 'true', 'cbSel': '1', 'amt': '1'}
+            witness: the inductive loop step is refuted: some admissible callee outcome breaks cumulative payment to every recipient is bounded by the amount funded for it
+
+======================================================================

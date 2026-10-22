@@ -1,0 +1,202 @@
+{
+ "contract": "VestingStart_PH03a",
+ "cid": "PH03a",
+ "dataset": "curated_twin",
+ "family": "phase_ordering",
+ "pair": "PH03",
+ "ground_truth_label": "safe",
+ "label_rationale": "started is set before the keeper hook, so register() reverts inside the window",
+ "mechanism": "vesting schedule: the committed total is frozen when the keeper starts vesting",
+ "target_property": "!started || committed == totalAllocated",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 48.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "started",
+    "type": "bool",
+    "contract": "VestingStart_PH03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "committed",
+    "type": "uint256",
+    "contract": "VestingStart_PH03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalAllocated",
+    "type": "uint256",
+    "contract": "VestingStart_PH03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "allocation",
+    "type": "mapping(address => uint256)",
+    "contract": "VestingStart_PH03a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "VestingStart_PH03a",
+    "function": "start",
+    "call": ".onStart",
+    "kind": "external interface call",
+    "line": 24,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "VestingStart_PH03a"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "register",
+    "start"
+   ],
+   "footprint": [
+    "committed",
+    "started",
+    "totalAllocated"
+   ],
+   "mcvp": {
+    "contract": "VestingStart_PH03a",
+    "closure": {
+     "site_function": "start",
+     "site_call": ".onStart",
+     "functions": [
+      "register",
+      "start"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['committed', 'started', 'totalAllocated']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "register",
+      "start"
+     ],
+     "nesting_bound": {
+      "start": 1
+     }
+    },
+    "phases": {
+     "function": "start",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .onStart"
+     },
+     "exposed": {
+      "from_marker": "before .onStart",
+      "to_marker": "after .onStart"
+     },
+     "post": {
+      "from_marker": "after .onStart",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .onStart"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "started && committed == totalAllocated",
+     "stable_formula": "!started || committed == totalAllocated",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "!started || committed == totalAllocated",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for VestingStart_PH03a\n  target property phi : !started || committed == totalAllocated\n  exposure site       : start.onStart  (external interface call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During start's exposed phase, re-entrant control is confined to the\n          callback closure ['register', 'start']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {!started || committed == totalAllocated} pre-phase {started && committed == totalAllocated}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = started && committed == totalAllocated)\n          discharged by: ['OBL_cb_register', 'OBL_cb_start']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {!started || committed == totalAllocated /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => !started || committed == totalAllocated\n      where callbacks are confined to admissible_callbacks=['register', 'start'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.08,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.05,
+     "purpose": "{I_stable} pre-phase of start {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_register",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 9.9,
+     "purpose": "callback register preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_cb_start",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 9.86,
+     "purpose": "callback start preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.99,
+     "purpose": "{I_exp} post-phase of start {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.8,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_register",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.37,
+     "purpose": "public transition register preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

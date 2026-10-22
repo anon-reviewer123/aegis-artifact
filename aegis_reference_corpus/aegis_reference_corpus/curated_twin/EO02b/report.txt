@@ -1,0 +1,64 @@
+======================================================================
+AEGIS report  --  BonusDesk_EO02b   [EO02b]
+======================================================================
+dataset          : curated_twin
+family           : EOA-assumption
+twin / incident  : EO02
+ground-truth label: safe
+  label rationale : books are settled before the payout call
+mechanism        : bonus desk: bonus payouts to msg.sender; unclaimed total can be swept
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['accrue', 'claim', 'sweep']
+footprint : ['bonus', 'bonusDebt', 'bonusTotal']
+I_exp     : bonusTotal == bonusDebt   [stable]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.27s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          7.59s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_accrue                    8.01s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_claim                     7.53s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_sweep                     6.68s  (closure)  canary=verified
+  [VERIFIED] OBL_post                          7.4s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               7.29s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_accrue                  7.68s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_sweep                   3.79s  (global)  canary=verified
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for BonusDesk_EO02b
+  target property phi : bonusTotal == bonusDebt
+  exposure site       : claim.call  (low-level call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During claim's exposed phase, re-entrant control is confined to the
+          callback closure ['accrue', 'claim', 'sweep']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {bonusTotal == bonusDebt} pre-phase {bonusTotal == bonusDebt}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = bonusTotal == bonusDebt)
+          discharged by: ['OBL_cb_accrue', 'OBL_cb_claim', 'OBL_cb_sweep']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {bonusTotal == bonusDebt /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => bonusTotal == bonusDebt
+      where callbacks are confined to admissible_callbacks=['accrue', 'claim', 'sweep'], depth-one
+
+repair rounds    : 0
+
+======================================================================

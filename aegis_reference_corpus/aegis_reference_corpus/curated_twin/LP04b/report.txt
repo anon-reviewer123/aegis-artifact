@@ -1,0 +1,23 @@
+======================================================================
+AEGIS report  --  PresaleRefund_LP04b   [LP04b]
+======================================================================
+dataset          : curated_twin
+family           : Forced-revert / loop
+twin / incident  : LP04
+ground-truth label: safe
+  label rationale : a failed payment is recorded in refundCredit and the loop continues
+mechanism        : cancelled presale: every buyer is refunded in one loop
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : LOOP  --  a callback-capable call occurs inside a loop; the inductive loop-step rule applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+loop schema      : progress
+loop-step target : no callee outcome halts the batch (finite failure isolation)
+exposure fact    : I_exp = ok in {true,false}; StepState => !halted'
+
+inductive one-iteration obligation (built around the extracted loop body):
+  [VERIFIED] OBL_loop_step              2.25s  canary=refuted
+
+======================================================================

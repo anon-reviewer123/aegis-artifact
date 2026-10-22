@@ -1,0 +1,94 @@
+{
+ "contract": "RiskLedger_RO05b",
+ "cid": "RO05b",
+ "dataset": "curated_twin",
+ "family": "read_only",
+ "pair": "RO05",
+ "ground_truth_label": "safe",
+ "label_rationale": "both footprint writes happen after the call, so the window still shows the entry value (writes after the call, yet quiescent) (label is the local quiescence property, not exploitability)",
+ "mechanism": "risk ledger: equity() feeds an external health check",
+ "target_property": null,
+ "arm": "readonly",
+ "arm_reason": "an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "quiescent",
+ "outcome_vs_label": "TN",
+ "outcome_note": "quiescent",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 2.4,
+ "static": {
+  "state_vars": [
+   {
+    "name": "KEEPER_FEE",
+    "type": "uint256",
+    "contract": "RiskLedger_RO05b",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "collateral",
+    "type": "uint256",
+    "contract": "RiskLedger_RO05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "debt",
+    "type": "uint256",
+    "contract": "RiskLedger_RO05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "feeReserve",
+    "type": "uint256",
+    "contract": "RiskLedger_RO05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "inCall",
+    "type": "bool",
+    "contract": "RiskLedger_RO05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "RiskLedger_RO05b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "RiskLedger_RO05b",
+    "function": "deleverage",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 41,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "RiskLedger_RO05b"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_ro_equity",
+   "module": "readonly",
+   "status": "verified",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 2.38,
+   "purpose": "obs during exposure equals entry or settled observation",
+   "nonvacuity_canary": "refuted"
+  }
+ ],
+ "schema": "read-only quiescence"
+}

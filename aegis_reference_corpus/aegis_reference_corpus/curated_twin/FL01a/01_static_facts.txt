@@ -1,0 +1,23 @@
+AEGIS static analysis  --  LendingPool_FL01a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : LendingPool_FL01a
+inheritance      : LendingPool_FL01a
+frozen target    : cash >= totalShares
+
+state variables (resolved across inheritance):
+  FEE                          uint256   [constant]
+  shares                       mapping(address => uint256)
+  cash                         uint256
+  totalShares                  uint256
+  inLoan                       bool
+
+callback-capable external call sites:
+  flashLoan.onFlashLoan#0  line 31  (receiver hook)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['cash', 'inLoan', 'totalShares']
+conservative closure Closure(s) = ['deposit', 'repay', 'flashLoan']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

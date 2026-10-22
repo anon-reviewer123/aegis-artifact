@@ -1,0 +1,67 @@
+{
+ "contract": "AssemblyRefunder",
+ "cid": "DP13",
+ "dataset": "deployed_style",
+ "family": "classic_reentrancy",
+ "pair": null,
+ "ground_truth_label": "unknown",
+ "label_rationale": "the reentrancy lock lives in an assembly sload/sstore slot that the harness builder cannot lift into a typed ghost",
+ "mechanism": "flattened refunder whose reentrancy lock is kept in a raw assembly storage slot",
+ "target_property": "totalDeposits <= address(this).balance",
+ "arm": "unknown",
+ "arm_reason": "the reentrancy guard is stored in an inline-assembly storage slot the harness builder cannot model; without a faithful phase-split harness the site cannot be discharged, so the result is UNKNOWN",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "UNKNOWN",
+ "outcome_vs_label": "N/V",
+ "outcome_note": "UNKNOWN",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 0.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "deposits",
+    "type": "mapping(address => uint256)",
+    "contract": "AssemblyRefunder",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalDeposits",
+    "type": "uint256",
+    "contract": "AssemblyRefunder",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "SLOT",
+    "type": "bytes32",
+    "contract": "AssemblyRefunder",
+    "constant": true,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "AssemblyRefunder",
+    "function": "withdraw",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 44,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "AssemblyRefunder",
+   "Context"
+  ]
+ },
+ "scope_boundary": {
+  "model_gap": "harness construction",
+  "detail": "the guard state is held in a keccak-addressed slot accessed via inline assembly; the slice/harness builder cannot represent it, so the phase-split harness for withdraw cannot be constructed"
+ },
+ "why_unknown": "the reentrancy guard is stored in an inline-assembly storage slot the harness builder cannot model; without a faithful phase-split harness the site cannot be discharged, so the result is UNKNOWN"
+}

@@ -1,0 +1,457 @@
+{
+ "contract": "PerpPool_CF01b",
+ "cid": "CF01b",
+ "dataset": "curated_twin",
+ "family": "cross_function",
+ "pair": "CF01",
+ "ground_truth_label": "safe",
+ "label_rationale": "an exposure flag set across the call blocks mintGlp() and re-entry into decreasePosition()",
+ "mechanism": "perpetual pool: liquidity tokens are minted against aum surplus",
+ "target_property": "aum >= trackedValue",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 1,
+ "approx_solver_seconds": 85.9,
+ "static": {
+  "state_vars": [
+   {
+    "name": "glp",
+    "type": "mapping(address => uint256)",
+    "contract": "PerpPool_CF01b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "aum",
+    "type": "uint256",
+    "contract": "PerpPool_CF01b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "trackedValue",
+    "type": "uint256",
+    "contract": "PerpPool_CF01b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "exposed",
+    "type": "bool",
+    "contract": "PerpPool_CF01b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "feeRecipient",
+    "type": "address",
+    "contract": "PerpPool_CF01b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "PerpPool_CF01b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "PerpPool_CF01b",
+    "function": "decreasePosition",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 45,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "PerpPool_CF01b"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "deposit",
+    "addFees",
+    "mintGlp",
+    "decreasePosition"
+   ],
+   "footprint": [
+    "aum",
+    "exposed",
+    "glp",
+    "trackedValue"
+   ],
+   "mcvp": {
+    "contract": "PerpPool_CF01b",
+    "closure": {
+     "site_function": "decreasePosition",
+     "site_call": ".call",
+     "functions": [
+      "deposit",
+      "addFees",
+      "mintGlp",
+      "decreasePosition"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['aum', 'exposed', 'glp', 'trackedValue']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "deposit",
+      "addFees",
+      "mintGlp",
+      "decreasePosition"
+     ],
+     "nesting_bound": {
+      "decreasePosition": 1
+     }
+    },
+    "phases": {
+     "function": "decreasePosition",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "aum >= trackedValue && exposed",
+     "stable_formula": "aum >= trackedValue && !exposed",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "aum >= trackedValue",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for PerpPool_CF01b\n  target property phi : aum >= trackedValue\n  exposure site       : decreasePosition.call  (low-level call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During decreasePosition's exposed phase, re-entrant control is confined to the\n          callback closure ['deposit', 'addFees', 'mintGlp', 'decreasePosition']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {aum >= trackedValue && !exposed} pre-phase {aum >= trackedValue && exposed}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = aum >= trackedValue && exposed)\n          discharged by: ['OBL_cb_deposit', 'OBL_cb_addFees', 'OBL_cb_mintGlp', 'OBL_cb_decreasePosition']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {aum >= trackedValue && !exposed /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => aum >= trackedValue\n      where callbacks are confined to admissible_callbacks=['deposit', 'addFees', 'mintGlp', 'decreasePosition'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.66,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.11,
+     "purpose": "{I_stable} pre-phase of decreasePosition {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_deposit",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.26,
+     "purpose": "callback deposit preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_addFees",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.86,
+     "purpose": "callback addFees preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_mintGlp",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.4,
+     "purpose": "callback mintGlp preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_cb_decreasePosition",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.45,
+     "purpose": "callback decreasePosition preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.69,
+     "purpose": "{I_exp} post-phase of decreasePosition {I_stable}",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "aum": "0",
+      "trackedValue": "1",
+      "exposed": "false",
+      "caller": "0x0119",
+      "who": "0x0119",
+      "p_aum": "1",
+      "p_trackedValue": "1",
+      "p_exposed": "true",
+      "p_glp_caller": "115792089237316195423570985008687907853269984665640564039457584007913129608085",
+      "p_glp_who": "115792089237316195423570985008687907853269984665640564039457584007913129637490",
+      "amount": "1"
+     }
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.81,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_deposit",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.51,
+     "purpose": "public transition deposit preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_addFees",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.01,
+     "purpose": "public transition addFees preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_mintGlp",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.2,
+     "purpose": "public transition mintGlp preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_post"
+   ],
+   "unknown": [],
+   "outcome": "PLAN_REFUTED",
+   "repair": "the refuted obligation is a phase/preservation check under a non-inductive exposure invariant; repair strengthens the plan with ghost state and re-verifies"
+  },
+  {
+   "plan": "c1",
+   "closure": [
+    "deposit",
+    "addFees",
+    "mintGlp",
+    "decreasePosition"
+   ],
+   "footprint": [
+    "aum",
+    "exposed",
+    "glp",
+    "trackedValue"
+   ],
+   "mcvp": {
+    "contract": "PerpPool_CF01b",
+    "closure": {
+     "site_function": "decreasePosition",
+     "site_call": ".call",
+     "functions": [
+      "deposit",
+      "addFees",
+      "mintGlp",
+      "decreasePosition"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['aum', 'exposed', 'glp', 'trackedValue']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "deposit",
+      "addFees",
+      "mintGlp",
+      "decreasePosition"
+     ],
+     "nesting_bound": {
+      "decreasePosition": 1
+     }
+    },
+    "phases": {
+     "function": "decreasePosition",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [
+     {
+      "name": "inFlight",
+      "sol_type": "uint256",
+      "meaning": "amount whose aum decrement is deferred past the call",
+      "backed_by_storage": false
+     }
+    ],
+    "exposure_invariant": {
+     "formula": "aum >= trackedValue + inFlight && exposed",
+     "stable_formula": "aum >= trackedValue && !exposed",
+     "kind": "additive"
+    },
+    "composition": {
+     "target_property": "aum >= trackedValue",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for PerpPool_CF01b\n  target property phi : aum >= trackedValue\n  exposure site       : decreasePosition.call  (low-level call)\n  ghost state         : uint256 inFlight\n\n  [A_cb]  ASSUMPTION\n          During decreasePosition's exposed phase, re-entrant control is confined to the\n          callback closure ['deposit', 'addFees', 'mintGlp', 'decreasePosition']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {aum >= trackedValue && !exposed} pre-phase {aum >= trackedValue + inFlight && exposed}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = aum >= trackedValue + inFlight && exposed)\n          discharged by: ['OBL_cb_deposit', 'OBL_cb_addFees', 'OBL_cb_mintGlp', 'OBL_cb_decreasePosition']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {aum >= trackedValue && !exposed /\\ inFlight==0}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => aum >= trackedValue\n      where callbacks are confined to admissible_callbacks=['deposit', 'addFees', 'mintGlp', 'decreasePosition'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.79,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.0,
+     "purpose": "{I_stable} pre-phase of decreasePosition {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_deposit",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.14,
+     "purpose": "callback deposit preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_addFees",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.47,
+     "purpose": "callback addFees preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_mintGlp",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.62,
+     "purpose": "callback mintGlp preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_cb_decreasePosition",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.58,
+     "purpose": "callback decreasePosition preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.24,
+     "purpose": "{I_exp} post-phase of decreasePosition {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.77,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_deposit",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.14,
+     "purpose": "public transition deposit preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_addFees",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.8,
+     "purpose": "public transition addFees preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_mintGlp",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 2.42,
+     "purpose": "public transition mintGlp preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

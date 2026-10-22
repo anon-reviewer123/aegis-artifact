@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  RevestFNFTPatched   [IN_REVEST_P]
+======================================================================
+dataset          : incident
+family           : Documented incident
+twin / incident  : revest_finance
+ground-truth label: safe
+  label rationale : FNFT supply is credited before the ERC1155 receiver hook and the entry points are nonReentrant
+mechanism        : Revest Finance (Mar 2022): ERC1155 onERC1155Received reentrancy during FNFT minting; supply credited after the receiver hook
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['mintUnbacked', 'mintFNFT']
+footprint : ['_status', 'lockedValue', 'supplyOf', 'totalSupply']
+I_exp     : lockedValue == totalSupply && _status == 2   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.77s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          9.13s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_mintUnbacked             11.14s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_mintFNFT                 10.75s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         8.15s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               5.71s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_mintUnbacked            5.47s  (global)  canary=verified
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for RevestFNFTPatched
+  target property phi : totalSupply <= lockedValue
+  exposure site       : mintFNFT.onERC1155Received  (receiver hook)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During mintFNFT's exposed phase, re-entrant control is confined to the
+          callback closure ['mintUnbacked', 'mintFNFT']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {lockedValue == totalSupply && _status == 1} pre-phase {lockedValue == totalSupply && _status == 2}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = lockedValue == totalSupply && _status == 2)
+          discharged by: ['OBL_cb_mintUnbacked', 'OBL_cb_mintFNFT']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {lockedValue == totalSupply && _status == 1 /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => totalSupply <= lockedValue
+      where callbacks are confined to admissible_callbacks=['mintUnbacked', 'mintFNFT'], depth-one
+
+repair rounds    : 0
+
+======================================================================

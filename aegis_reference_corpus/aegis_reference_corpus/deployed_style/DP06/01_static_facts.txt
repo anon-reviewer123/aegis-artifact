@@ -1,0 +1,22 @@
+AEGIS static analysis  --  ModularTreasury
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : ModularTreasury
+inheritance      : ModularTreasury <- ReentrancyGuard <- Ownable <- Context
+frozen target    : teamBalance <= address(this).balance
+
+state variables (resolved across inheritance):
+  teamBalance                  uint256
+  strategy                     address
+  allowedSelectors             mapping(bytes4 => bool)
+  _NOT_ENTERED                 uint256   [constant]
+  _ENTERED                     uint256   [constant]
+  _status                      uint256
+  _owner                       address
+
+callback-capable external call sites:
+  execute.delegatecall#0  line 80  (delegatecall)
+  distribute.call#0  line 87  (low-level call)
+
+selected arm     : UNKNOWN
+reason           : delegatecall to a mutable strategy address gives an unbounded write footprint; the conservative closure is not computable, so the general arm declines (UNKNOWN, not VERIFIED)

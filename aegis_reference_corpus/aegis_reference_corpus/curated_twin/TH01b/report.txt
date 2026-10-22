@@ -1,0 +1,39 @@
+======================================================================
+AEGIS report  --  MintPass_TH01b   [TH01b]
+======================================================================
+dataset          : curated_twin
+family           : Token-receiver hook
+twin / incident  : TH01
+ground-truth label: unsafe
+  label rationale : mintedBy is incremented after the receiver hook, so a re-entrant mint passes the per-wallet check twice
+mechanism        : ERC721 mint pass with a per-wallet mint cap; safe mint calls onERC721Received
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['mint']
+footprint : ['mintedBy', 'totalMinted']
+I_exp     : mintedBy[caller] + pendingMint <= MAX_PER_WALLET && mintedBy[who] <= MAX_PER_WALLET && totalMinted <= MAX_SUPPLY   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         11.3s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.22s  (phases)  canary=refuted
+  [REFUTED ] OBL_cb_mint                      13.0s  (closure)  canary=refuted
+            counterexample: {'MAX_PER_WALLET': '2', 'MAX_SUPPLY': '1000', 'totalMinted': '1', 'pendingMint': '1', 'caller': '0x0119', 'who': '0x0119'}
+  [VERIFIED] OBL_post                        11.83s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               4.81s  (composition)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_mint
+  the admissible callback mint is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates mintedBy[caller] <= MAX_PER_WALLET && mintedBy[who] <= MAX_PER_WALLET
+  witness state       : {'MAX_PER_WALLET': '2', 'MAX_SUPPLY': '1000', 'totalMinted': '1', 'pendingMint': '1', 'caller': '0x0119', 'who': '0x0119'}
+
+repair rounds    : 0
+
+======================================================================

@@ -1,0 +1,92 @@
+{
+ "contract": "SealedAuction_LP01b",
+ "cid": "LP01b",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP01",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "one reverting recipient aborts the whole loop, so finalized is never set",
+ "mechanism": "sealed auction: losing bidders are refunded in one settlement loop before the auction is finalized",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 4.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "bidders",
+    "type": "address[]",
+    "contract": "SealedAuction_LP01b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "refunds",
+    "type": "mapping(address => uint256)",
+    "contract": "SealedAuction_LP01b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "finalized",
+    "type": "bool",
+    "contract": "SealedAuction_LP01b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "SealedAuction_LP01b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "SealedAuction_LP01b",
+    "function": "settle",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 30,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "SealedAuction_LP01b"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "refuted",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 4.04,
+   "purpose": "progress: no callee outcome halts the batch (finite failure isolation)",
+   "nonvacuity_canary": "refuted",
+   "counterexample": {
+    "halted": "true",
+    "who": "0x0",
+    "p_halted": "false",
+    "p_refunds_who": "0",
+    "ok": "false",
+    "amt": "0"
+   },
+   "witness": {
+    "refuting_obligation": "OBL_loop_step",
+    "explanation": "the inductive loop step is refuted: some admissible callee outcome breaks no callee outcome halts the batch (finite failure isolation)"
+   }
+  }
+ ],
+ "schema": "progress"
+}

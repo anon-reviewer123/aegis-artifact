@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  SavingsVault_CR01b   [CR01b]
+======================================================================
+dataset          : curated_twin
+family           : Classic reentrancy
+twin / incident  : CR01
+ground-truth label: safe
+  label rationale : balances and liabilities are cleared before the payout call (checks-effects-interactions), even for a partial withdrawal
+mechanism        : savings vault: depositors withdraw their full balance
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['deposit', 'withdrawAll']
+footprint : ['balances', 'liabilities', 'reserve']
+I_exp     : reserve >= liabilities   [stable]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         2.74s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                           3.4s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_deposit                   3.69s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_withdrawAll               3.41s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         3.61s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               3.15s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_deposit                 2.39s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for SavingsVault_CR01b
+  target property phi : reserve >= liabilities
+  exposure site       : withdrawAll.call  (low-level call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During withdrawAll's exposed phase, re-entrant control is confined to the
+          callback closure ['deposit', 'withdrawAll']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {reserve >= liabilities} pre-phase {reserve >= liabilities}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = reserve >= liabilities)
+          discharged by: ['OBL_cb_deposit', 'OBL_cb_withdrawAll']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {reserve >= liabilities /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => reserve >= liabilities
+      where callbacks are confined to admissible_callbacks=['deposit', 'withdrawAll'], depth-one
+
+repair rounds    : 0
+
+======================================================================

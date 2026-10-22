@@ -1,0 +1,63 @@
+======================================================================
+AEGIS report  --  PerpTreasury   [DP04]
+======================================================================
+dataset          : deployed_style
+family           : Cross-function desync
+ground-truth label: unsafe
+  label rationale : decreasePosition reduces trackedValue before the settler call but aum only after it; inside the window aum > trackedValue, so a re-entrant mintGlp mints GLP against the transient surplus (the GMX-V1-style desynchronisation)
+mechanism        : flattened perpetual treasury; a settler callback fires between the trackedValue and aum updates
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   PLAN_REFUTED
+----------------------------------------------------------------------
+closure   : ['deposit', 'mintGlp', 'decreasePosition']
+footprint : ['aum', 'glp', 'trackedValue']
+I_exp     : aum >= trackedValue   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         5.19s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          5.19s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_deposit                   5.92s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_mintGlp                    5.4s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_decreasePosition          5.48s  (closure)  canary=refuted
+  [REFUTED ] OBL_post                         8.17s  (phases)  canary=refuted
+            counterexample: {'aum': '0', 'trackedValue': '1', 'caller': '0x0476', 'who': '0x0476', 'amount': '1'}
+  [VERIFIED] OBL_stable_implies               5.48s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_deposit                 5.66s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_mintGlp                 3.68s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+repair    : the refuted obligation is a phase/preservation check under a non-inductive exposure invariant; repair strengthens the plan with ghost state and re-verifies
+
+----------------------------------------------------------------------
+MCVP plan c1   (REPAIR ROUND 1)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['deposit', 'mintGlp', 'decreasePosition']
+footprint : ['aum', 'glp', 'trackedValue']
+I_exp     : aum >= trackedValue + inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         1.87s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          2.45s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_deposit                   2.42s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_mintGlp                   3.68s  (closure)  canary=refuted
+            counterexample: {'aum': '1', 'trackedValue': '1', 'inFlight': '1', 'caller': '0x0476', 'who': '0x0476', 'surplus': '1'}
+  [VERIFIED] OBL_cb_decreasePosition          2.58s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         2.18s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               2.11s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_deposit                 2.13s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_mintGlp                 2.37s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_mintGlp
+  the admissible callback mintGlp is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates aum >= trackedValue
+  witness state       : {'aum': '1', 'trackedValue': '1', 'inFlight': '1', 'caller': '0x0476', 'who': '0x0476', 'surplus': '1'}
+
+repair rounds    : 1
+
+======================================================================

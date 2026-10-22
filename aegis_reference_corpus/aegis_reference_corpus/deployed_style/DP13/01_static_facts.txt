@@ -1,0 +1,17 @@
+AEGIS static analysis  --  AssemblyRefunder
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : AssemblyRefunder
+inheritance      : AssemblyRefunder <- Context
+frozen target    : totalDeposits <= address(this).balance
+
+state variables (resolved across inheritance):
+  deposits                     mapping(address => uint256)
+  totalDeposits                uint256
+  SLOT                         bytes32   [constant]
+
+callback-capable external call sites:
+  withdraw.call#0  line 44  (low-level call)
+
+selected arm     : UNKNOWN
+reason           : the reentrancy guard is stored in an inline-assembly storage slot the harness builder cannot model; without a faithful phase-split harness the site cannot be discharged, so the result is UNKNOWN

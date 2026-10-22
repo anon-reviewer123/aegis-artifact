@@ -1,0 +1,22 @@
+AEGIS static analysis  --  VestingStart_PH03b
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : VestingStart_PH03b
+inheritance      : VestingStart_PH03b
+frozen target    : !started || committed == totalAllocated
+
+state variables (resolved across inheritance):
+  started                      bool
+  committed                    uint256
+  totalAllocated               uint256
+  allocation                   mapping(address => uint256)
+
+callback-capable external call sites:
+  start.onStart#0  line 23  (external interface call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['committed', 'started', 'totalAllocated']
+conservative closure Closure(s) = ['register', 'start']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

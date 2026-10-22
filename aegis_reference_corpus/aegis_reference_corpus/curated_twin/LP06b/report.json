@@ -1,0 +1,101 @@
+{
+ "contract": "RewardsBatch_LP06b",
+ "cid": "LP06b",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP06",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "claimable[r] is cleared only after the call, so a recipient re-entering distribute() is paid twice",
+ "mechanism": "rewards pushed to recipients in one loop",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 6.5,
+ "static": {
+  "state_vars": [
+   {
+    "name": "claimable",
+    "type": "mapping(address => uint256)",
+    "contract": "RewardsBatch_LP06b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "funded",
+    "type": "mapping(address => uint256)",
+    "contract": "RewardsBatch_LP06b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "paidTo",
+    "type": "mapping(address => uint256)",
+    "contract": "RewardsBatch_LP06b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "recipients",
+    "type": "address[]",
+    "contract": "RewardsBatch_LP06b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "RewardsBatch_LP06b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "RewardsBatch_LP06b",
+    "function": "distribute",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 35,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "RewardsBatch_LP06b"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "refuted",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 6.47,
+   "purpose": "mutex: cumulative payment to every recipient is bounded by the amount funded for it",
+   "nonvacuity_canary": "refuted",
+   "counterexample": {
+    "r": "0x0",
+    "p_claimable_r": "1",
+    "p_funded_r": "216",
+    "p_paidTo_r": "215",
+    "ok": "true",
+    "ok2": "true",
+    "cbSel": "1",
+    "amt": "1"
+   },
+   "witness": {
+    "refuting_obligation": "OBL_loop_step",
+    "explanation": "the inductive loop step is refuted: some admissible callee outcome breaks cumulative payment to every recipient is bounded by the amount funded for it"
+   }
+  }
+ ],
+ "schema": "mutex"
+}

@@ -1,0 +1,42 @@
+======================================================================
+AEGIS report  --  AuctionHouse_PH01a   [PH01a]
+======================================================================
+dataset          : curated_twin
+family           : Phase-ordering desync
+twin / incident  : PH01
+ground-truth label: unsafe
+  label rationale : phase is set to CLOSED only after the payout call, so a bid placed inside the window is stranded in a closed auction
+mechanism        : auction house: proceeds are paid to the seller when the auction closes
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['bid', 'close']
+footprint : ['escrow', 'phase']
+I_exp     : phase == OPEN && escrow == 0   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                          6.0s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          6.32s  (phases)  canary=refuted
+  [REFUTED ] OBL_cb_bid                       5.19s  (closure)  canary=refuted
+            counterexample: {'OPEN': '1', 'CLOSED': '2', 'phase': '1', 'escrow': '1', 'value': '1'}
+  [REFUTED ] OBL_cb_close                     4.88s  (closure)  canary=refuted
+            counterexample: {'OPEN': '1', 'CLOSED': '2', 'phase': '2', 'escrow': '0', 'proceeds': '0'}
+  [VERIFIED] OBL_post                         5.94s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               6.49s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_bid                     5.06s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_bid
+  the admissible callback bid is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates phase != CLOSED || escrow == 0
+  witness state       : {'OPEN': '1', 'CLOSED': '2', 'phase': '1', 'escrow': '1', 'value': '1'}
+
+repair rounds    : 0
+
+======================================================================

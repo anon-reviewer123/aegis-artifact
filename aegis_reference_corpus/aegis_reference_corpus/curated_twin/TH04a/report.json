@@ -1,0 +1,200 @@
+{
+ "contract": "ReceiptVault_TH04a",
+ "cid": "TH04a",
+ "dataset": "curated_twin",
+ "family": "token_hook",
+ "pair": "TH04",
+ "ground_truth_label": "safe",
+ "label_rationale": "receiptSupply and receipts are credited before the hook",
+ "mechanism": "ERC1155 receipt vault: receipts are minted through onERC1155Received",
+ "target_property": "receiptSupply <= totalDeposited",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 45.7,
+ "static": {
+  "state_vars": [
+   {
+    "name": "RECEIPT_ID",
+    "type": "uint256",
+    "contract": "ReceiptVault_TH04a",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "receipts",
+    "type": "mapping(address => uint256)",
+    "contract": "ReceiptVault_TH04a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "receiptSupply",
+    "type": "uint256",
+    "contract": "ReceiptVault_TH04a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalDeposited",
+    "type": "uint256",
+    "contract": "ReceiptVault_TH04a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "ReceiptVault_TH04a",
+    "function": "_mintReceipt",
+    "call": ".onERC1155Received",
+    "kind": "receiver hook",
+    "line": 30,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "ReceiptVault_TH04a"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "deposit",
+    "reclaimDust"
+   ],
+   "footprint": [
+    "receiptSupply",
+    "receipts",
+    "totalDeposited"
+   ],
+   "mcvp": {
+    "contract": "ReceiptVault_TH04a",
+    "closure": {
+     "site_function": "deposit",
+     "site_call": ".onERC1155Received",
+     "functions": [
+      "deposit",
+      "reclaimDust"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['receiptSupply', 'receipts', 'totalDeposited']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "deposit",
+      "reclaimDust"
+     ],
+     "nesting_bound": {
+      "deposit": 1
+     }
+    },
+    "phases": {
+     "function": "deposit",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .onERC1155Received"
+     },
+     "exposed": {
+      "from_marker": "before .onERC1155Received",
+      "to_marker": "after .onERC1155Received"
+     },
+     "post": {
+      "from_marker": "after .onERC1155Received",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .onERC1155Received"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "receiptSupply <= totalDeposited",
+     "stable_formula": "receiptSupply <= totalDeposited",
+     "kind": "stable"
+    },
+    "composition": {
+     "target_property": "receiptSupply <= totalDeposited",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for ReceiptVault_TH04a\n  target property phi : receiptSupply <= totalDeposited\n  exposure site       : deposit.onERC1155Received  (receiver hook)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During deposit's exposed phase, re-entrant control is confined to the\n          callback closure ['deposit', 'reclaimDust']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {receiptSupply <= totalDeposited} pre-phase {receiptSupply <= totalDeposited}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = receiptSupply <= totalDeposited)\n          discharged by: ['OBL_cb_deposit', 'OBL_cb_reclaimDust']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {receiptSupply <= totalDeposited /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => receiptSupply <= totalDeposited\n      where callbacks are confined to admissible_callbacks=['deposit', 'reclaimDust'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.71,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.09,
+     "purpose": "{I_stable} pre-phase of deposit {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_deposit",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.68,
+     "purpose": "callback deposit preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_reclaimDust",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.55,
+     "purpose": "callback reclaimDust preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.87,
+     "purpose": "{I_exp} post-phase of deposit {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.45,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_reclaimDust",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.38,
+     "purpose": "public transition reclaimDust preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

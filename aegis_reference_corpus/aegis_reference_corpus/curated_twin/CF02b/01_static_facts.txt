@@ -1,0 +1,23 @@
+AEGIS static analysis  --  LiquidityVault_CF02b
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : LiquidityVault_CF02b
+inheritance      : LiquidityVault_CF02b
+frozen target    : totalAssets >= totalClaims
+
+state variables (resolved across inheritance):
+  shares                       mapping(address => uint256)
+  totalAssets                  uint256
+  totalClaims                  uint256
+  feeRecipient                 address
+  owner                        address
+
+callback-capable external call sites:
+  exitPosition.call#0  line 41  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['shares', 'totalAssets', 'totalClaims']
+conservative closure Closure(s) = ['enter', 'donate', 'claimSurplus', 'exitPosition']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

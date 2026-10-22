@@ -1,0 +1,61 @@
+======================================================================
+AEGIS report  --  RevestFNFTVuln   [IN_REVEST_V]
+======================================================================
+dataset          : incident
+family           : Documented incident
+twin / incident  : revest_finance
+ground-truth label: unsafe
+  label rationale : mintFNFT locks the value then calls onERC1155Received before crediting FNFT supply, so a re-entrant mintUnbacked mints FNFTs against value the mint is about to attribute to supply
+mechanism        : Revest Finance (Mar 2022): ERC1155 onERC1155Received reentrancy during FNFT minting; supply credited after the receiver hook
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   PLAN_REFUTED
+----------------------------------------------------------------------
+closure   : ['mintUnbacked', 'mintFNFT']
+footprint : ['lockedValue', 'supplyOf', 'totalSupply']
+I_exp     : lockedValue == totalSupply   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.09s  (global)  canary=refuted
+  [REFUTED ] OBL_pre                          8.19s  (phases)  canary=refuted
+            counterexample: {'FNFT_ID': '1', 'totalSupply': '0', 'lockedValue': '1', 'to': '0x6e42', 'caller': '0x6e40', 'who': '0x6e3f', 'quantity': '1'}
+  [VERIFIED] OBL_cb_mintUnbacked              3.24s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_mintFNFT                  6.22s  (closure)  canary=refuted
+  [REFUTED ] OBL_post                         8.86s  (phases)  canary=refuted
+            counterexample: {'FNFT_ID': '1', 'totalSupply': '115792089237316195423570985008687907853269984665640564039457584007913129631531', 'lockedValue': '0', 'to': '0x2cbd', 'caller': '0x2cbf', 'who': '0x2cbc', 'quantity': '115792089237316195423570985008687907853269984665640564039457584007913129631531'}
+  [VERIFIED] OBL_stable_implies               5.79s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_mintUnbacked            3.28s  (global)  canary=verified
+non-vacuity: passed (all canaries refuted)
+repair    : the refuted obligation is a phase/preservation check under a non-inductive exposure invariant; repair strengthens the plan with ghost state and re-verifies
+
+----------------------------------------------------------------------
+MCVP plan c1   (REPAIR ROUND 1)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['mintUnbacked', 'mintFNFT']
+footprint : ['lockedValue', 'supplyOf', 'totalSupply']
+I_exp     : lockedValue == totalSupply + inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.85s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          6.23s  (phases)  canary=refuted
+  [REFUTED ] OBL_cb_mintUnbacked              4.41s  (closure)  canary=refuted
+            counterexample: {'FNFT_ID': '1', 'totalSupply': '1', 'lockedValue': '1', 'inFlight': '1', 'to': '0x0119', 'caller': '0x011b', 'who': '0x0119', 'extra': '1'}
+  [VERIFIED] OBL_cb_mintFNFT                  6.23s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         6.24s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               6.83s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_mintUnbacked            3.35s  (global)  canary=verified
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_mintUnbacked
+  the admissible callback mintUnbacked is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates totalSupply <= lockedValue
+  witness state       : {'FNFT_ID': '1', 'totalSupply': '1', 'lockedValue': '1', 'inFlight': '1', 'to': '0x0119', 'caller': '0x011b', 'who': '0x0119', 'extra': '1'}
+
+repair rounds    : 1
+
+======================================================================

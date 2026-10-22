@@ -1,0 +1,21 @@
+AEGIS static analysis  --  RebasingPool
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : RebasingPool
+inheritance      : RebasingPool <- ReentrancyGuard <- Context
+frozen target    : totalScaled * index / 1e18 <= principal (not in template family)
+
+state variables (resolved across inheritance):
+  index                        uint256
+  principal                    uint256
+  scaled                       mapping(address => uint256)
+  totalScaled                  uint256
+  _NOT_ENTERED                 uint256   [constant]
+  _ENTERED                     uint256   [constant]
+  _status                      uint256
+
+callback-capable external call sites:
+  withdraw.call#0  line 55  (low-level call)
+
+selected arm     : UNKNOWN
+reason           : the contract's accounting invariant is a product of a balance and a rebasing index, outside the additive and conservation templates the general arm instantiates; with no supplied target in that shape, the result is UNKNOWN

@@ -1,0 +1,60 @@
+======================================================================
+AEGIS report  --  StakePool   [DP02]
+======================================================================
+dataset          : deployed_style
+family           : Classic reentrancy
+ground-truth label: safe
+  label rationale : stake and unstake share the nonReentrant lock; a token-transfer callback cannot re-enter to desynchronise staked from totalStaked
+mechanism        : flattened staking pool (Ownable + ReentrancyGuard); stake token transfer can call back
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['stake']
+footprint : ['_status', 'staked', 'totalStaked']
+I_exp     : staked[caller] <= totalStaked && _status == 2   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         7.43s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          6.01s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_stake                    10.92s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         5.76s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               5.26s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_stake                   7.42s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for StakePool
+  target property phi : staked[caller] <= totalStaked
+  exposure site       : unstake.transfer  (external interface call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During unstake's exposed phase, re-entrant control is confined to the
+          callback closure ['stake']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {staked[caller] <= totalStaked && _status == 1} pre-phase {staked[caller] <= totalStaked && _status == 2}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = staked[caller] <= totalStaked && _status == 2)
+          discharged by: ['OBL_cb_stake']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {staked[caller] <= totalStaked && _status == 1 /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => staked[caller] <= totalStaked
+      where callbacks are confined to admissible_callbacks=['stake'], depth-one
+
+repair rounds    : 0
+
+======================================================================

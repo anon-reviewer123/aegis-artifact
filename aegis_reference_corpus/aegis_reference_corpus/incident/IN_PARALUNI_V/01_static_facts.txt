@@ -1,0 +1,22 @@
+AEGIS static analysis  --  ParaluniChefVuln
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : ParaluniChefVuln
+inheritance      : ParaluniChefVuln <- Context
+frozen target    : totalStaked <= poolBalance
+
+state variables (resolved across inheritance):
+  amountOf                     mapping(address => uint256)
+  totalStaked                  uint256
+  poolBalance                  uint256
+
+callback-capable external call sites:
+  deposit.transferFrom#0  line 30  (external interface call)
+  withdraw.transfer#0  line 42  (transfer (2300 gas))
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['amountOf', 'poolBalance', 'totalStaked']
+conservative closure Closure(s) = ['deposit']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

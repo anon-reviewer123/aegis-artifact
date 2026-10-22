@@ -1,0 +1,435 @@
+{
+ "contract": "PerpTreasury",
+ "cid": "DP04",
+ "dataset": "deployed_style",
+ "family": "cross_function",
+ "pair": null,
+ "ground_truth_label": "unsafe",
+ "label_rationale": "decreasePosition reduces trackedValue before the settler call but aum only after it; inside the window aum > trackedValue, so a re-entrant mintGlp mints GLP against the transient surplus (the GMX-V1-style desynchronisation)",
+ "mechanism": "flattened perpetual treasury; a settler callback fires between the trackedValue and aum updates",
+ "target_property": "aum >= trackedValue",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 1,
+ "approx_solver_seconds": 72.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "glp",
+    "type": "mapping(address => uint256)",
+    "contract": "PerpTreasury",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "aum",
+    "type": "uint256",
+    "contract": "PerpTreasury",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "trackedValue",
+    "type": "uint256",
+    "contract": "PerpTreasury",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "settler",
+    "type": "address",
+    "contract": "PerpTreasury",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_owner",
+    "type": "address",
+    "contract": "Ownable",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "PerpTreasury",
+    "function": "decreasePosition",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 76,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "PerpTreasury",
+   "Ownable",
+   "Context"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "deposit",
+    "mintGlp",
+    "decreasePosition"
+   ],
+   "footprint": [
+    "aum",
+    "glp",
+    "trackedValue"
+   ],
+   "mcvp": {
+    "contract": "PerpTreasury",
+    "closure": {
+     "site_function": "decreasePosition",
+     "site_call": ".call",
+     "functions": [
+      "deposit",
+      "mintGlp",
+      "decreasePosition"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['aum', 'glp', 'trackedValue']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "deposit",
+      "mintGlp",
+      "decreasePosition"
+     ],
+     "nesting_bound": {
+      "decreasePosition": 1
+     }
+    },
+    "phases": {
+     "function": "decreasePosition",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "aum >= trackedValue",
+     "stable_formula": "aum >= trackedValue",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "aum >= trackedValue",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for PerpTreasury\n  target property phi : aum >= trackedValue\n  exposure site       : decreasePosition.call  (low-level call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During decreasePosition's exposed phase, re-entrant control is confined to the\n          callback closure ['deposit', 'mintGlp', 'decreasePosition']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {aum >= trackedValue} pre-phase {aum >= trackedValue}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = aum >= trackedValue)\n          discharged by: ['OBL_cb_deposit', 'OBL_cb_mintGlp', 'OBL_cb_decreasePosition']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {aum >= trackedValue /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => aum >= trackedValue\n      where callbacks are confined to admissible_callbacks=['deposit', 'mintGlp', 'decreasePosition'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.19,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.19,
+     "purpose": "{I_stable} pre-phase of decreasePosition {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_deposit",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.92,
+     "purpose": "callback deposit preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_mintGlp",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.4,
+     "purpose": "callback mintGlp preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_decreasePosition",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.48,
+     "purpose": "callback decreasePosition preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.17,
+     "purpose": "{I_exp} post-phase of decreasePosition {I_stable}",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "aum": "0",
+      "trackedValue": "1",
+      "caller": "0x0476",
+      "who": "0x0476",
+      "p_aum": "1",
+      "p_trackedValue": "1",
+      "p_glp_caller": "31599",
+      "p_glp_who": "31598",
+      "amount": "1"
+     }
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.48,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_deposit",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.66,
+     "purpose": "public transition deposit preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_mintGlp",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.68,
+     "purpose": "public transition mintGlp preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_post"
+   ],
+   "unknown": [],
+   "outcome": "PLAN_REFUTED",
+   "repair": "the refuted obligation is a phase/preservation check under a non-inductive exposure invariant; repair strengthens the plan with ghost state and re-verifies"
+  },
+  {
+   "plan": "c1",
+   "closure": [
+    "deposit",
+    "mintGlp",
+    "decreasePosition"
+   ],
+   "footprint": [
+    "aum",
+    "glp",
+    "trackedValue"
+   ],
+   "mcvp": {
+    "contract": "PerpTreasury",
+    "closure": {
+     "site_function": "decreasePosition",
+     "site_call": ".call",
+     "functions": [
+      "deposit",
+      "mintGlp",
+      "decreasePosition"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['aum', 'glp', 'trackedValue']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "deposit",
+      "mintGlp",
+      "decreasePosition"
+     ],
+     "nesting_bound": {
+      "decreasePosition": 1
+     }
+    },
+    "phases": {
+     "function": "decreasePosition",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [
+     {
+      "name": "inFlight",
+      "sol_type": "uint256",
+      "meaning": "position size whose aum decrement is deferred past the settler callback",
+      "backed_by_storage": false
+     }
+    ],
+    "exposure_invariant": {
+     "formula": "aum >= trackedValue + inFlight",
+     "stable_formula": "aum >= trackedValue",
+     "kind": "additive"
+    },
+    "composition": {
+     "target_property": "aum >= trackedValue",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for PerpTreasury\n  target property phi : aum >= trackedValue\n  exposure site       : decreasePosition.call  (low-level call)\n  ghost state         : uint256 inFlight\n\n  [A_cb]  ASSUMPTION\n          During decreasePosition's exposed phase, re-entrant control is confined to the\n          callback closure ['deposit', 'mintGlp', 'decreasePosition']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {aum >= trackedValue} pre-phase {aum >= trackedValue + inFlight}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = aum >= trackedValue + inFlight)\n          discharged by: ['OBL_cb_deposit', 'OBL_cb_mintGlp', 'OBL_cb_decreasePosition']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {aum >= trackedValue /\\ inFlight==0}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => aum >= trackedValue\n      where callbacks are confined to admissible_callbacks=['deposit', 'mintGlp', 'decreasePosition'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 1.87,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 2.45,
+     "purpose": "{I_stable} pre-phase of decreasePosition {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_deposit",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 2.42,
+     "purpose": "callback deposit preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_mintGlp",
+     "module": "closure",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.68,
+     "purpose": "callback mintGlp preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "aum": "1",
+      "trackedValue": "1",
+      "inFlight": "1",
+      "caller": "0x0476",
+      "who": "0x0476",
+      "p_aum": "1",
+      "p_trackedValue": "0",
+      "p_inFlight": "1",
+      "p_glp_caller": "115792089237316195423570985008687907853269984665640564039457584007913129608824",
+      "p_glp_who": "6878",
+      "surplus": "1"
+     }
+    },
+    {
+     "obligation": "OBL_cb_decreasePosition",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 2.58,
+     "purpose": "callback decreasePosition preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 2.18,
+     "purpose": "{I_exp} post-phase of decreasePosition {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 2.11,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_deposit",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 2.13,
+     "purpose": "public transition deposit preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_mintGlp",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 2.37,
+     "purpose": "public transition mintGlp preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_cb_mintGlp"
+   ],
+   "unknown": [],
+   "outcome": "BUG_CANDIDATE",
+   "witness": {
+    "refuting_obligation": "OBL_cb_mintGlp",
+    "kind": "source-level depth-one witness (modeled semantics)",
+    "explanation": "the admissible callback mintGlp is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates aum >= trackedValue",
+    "counterexample": {
+     "aum": "1",
+     "trackedValue": "1",
+     "inFlight": "1",
+     "caller": "0x0476",
+     "who": "0x0476",
+     "p_aum": "1",
+     "p_trackedValue": "0",
+     "p_inFlight": "1",
+     "p_glp_caller": "115792089237316195423570985008687907853269984665640564039457584007913129608824",
+     "p_glp_who": "6878",
+     "surplus": "1"
+    }
+   }
+  }
+ ]
+}

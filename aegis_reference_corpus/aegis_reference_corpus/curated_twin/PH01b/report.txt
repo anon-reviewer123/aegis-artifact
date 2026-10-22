@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  AuctionHouse_PH01b   [PH01b]
+======================================================================
+dataset          : curated_twin
+family           : Phase-ordering desync
+twin / incident  : PH01
+ground-truth label: safe
+  label rationale : phase is set to CLOSED before the payout call, so bid() reverts inside the window
+mechanism        : auction house: proceeds are paid to the seller when the auction closes
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['bid', 'close']
+footprint : ['escrow', 'phase']
+I_exp     : phase == CLOSED && escrow == 0   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.06s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          6.81s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_bid                       3.17s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_close                     3.21s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         5.46s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               5.43s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_bid                     4.76s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for AuctionHouse_PH01b
+  target property phi : phase != CLOSED || escrow == 0
+  exposure site       : close.call  (low-level call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During close's exposed phase, re-entrant control is confined to the
+          callback closure ['bid', 'close']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {(phase == OPEN || phase == CLOSED) && (phase != CLOSED || escrow == 0)} pre-phase {phase == CLOSED && escrow == 0}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = phase == CLOSED && escrow == 0)
+          discharged by: ['OBL_cb_bid', 'OBL_cb_close']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {(phase == OPEN || phase == CLOSED) && (phase != CLOSED || escrow == 0) /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => phase != CLOSED || escrow == 0
+      where callbacks are confined to admissible_callbacks=['bid', 'close'], depth-one
+
+repair rounds    : 0
+
+======================================================================

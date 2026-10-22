@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  ModularTreasury   [DP06]
+======================================================================
+dataset          : deployed_style
+family           : Cross-function desync
+ground-truth label: unknown
+  label rationale : the delegated strategy can write any storage slot, so the exposed footprint is unbounded
+mechanism        : flattened treasury with an upgradeable delegatecall strategy module
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : UNKNOWN  --  delegatecall to a mutable strategy address gives an unbounded write footprint; the conservative closure is not computable, so the general arm declines (UNKNOWN, not VERIFIED)
+AEGIS verdict    : UNKNOWN
+vs. label        : N/V (UNKNOWN)
+
+AEGIS does not return a definitive verdict on this contract.
+
+scope boundary   : delegatecall
+  execute() delegatecalls an owner-set strategy; Write*(strategy) is not statically bounded, so the conservative closure and proof footprint cannot be computed
+
+why UNKNOWN (not VERIFIED): delegatecall to a mutable strategy address gives an unbounded write footprint; the conservative closure is not computable, so the general arm declines (UNKNOWN, not VERIFIED)
+
+the static pass still identifies the exposure sites above; the arm
+selected them but the proof obligations cannot be soundly constructed
+or discharged within the modeled, backend-supported fragment.
+
+======================================================================

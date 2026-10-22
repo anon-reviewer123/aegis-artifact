@@ -1,0 +1,45 @@
+======================================================================
+AEGIS report  --  CoverFund_CF03b   [CF03b]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF03
+ground-truth label: unsafe
+  label rationale : reserves is decremented only after the payout call, so rebalance() run inside the window treats the in-flight amount as surplus
+mechanism        : insurance fund: excess reserves are re-issued as cover
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['buyCover', 'topUp', 'rebalance', 'payClaim']
+footprint : ['cover', 'coverage', 'reserves']
+I_exp     : reserves >= coverage + inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.52s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          7.58s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_buyCover                   6.6s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_topUp                     7.34s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_rebalance                11.94s  (closure)  canary=refuted
+            counterexample: {'reserves': '37', 'coverage': '37', 'inFlight': '1', 'caller': '0x0', 'who': '0x0', 'surplus': '37'}
+  [VERIFIED] OBL_cb_payClaim                  8.66s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         8.45s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               8.12s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_buyCover                6.24s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_topUp                   6.35s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_rebalance               5.99s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_rebalance
+  the admissible callback rebalance is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates reserves >= coverage
+  witness state       : {'reserves': '37', 'coverage': '37', 'inFlight': '1', 'caller': '0x0', 'who': '0x0', 'surplus': '37'}
+
+repair rounds    : 0
+
+======================================================================

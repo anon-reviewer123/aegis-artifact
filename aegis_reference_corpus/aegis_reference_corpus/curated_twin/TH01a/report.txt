@@ -1,0 +1,60 @@
+======================================================================
+AEGIS report  --  MintPass_TH01a   [TH01a]
+======================================================================
+dataset          : curated_twin
+family           : Token-receiver hook
+twin / incident  : TH01
+ground-truth label: safe
+  label rationale : mintedBy is incremented before the receiver hook
+mechanism        : ERC721 mint pass with a per-wallet mint cap; safe mint calls onERC721Received
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['mint']
+footprint : ['mintedBy', 'totalMinted']
+I_exp     : mintedBy[caller] <= MAX_PER_WALLET && mintedBy[who] <= MAX_PER_WALLET && totalMinted <= MAX_SUPPLY   [stable]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                        10.34s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          11.0s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_mint                     11.11s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         7.53s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies                4.7s  (composition)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for MintPass_TH01a
+  target property phi : mintedBy[caller] <= MAX_PER_WALLET && mintedBy[who] <= MAX_PER_WALLET
+  exposure site       : mint.onERC721Received  (receiver hook (via _checkReceiver))
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During mint's exposed phase, re-entrant control is confined to the
+          callback closure ['mint']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {mintedBy[caller] <= MAX_PER_WALLET && mintedBy[who] <= MAX_PER_WALLET && totalMinted <= MAX_SUPPLY} pre-phase {mintedBy[caller] <= MAX_PER_WALLET && mintedBy[who] <= MAX_PER_WALLET && totalMinted <= MAX_SUPPLY}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = mintedBy[caller] <= MAX_PER_WALLET && mintedBy[who] <= MAX_PER_WALLET && totalMinted <= MAX_SUPPLY)
+          discharged by: ['OBL_cb_mint']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {mintedBy[caller] <= MAX_PER_WALLET && mintedBy[who] <= MAX_PER_WALLET && totalMinted <= MAX_SUPPLY /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => mintedBy[caller] <= MAX_PER_WALLET && mintedBy[who] <= MAX_PER_WALLET
+      where callbacks are confined to admissible_callbacks=['mint'], depth-one
+
+repair rounds    : 0
+
+======================================================================

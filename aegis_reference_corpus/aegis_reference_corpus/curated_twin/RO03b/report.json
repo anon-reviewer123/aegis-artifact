@@ -1,0 +1,104 @@
+{
+ "contract": "LendingMarket_RO03b",
+ "cid": "RO03b",
+ "dataset": "curated_twin",
+ "family": "read_only",
+ "pair": "RO03",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "totalBorrows drops before the incentive call and cash rises after it, so totalSupplied() dips inside the window (label is the local quiescence property, not exploitability)",
+ "mechanism": "lending market: totalSupplied() is read by external rate models",
+ "target_property": null,
+ "arm": "readonly",
+ "arm_reason": "an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "non_quiescent",
+ "outcome_vs_label": "TP",
+ "outcome_note": "non_quiescent",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 5.1,
+ "static": {
+  "state_vars": [
+   {
+    "name": "INCENTIVE",
+    "type": "uint256",
+    "contract": "LendingMarket_RO03b",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "cash",
+    "type": "uint256",
+    "contract": "LendingMarket_RO03b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalBorrows",
+    "type": "uint256",
+    "contract": "LendingMarket_RO03b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "locked",
+    "type": "bool",
+    "contract": "LendingMarket_RO03b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "LendingMarket_RO03b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "LendingMarket_RO03b",
+    "function": "liquidate",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 36,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "LendingMarket_RO03b"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_ro_totalSupplied",
+   "module": "readonly",
+   "status": "refuted",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 5.1,
+   "purpose": "obs during exposure equals entry or settled observation",
+   "nonvacuity_canary": "refuted",
+   "counterexample": {
+    "INCENTIVE": "10000000000000000",
+    "cash": "1",
+    "totalBorrows": "0",
+    "locked": "false",
+    "p_cash": "0",
+    "p_totalBorrows": "10000000000000001",
+    "p_locked": "false",
+    "debt": "10000000000000001",
+    "obs0": "10000000000000001",
+    "obsE": "0",
+    "obs1": "1"
+   },
+   "witness": {
+    "refuting_obligation": "OBL_ro_totalSupplied",
+    "explanation": "the observation during exposure equals neither the entry nor the settled value"
+   }
+  }
+ ],
+ "schema": "read-only quiescence"
+}

@@ -1,0 +1,249 @@
+{
+ "contract": "MarginDesk_CF06b",
+ "cid": "CF06b",
+ "dataset": "curated_twin",
+ "family": "cross_function",
+ "pair": "CF06",
+ "ground_truth_label": "safe",
+ "label_rationale": "collateral is decremented before the payout call, so no surplus is visible inside the window",
+ "mechanism": "margin desk: idle collateral above margin can be skimmed into margin",
+ "target_property": "collateral >= marginTotal",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 77.4,
+ "static": {
+  "state_vars": [
+   {
+    "name": "margin",
+    "type": "mapping(address => uint256)",
+    "contract": "MarginDesk_CF06b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "collateral",
+    "type": "uint256",
+    "contract": "MarginDesk_CF06b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "marginTotal",
+    "type": "uint256",
+    "contract": "MarginDesk_CF06b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "feeRecipient",
+    "type": "address",
+    "contract": "MarginDesk_CF06b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "MarginDesk_CF06b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "MarginDesk_CF06b",
+    "function": "closeTrade",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 42,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "MarginDesk_CF06b"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "postMargin",
+    "addInsurance",
+    "skim",
+    "closeTrade"
+   ],
+   "footprint": [
+    "collateral",
+    "margin",
+    "marginTotal"
+   ],
+   "mcvp": {
+    "contract": "MarginDesk_CF06b",
+    "closure": {
+     "site_function": "closeTrade",
+     "site_call": ".call",
+     "functions": [
+      "postMargin",
+      "addInsurance",
+      "skim",
+      "closeTrade"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['collateral', 'margin', 'marginTotal']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "postMargin",
+      "addInsurance",
+      "skim",
+      "closeTrade"
+     ],
+     "nesting_bound": {
+      "closeTrade": 1
+     }
+    },
+    "phases": {
+     "function": "closeTrade",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "collateral >= marginTotal",
+     "stable_formula": "collateral >= marginTotal",
+     "kind": "stable"
+    },
+    "composition": {
+     "target_property": "collateral >= marginTotal",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for MarginDesk_CF06b\n  target property phi : collateral >= marginTotal\n  exposure site       : closeTrade.call  (low-level call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During closeTrade's exposed phase, re-entrant control is confined to the\n          callback closure ['postMargin', 'addInsurance', 'skim', 'closeTrade']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {collateral >= marginTotal} pre-phase {collateral >= marginTotal}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = collateral >= marginTotal)\n          discharged by: ['OBL_cb_postMargin', 'OBL_cb_addInsurance', 'OBL_cb_skim', 'OBL_cb_closeTrade']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {collateral >= marginTotal /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => collateral >= marginTotal\n      where callbacks are confined to admissible_callbacks=['postMargin', 'addInsurance', 'skim', 'closeTrade'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.04,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.57,
+     "purpose": "{I_stable} pre-phase of closeTrade {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_postMargin",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.01,
+     "purpose": "callback postMargin preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_addInsurance",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.44,
+     "purpose": "callback addInsurance preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_skim",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.54,
+     "purpose": "callback skim preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_closeTrade",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.07,
+     "purpose": "callback closeTrade preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.84,
+     "purpose": "{I_exp} post-phase of closeTrade {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.37,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_postMargin",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.83,
+     "purpose": "public transition postMargin preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_addInsurance",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.87,
+     "purpose": "public transition addInsurance preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_skim",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.84,
+     "purpose": "public transition skim preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

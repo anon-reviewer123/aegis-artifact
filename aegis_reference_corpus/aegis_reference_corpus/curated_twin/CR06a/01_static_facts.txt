@@ -1,0 +1,22 @@
+AEGIS static analysis  --  PayoutLedger_CR06a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : PayoutLedger_CR06a
+inheritance      : PayoutLedger_CR06a
+frozen target    : funds >= promised
+
+state variables (resolved across inheritance):
+  credit                       mapping(address => uint256)
+  funds                        uint256
+  promised                     uint256
+  owner                        address
+
+callback-capable external call sites:
+  withdraw.call#0  line 28  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['credit', 'funds', 'promised']
+conservative closure Closure(s) = ['fund', 'withdraw']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

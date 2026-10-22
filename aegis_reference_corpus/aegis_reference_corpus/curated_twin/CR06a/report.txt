@@ -1,0 +1,41 @@
+======================================================================
+AEGIS report  --  PayoutLedger_CR06a   [CR06a]
+======================================================================
+dataset          : curated_twin
+family           : Classic reentrancy
+twin / incident  : CR06
+ground-truth label: unsafe
+  label rationale : the caller's credit entry and promised are cleared only after the payout call, so a re-entrant withdraw pays the same balance twice
+mechanism        : payout ledger: partial withdrawals against a credit line
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['fund', 'withdraw']
+footprint : ['credit', 'funds', 'promised']
+I_exp     : funds + inFlight >= promised && credit[caller] >= inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         3.07s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          3.31s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_fund                      5.67s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_withdraw                  5.96s  (closure)  canary=refuted
+            counterexample: {'funds': '0', 'promised': '0', 'inFlight': '5854', 'caller': '0x6532', 'who': '0x6532', 'amount': '0'}
+  [VERIFIED] OBL_post                         5.06s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               4.22s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_fund                    2.47s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_withdraw
+  the admissible callback withdraw is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates funds >= promised
+  witness state       : {'funds': '0', 'promised': '0', 'inFlight': '5854', 'caller': '0x6532', 'who': '0x6532', 'amount': '0'}
+
+repair rounds    : 0
+
+======================================================================

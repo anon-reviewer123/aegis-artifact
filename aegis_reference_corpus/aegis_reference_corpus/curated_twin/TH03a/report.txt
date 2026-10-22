@@ -1,0 +1,41 @@
+======================================================================
+AEGIS report  --  VoucherDesk_TH03a   [TH03a]
+======================================================================
+dataset          : curated_twin
+family           : Token-receiver hook
+twin / incident  : TH03
+ground-truth label: unsafe
+  label rationale : credits is credited after the tokensReceived hook, so redeemSurplus() inside the hook treats the incoming value as unclaimed
+mechanism        : voucher desk: vouchers are issued through an ERC777-style tokensReceived hook
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['issue', 'redeemSurplus']
+footprint : ['credits', 'liabilities', 'vouchers']
+I_exp     : credits + inFlight <= liabilities   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                          6.1s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.33s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_issue                     8.73s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_redeemSurplus            12.46s  (closure)  canary=refuted
+            counterexample: {'credits': '1', 'liabilities': '1', 'inFlight': '1', 'caller': '0x011a', 'who': '0x0119', 'to': '0x0119', 's': '1'}
+  [VERIFIED] OBL_post                         8.42s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               7.19s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_redeemSurplus           6.94s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_redeemSurplus
+  the admissible callback redeemSurplus is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates credits <= liabilities
+  witness state       : {'credits': '1', 'liabilities': '1', 'inFlight': '1', 'caller': '0x011a', 'who': '0x0119', 'to': '0x0119', 's': '1'}
+
+repair rounds    : 0
+
+======================================================================

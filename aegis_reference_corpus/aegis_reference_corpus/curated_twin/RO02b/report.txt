@@ -1,0 +1,27 @@
+======================================================================
+AEGIS report  --  YieldShareVault_RO02b   [RO02b]
+======================================================================
+dataset          : curated_twin
+family           : Read-only reentrancy
+twin / incident  : RO02
+ground-truth label: unsafe
+  label rationale : pendingYield drops before the bounty call and totalAssets rises after it, so pricePerShare() dips inside the window (label is the local quiescence property, not exploitability)
+mechanism        : yield vault: share price consumed by lending integrations
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : READONLY  --  an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies
+AEGIS verdict    : non_quiescent
+vs. label        : TP (non_quiescent)
+
+observed view    : pricePerShare()  (obs = (totalAssets + pendingYield) * 1e18)
+observation footprint reads : ['e18', 'pendingYield', 'totalAssets']
+reduction        : divisor totalShares is constant across the three observation points: compare numerators
+
+observational-quiescence obligation  OBL_ro:
+  obs(sigma_e) == obs(sigma_0)  ||  obs(sigma_e) == obs(sigma_1)
+  [REFUTED ] OBL_ro_pricePerShare       6.01s  canary=refuted
+            witness: the observation during exposure equals neither the entry nor the settled value
+
+read-only outcome: non_quiescent  (observational property, not a vulnerability label)
+
+======================================================================

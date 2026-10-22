@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  CollateralVault   [DP09]
+======================================================================
+dataset          : deployed_style
+family           : Read-only reentrancy
+ground-truth label: unknown
+  label rationale : the share price and mint math read asset.balanceOf(this), held in another contract whose value any transfer can change
+mechanism        : flattened ERC4626-style vault pricing shares off an external token balance
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : UNKNOWN  --  the invariant and the observed view both depend on a token balance held in another contract; no sound summary of that mutable external state is available, so the result is UNKNOWN (cross-DApp exploitability is out of scope)
+AEGIS verdict    : UNKNOWN
+vs. label        : N/V (UNKNOWN)
+
+AEGIS does not return a definitive verdict on this contract.
+
+scope boundary   : mutable external state
+  the accounting footprint includes asset.balanceOf(address(this)); that balance lives in the token contract and can change through transfers Aegis does not model without a cross-contract summary
+
+why UNKNOWN (not VERIFIED): the invariant and the observed view both depend on a token balance held in another contract; no sound summary of that mutable external state is available, so the result is UNKNOWN (cross-DApp exploitability is out of scope)
+
+the static pass still identifies the exposure sites above; the arm
+selected them but the proof obligations cannot be soundly constructed
+or discharged within the modeled, backend-supported fragment.
+
+======================================================================

@@ -1,0 +1,43 @@
+======================================================================
+AEGIS report  --  BonusDesk_EO02a   [EO02a]
+======================================================================
+dataset          : curated_twin
+family           : EOA-assumption
+twin / incident  : EO02
+ground-truth label: unsafe
+  label rationale : the payout goes to msg.sender before the books are settled; nothing stops msg.sender from being a contract
+mechanism        : bonus desk: bonus payouts to msg.sender; unclaimed total can be swept
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['accrue', 'claim', 'sweep']
+footprint : ['bonus', 'bonusDebt', 'bonusTotal']
+I_exp     : bonusTotal == bonusDebt + inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                        10.99s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                         13.51s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_accrue                   12.38s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_claim                    13.26s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_sweep                    17.09s  (closure)  canary=refuted
+            counterexample: {'bonusTotal': '1', 'bonusDebt': '1', 'inFlight': '1', 'caller': '0x0119', 'who': '0x0119', 's': '1'}
+  [VERIFIED] OBL_post                        12.07s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               12.0s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_accrue                 13.21s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_sweep                  11.59s  (global)  canary=verified
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_sweep
+  the admissible callback sweep is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates bonusTotal == bonusDebt
+  witness state       : {'bonusTotal': '1', 'bonusDebt': '1', 'inFlight': '1', 'caller': '0x0119', 'who': '0x0119', 's': '1'}
+
+repair rounds    : 0
+
+======================================================================

@@ -1,0 +1,94 @@
+{
+ "contract": "YieldShareVault_RO02a",
+ "cid": "RO02a",
+ "dataset": "curated_twin",
+ "family": "read_only",
+ "pair": "RO02",
+ "ground_truth_label": "safe",
+ "label_rationale": "harvested yield is moved into totalAssets before the bounty call (label is the local quiescence property, not exploitability)",
+ "mechanism": "yield vault: share price consumed by lending integrations",
+ "target_property": null,
+ "arm": "readonly",
+ "arm_reason": "an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "quiescent",
+ "outcome_vs_label": "TN",
+ "outcome_note": "quiescent",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 5.8,
+ "static": {
+  "state_vars": [
+   {
+    "name": "BOUNTY",
+    "type": "uint256",
+    "contract": "YieldShareVault_RO02a",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "shares",
+    "type": "mapping(address => uint256)",
+    "contract": "YieldShareVault_RO02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalShares",
+    "type": "uint256",
+    "contract": "YieldShareVault_RO02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalAssets",
+    "type": "uint256",
+    "contract": "YieldShareVault_RO02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "pendingYield",
+    "type": "uint256",
+    "contract": "YieldShareVault_RO02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "inCall",
+    "type": "bool",
+    "contract": "YieldShareVault_RO02a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "YieldShareVault_RO02a",
+    "function": "harvest",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 30,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "YieldShareVault_RO02a"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_ro_pricePerShare",
+   "module": "readonly",
+   "status": "verified",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 5.77,
+   "purpose": "obs during exposure equals entry or settled observation",
+   "nonvacuity_canary": "refuted"
+  }
+ ],
+ "schema": "read-only quiescence"
+}

@@ -1,0 +1,200 @@
+{
+ "contract": "ShareRedeemer_CR05b",
+ "cid": "CR05b",
+ "dataset": "curated_twin",
+ "family": "classic_reentrancy",
+ "pair": "CR05",
+ "ground_truth_label": "safe",
+ "label_rationale": "shares and outstanding are cleared before the payout call (checks-effects-interactions), even for a partial withdrawal",
+ "mechanism": "share redeemer: holders redeem all shares for the backing asset",
+ "target_property": "backing >= outstanding",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 23.6,
+ "static": {
+  "state_vars": [
+   {
+    "name": "shares",
+    "type": "mapping(address => uint256)",
+    "contract": "ShareRedeemer_CR05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "backing",
+    "type": "uint256",
+    "contract": "ShareRedeemer_CR05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "outstanding",
+    "type": "uint256",
+    "contract": "ShareRedeemer_CR05b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "ShareRedeemer_CR05b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "ShareRedeemer_CR05b",
+    "function": "redeemAll",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 31,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "ShareRedeemer_CR05b"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "mint",
+    "redeemAll"
+   ],
+   "footprint": [
+    "backing",
+    "outstanding",
+    "shares"
+   ],
+   "mcvp": {
+    "contract": "ShareRedeemer_CR05b",
+    "closure": {
+     "site_function": "redeemAll",
+     "site_call": ".call",
+     "functions": [
+      "mint",
+      "redeemAll"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['backing', 'outstanding', 'shares']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "mint",
+      "redeemAll"
+     ],
+     "nesting_bound": {
+      "redeemAll": 1
+     }
+    },
+    "phases": {
+     "function": "redeemAll",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "backing >= outstanding",
+     "stable_formula": "backing >= outstanding",
+     "kind": "stable"
+    },
+    "composition": {
+     "target_property": "backing >= outstanding",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for ShareRedeemer_CR05b\n  target property phi : backing >= outstanding\n  exposure site       : redeemAll.call  (low-level call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During redeemAll's exposed phase, re-entrant control is confined to the\n          callback closure ['mint', 'redeemAll']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {backing >= outstanding} pre-phase {backing >= outstanding}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = backing >= outstanding)\n          discharged by: ['OBL_cb_mint', 'OBL_cb_redeemAll']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {backing >= outstanding /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => backing >= outstanding\n      where callbacks are confined to admissible_callbacks=['mint', 'redeemAll'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.03,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.45,
+     "purpose": "{I_stable} pre-phase of redeemAll {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_mint",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.86,
+     "purpose": "callback mint preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_redeemAll",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.61,
+     "purpose": "callback redeemAll preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.8,
+     "purpose": "{I_exp} post-phase of redeemAll {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.62,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_mint",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 2.2,
+     "purpose": "public transition mint preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

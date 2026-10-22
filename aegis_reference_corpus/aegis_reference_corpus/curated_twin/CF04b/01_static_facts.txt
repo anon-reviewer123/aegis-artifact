@@ -1,0 +1,23 @@
+AEGIS static analysis  --  TreasuryDesk_CF04b
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : TreasuryDesk_CF04b
+inheritance      : TreasuryDesk_CF04b
+frozen target    : treasury >= allocated
+
+state variables (resolved across inheritance):
+  allocation                   mapping(address => uint256)
+  treasury                     uint256
+  allocated                    uint256
+  feeRecipient                 address
+  owner                        address
+
+callback-capable external call sites:
+  release.call#0  line 41  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['allocated', 'allocation', 'treasury']
+conservative closure Closure(s) = ['allocate', 'receiveRevenue', 'sweepExcess', 'release']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

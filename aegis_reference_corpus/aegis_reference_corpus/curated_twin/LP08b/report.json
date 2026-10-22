@@ -1,0 +1,101 @@
+{
+ "contract": "EscrowBatch_LP08b",
+ "cid": "LP08b",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP08",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "refunded[d] is set after the refund call, so a depositor re-entering refundAll() is refunded twice",
+ "mechanism": "escrow: all depositors are refunded in one loop",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 10.1,
+ "static": {
+  "state_vars": [
+   {
+    "name": "deposits",
+    "type": "mapping(address => uint256)",
+    "contract": "EscrowBatch_LP08b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "refunded",
+    "type": "mapping(address => bool)",
+    "contract": "EscrowBatch_LP08b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "refundedAmount",
+    "type": "mapping(address => uint256)",
+    "contract": "EscrowBatch_LP08b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalDeposited",
+    "type": "uint256",
+    "contract": "EscrowBatch_LP08b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "depositors",
+    "type": "address[]",
+    "contract": "EscrowBatch_LP08b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "EscrowBatch_LP08b",
+    "function": "refundAll",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 25,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "EscrowBatch_LP08b"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "refuted",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 10.1,
+   "purpose": "conservation: cumulative refund to every depositor is bounded by its deposit",
+   "nonvacuity_canary": "refuted",
+   "counterexample": {
+    "d": "0x0",
+    "p_deposits_d": "1098",
+    "p_refunded_d": "false",
+    "p_refundedAmount_d": "0",
+    "ok": "true",
+    "ok2": "true",
+    "cbSel": "1",
+    "amt": "1098"
+   },
+   "witness": {
+    "refuting_obligation": "OBL_loop_step",
+    "explanation": "the inductive loop step is refuted: some admissible callee outcome breaks cumulative refund to every depositor is bounded by its deposit"
+   }
+  }
+ ],
+ "schema": "conservation"
+}

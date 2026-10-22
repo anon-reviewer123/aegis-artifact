@@ -1,0 +1,216 @@
+{
+ "contract": "BonusDesk_EO02b",
+ "cid": "EO02b",
+ "dataset": "curated_twin",
+ "family": "eoa_assumption",
+ "pair": "EO02",
+ "ground_truth_label": "safe",
+ "label_rationale": "books are settled before the payout call",
+ "mechanism": "bonus desk: bonus payouts to msg.sender; unclaimed total can be swept",
+ "target_property": "bonusTotal == bonusDebt",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 62.2,
+ "static": {
+  "state_vars": [
+   {
+    "name": "bonus",
+    "type": "mapping(address => uint256)",
+    "contract": "BonusDesk_EO02b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "bonusTotal",
+    "type": "uint256",
+    "contract": "BonusDesk_EO02b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "bonusDebt",
+    "type": "uint256",
+    "contract": "BonusDesk_EO02b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "BonusDesk_EO02b",
+    "function": "claim",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 21,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "BonusDesk_EO02b"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "accrue",
+    "claim",
+    "sweep"
+   ],
+   "footprint": [
+    "bonus",
+    "bonusDebt",
+    "bonusTotal"
+   ],
+   "mcvp": {
+    "contract": "BonusDesk_EO02b",
+    "closure": {
+     "site_function": "claim",
+     "site_call": ".call",
+     "functions": [
+      "accrue",
+      "claim",
+      "sweep"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['bonus', 'bonusDebt', 'bonusTotal']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "accrue",
+      "claim",
+      "sweep"
+     ],
+     "nesting_bound": {
+      "claim": 1
+     }
+    },
+    "phases": {
+     "function": "claim",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "bonusTotal == bonusDebt",
+     "stable_formula": "bonusTotal == bonusDebt",
+     "kind": "stable"
+    },
+    "composition": {
+     "target_property": "bonusTotal == bonusDebt",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for BonusDesk_EO02b\n  target property phi : bonusTotal == bonusDebt\n  exposure site       : claim.call  (low-level call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During claim's exposed phase, re-entrant control is confined to the\n          callback closure ['accrue', 'claim', 'sweep']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {bonusTotal == bonusDebt} pre-phase {bonusTotal == bonusDebt}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = bonusTotal == bonusDebt)\n          discharged by: ['OBL_cb_accrue', 'OBL_cb_claim', 'OBL_cb_sweep']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {bonusTotal == bonusDebt /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => bonusTotal == bonusDebt\n      where callbacks are confined to admissible_callbacks=['accrue', 'claim', 'sweep'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.27,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.59,
+     "purpose": "{I_stable} pre-phase of claim {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_accrue",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.01,
+     "purpose": "callback accrue preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_claim",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.53,
+     "purpose": "callback claim preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_sweep",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.68,
+     "purpose": "callback sweep preserves I_exp (depth-one)",
+     "nonvacuity_canary": "verified",
+     "excluded": "entry precondition unsatisfiable in this phase (function excluded here)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.4,
+     "purpose": "{I_exp} post-phase of claim {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.29,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_accrue",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.68,
+     "purpose": "public transition accrue preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_sweep",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.79,
+     "purpose": "public transition sweep preserves I_stable",
+     "nonvacuity_canary": "verified",
+     "excluded": "entry precondition unsatisfiable in this phase (function excluded here)"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

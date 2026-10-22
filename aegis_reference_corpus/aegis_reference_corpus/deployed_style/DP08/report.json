@@ -1,0 +1,96 @@
+{
+ "contract": "ConstantProductPool",
+ "cid": "DP08",
+ "dataset": "deployed_style",
+ "family": "read_only",
+ "pair": null,
+ "ground_truth_label": "unknown",
+ "label_rationale": "spotPrice reads reserve0/reserve1 during the window; the divisor reserve1 is non-constant so quiescence is a nonlinear constraint",
+ "mechanism": "flattened constant-product AMM; spotPrice() is read by external integrations",
+ "target_property": null,
+ "arm": "unknown",
+ "arm_reason": "the observation divides two variables that both change across the window; the resulting nonlinear quiescence constraint is outside the backend's reliable fragment, so the read-only arm reports UNKNOWN",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "UNKNOWN",
+ "outcome_vs_label": "N/V",
+ "outcome_note": "UNKNOWN",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 0.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "reserve0",
+    "type": "uint256",
+    "contract": "ConstantProductPool",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "reserve1",
+    "type": "uint256",
+    "contract": "ConstantProductPool",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "liquidity",
+    "type": "mapping(address => uint256)",
+    "contract": "ConstantProductPool",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalLiquidity",
+    "type": "uint256",
+    "contract": "ConstantProductPool",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "ConstantProductPool",
+    "function": "removeLiquidity",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 52,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "ConstantProductPool",
+   "ReentrancyGuard",
+   "Context"
+  ]
+ },
+ "scope_boundary": {
+  "model_gap": "nonlinear observation",
+  "detail": "the read-only obligation for spotPrice divides two exposed reserves; neither operand is constant across the three observation points, so the quiescence check is nonlinear"
+ },
+ "why_unknown": "the observation divides two variables that both change across the window; the resulting nonlinear quiescence constraint is outside the backend's reliable fragment, so the read-only arm reports UNKNOWN"
+}

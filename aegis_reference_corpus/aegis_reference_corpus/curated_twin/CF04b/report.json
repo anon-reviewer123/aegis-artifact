@@ -1,0 +1,289 @@
+{
+ "contract": "TreasuryDesk_CF04b",
+ "cid": "CF04b",
+ "dataset": "curated_twin",
+ "family": "cross_function",
+ "pair": "CF04",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "treasury is decremented only after the payout call, so sweepExcess() run inside the window treats the in-flight amount as surplus",
+ "mechanism": "treasury desk: unallocated revenue is swept to the caller's allocation",
+ "target_property": "treasury >= allocated",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 87.7,
+ "static": {
+  "state_vars": [
+   {
+    "name": "allocation",
+    "type": "mapping(address => uint256)",
+    "contract": "TreasuryDesk_CF04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "treasury",
+    "type": "uint256",
+    "contract": "TreasuryDesk_CF04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "allocated",
+    "type": "uint256",
+    "contract": "TreasuryDesk_CF04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "feeRecipient",
+    "type": "address",
+    "contract": "TreasuryDesk_CF04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "TreasuryDesk_CF04b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "TreasuryDesk_CF04b",
+    "function": "release",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 41,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "TreasuryDesk_CF04b"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "allocate",
+    "receiveRevenue",
+    "sweepExcess",
+    "release"
+   ],
+   "footprint": [
+    "allocated",
+    "allocation",
+    "treasury"
+   ],
+   "mcvp": {
+    "contract": "TreasuryDesk_CF04b",
+    "closure": {
+     "site_function": "release",
+     "site_call": ".call",
+     "functions": [
+      "allocate",
+      "receiveRevenue",
+      "sweepExcess",
+      "release"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['allocated', 'allocation', 'treasury']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "allocate",
+      "receiveRevenue",
+      "sweepExcess",
+      "release"
+     ],
+     "nesting_bound": {
+      "release": 1
+     }
+    },
+    "phases": {
+     "function": "release",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [
+     {
+      "name": "inFlight",
+      "sol_type": "uint256",
+      "meaning": "amount owed to the caller whose treasury decrement is deferred past the call",
+      "backed_by_storage": false
+     }
+    ],
+    "exposure_invariant": {
+     "formula": "treasury >= allocated + inFlight",
+     "stable_formula": "treasury >= allocated",
+     "kind": "additive"
+    },
+    "composition": {
+     "target_property": "treasury >= allocated",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for TreasuryDesk_CF04b\n  target property phi : treasury >= allocated\n  exposure site       : release.call  (low-level call)\n  ghost state         : uint256 inFlight\n\n  [A_cb]  ASSUMPTION\n          During release's exposed phase, re-entrant control is confined to the\n          callback closure ['allocate', 'receiveRevenue', 'sweepExcess', 'release']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {treasury >= allocated} pre-phase {treasury >= allocated + inFlight}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = treasury >= allocated + inFlight)\n          discharged by: ['OBL_cb_allocate', 'OBL_cb_receiveRevenue', 'OBL_cb_sweepExcess', 'OBL_cb_release']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {treasury >= allocated /\\ inFlight==0}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => treasury >= allocated\n      where callbacks are confined to admissible_callbacks=['allocate', 'receiveRevenue', 'sweepExcess', 'release'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.8,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.49,
+     "purpose": "{I_stable} pre-phase of release {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_allocate",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.27,
+     "purpose": "callback allocate preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_receiveRevenue",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.25,
+     "purpose": "callback receiveRevenue preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_sweepExcess",
+     "module": "closure",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 12.4,
+     "purpose": "callback sweepExcess preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "treasury": "2",
+      "allocated": "2",
+      "inFlight": "1",
+      "caller": "0x6e3f",
+      "who": "0x6e3f",
+      "p_treasury": "2",
+      "p_allocated": "1",
+      "p_inFlight": "1",
+      "p_allocation_caller": "1",
+      "p_allocation_who": "115792089237316195423570985008687907853269984665640564039457584007913129636911",
+      "surplus": "1"
+     }
+    },
+    {
+     "obligation": "OBL_cb_release",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.62,
+     "purpose": "callback release preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.22,
+     "purpose": "{I_exp} post-phase of release {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.25,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_allocate",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.57,
+     "purpose": "public transition allocate preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_receiveRevenue",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.72,
+     "purpose": "public transition receiveRevenue preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_sweepExcess",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.06,
+     "purpose": "public transition sweepExcess preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_cb_sweepExcess"
+   ],
+   "unknown": [],
+   "outcome": "BUG_CANDIDATE",
+   "witness": {
+    "refuting_obligation": "OBL_cb_sweepExcess",
+    "kind": "source-level depth-one witness (modeled semantics)",
+    "explanation": "the admissible callback sweepExcess is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates treasury >= allocated",
+    "counterexample": {
+     "treasury": "2",
+     "allocated": "2",
+     "inFlight": "1",
+     "caller": "0x6e3f",
+     "who": "0x6e3f",
+     "p_treasury": "2",
+     "p_allocated": "1",
+     "p_inFlight": "1",
+     "p_allocation_caller": "1",
+     "p_allocation_who": "115792089237316195423570985008687907853269984665640564039457584007913129636911",
+     "surplus": "1"
+    }
+   }
+  }
+ ]
+}

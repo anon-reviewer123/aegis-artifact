@@ -1,0 +1,23 @@
+AEGIS static analysis  --  MarginDesk_CF06a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : MarginDesk_CF06a
+inheritance      : MarginDesk_CF06a
+frozen target    : collateral >= marginTotal
+
+state variables (resolved across inheritance):
+  margin                       mapping(address => uint256)
+  collateral                   uint256
+  marginTotal                  uint256
+  feeRecipient                 address
+  owner                        address
+
+callback-capable external call sites:
+  closeTrade.call#0  line 41  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['collateral', 'margin', 'marginTotal']
+conservative closure Closure(s) = ['postMargin', 'addInsurance', 'skim', 'closeTrade']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

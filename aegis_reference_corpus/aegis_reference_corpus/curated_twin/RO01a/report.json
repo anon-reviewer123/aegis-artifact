@@ -1,0 +1,98 @@
+{
+ "contract": "LPVault_RO01a",
+ "cid": "RO01a",
+ "dataset": "curated_twin",
+ "family": "read_only",
+ "pair": "RO01",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "supply is reduced before the call and reserve after it, so excessBacking() read during the window matches neither the entry nor the settled value (label is the local quiescence property, not exploitability)",
+ "mechanism": "LP vault: excess backing view consumed by external integrators",
+ "target_property": null,
+ "arm": "readonly",
+ "arm_reason": "an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "non_quiescent",
+ "outcome_vs_label": "TP",
+ "outcome_note": "non_quiescent",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 5.8,
+ "static": {
+  "state_vars": [
+   {
+    "name": "shares",
+    "type": "mapping(address => uint256)",
+    "contract": "LPVault_RO01a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "reserve",
+    "type": "uint256",
+    "contract": "LPVault_RO01a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "supply",
+    "type": "uint256",
+    "contract": "LPVault_RO01a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "inCall",
+    "type": "bool",
+    "contract": "LPVault_RO01a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "LPVault_RO01a",
+    "function": "redeem",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 28,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "LPVault_RO01a"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_ro_excessBacking",
+   "module": "readonly",
+   "status": "refuted",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 5.84,
+   "purpose": "obs during exposure equals entry or settled observation",
+   "nonvacuity_canary": "refuted",
+   "counterexample": {
+    "reserve": "0",
+    "supply": "0",
+    "inCall": "false",
+    "caller": "0x0",
+    "p_reserve": "1",
+    "p_supply": "1",
+    "p_inCall": "false",
+    "p_shares_caller": "167",
+    "burn": "1",
+    "obs0": "0",
+    "obsE": "1",
+    "obs1": "0"
+   },
+   "witness": {
+    "refuting_obligation": "OBL_ro_excessBacking",
+    "explanation": "the observation during exposure equals neither the entry nor the settled value"
+   }
+  }
+ ],
+ "schema": "read-only quiescence"
+}

@@ -1,0 +1,22 @@
+AEGIS static analysis  --  TipJar_CR02a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : TipJar_CR02a
+inheritance      : TipJar_CR02a
+frozen target    : cash >= owed
+
+state variables (resolved across inheritance):
+  tips                         mapping(address => uint256)
+  cash                         uint256
+  owed                         uint256
+  owner                        address
+
+callback-capable external call sites:
+  claimTips.call#0  line 29  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['cash', 'owed', 'tips']
+conservative closure Closure(s) = ['tip', 'claimTips']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

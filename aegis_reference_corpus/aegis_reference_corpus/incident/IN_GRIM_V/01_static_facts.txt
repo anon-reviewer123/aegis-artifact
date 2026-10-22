@@ -1,0 +1,23 @@
+AEGIS static analysis  --  GrimVaultVuln
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : GrimVaultVuln
+inheritance      : GrimVaultVuln <- Context
+frozen target    : backedShares <= pooledTokens
+
+state variables (resolved across inheritance):
+  underlying                   contract IERC20   [immutable]
+  shareOf                      mapping(address => uint256)
+  backedShares                 uint256
+  pooledTokens                 uint256
+
+callback-capable external call sites:
+  deposit.transferFrom#0  line 36  (external interface call)
+  withdraw.transfer#0  line 47  (external interface call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['backedShares', 'pooledTokens', 'shareOf']
+conservative closure Closure(s) = ['deposit']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

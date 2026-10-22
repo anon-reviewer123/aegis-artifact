@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  VoucherDesk_TH03b   [TH03b]
+======================================================================
+dataset          : curated_twin
+family           : Token-receiver hook
+twin / incident  : TH03
+ground-truth label: safe
+  label rationale : issue and redeemSurplus share a nonReentrant lock
+mechanism        : voucher desk: vouchers are issued through an ERC777-style tokensReceived hook
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['issue', 'redeemSurplus']
+footprint : ['_status', 'credits', 'liabilities', 'vouchers']
+I_exp     : credits + inFlight <= liabilities && _status == 2   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.97s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.71s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_issue                    11.15s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_redeemSurplus             10.6s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         7.22s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               6.15s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_redeemSurplus           5.83s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for VoucherDesk_TH03b
+  target property phi : credits <= liabilities
+  exposure site       : issue.tokensReceived  (receiver hook)
+  ghost state         : uint256 inFlight
+
+  [A_cb]  ASSUMPTION
+          During issue's exposed phase, re-entrant control is confined to the
+          callback closure ['issue', 'redeemSurplus']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {credits <= liabilities && _status == 1} pre-phase {credits + inFlight <= liabilities && _status == 2}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = credits + inFlight <= liabilities && _status == 2)
+          discharged by: ['OBL_cb_issue', 'OBL_cb_redeemSurplus']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {credits <= liabilities && _status == 1 /\ inFlight==0}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => credits <= liabilities
+      where callbacks are confined to admissible_callbacks=['issue', 'redeemSurplus'], depth-one
+
+repair rounds    : 0
+
+======================================================================

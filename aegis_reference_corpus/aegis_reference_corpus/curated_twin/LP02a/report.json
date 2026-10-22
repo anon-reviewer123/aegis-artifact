@@ -1,0 +1,97 @@
+{
+ "contract": "Payroll_LP02a",
+ "cid": "LP02a",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP02",
+ "ground_truth_label": "safe",
+ "label_rationale": "a failed payment is recorded in owedSalary and the loop continues",
+ "mechanism": "payroll: salaries are pushed to every employee before the pay period is closed",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 2.5,
+ "static": {
+  "state_vars": [
+   {
+    "name": "employees",
+    "type": "address[]",
+    "contract": "Payroll_LP02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "salary",
+    "type": "mapping(address => uint256)",
+    "contract": "Payroll_LP02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owedSalary",
+    "type": "mapping(address => uint256)",
+    "contract": "Payroll_LP02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "periodClosed",
+    "type": "bool",
+    "contract": "Payroll_LP02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "Payroll_LP02a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "Payroll_LP02a",
+    "function": "payAll",
+    "call": ".send",
+    "kind": "send (2300 gas)",
+    "line": 31,
+    "in_loop": true,
+    "gas_forwarding": false,
+    "index": 0
+   },
+   {
+    "contract": "Payroll_LP02a",
+    "function": "claimFailed",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 43,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "Payroll_LP02a"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "verified",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 2.51,
+   "purpose": "progress: no callee outcome halts the batch (finite failure isolation)",
+   "nonvacuity_canary": "refuted"
+  }
+ ],
+ "schema": "progress"
+}

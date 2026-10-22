@@ -1,0 +1,41 @@
+======================================================================
+AEGIS report  --  RebateDesk_EO01a   [EO01a]
+======================================================================
+dataset          : curated_twin
+family           : EOA-assumption
+twin / incident  : EO01
+ground-truth label: safe
+  label rationale : require(msg.sender == tx.origin) restricts callers to EOAs, so no callback can re-enter (safe under the corpus EOA assumption; EIP-7702 delegated EOAs weaken it)
+mechanism        : rebate desk: rebates are paid to msg.sender, which the developer assumes is an EOA
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : FP (false alarm)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['accrue', 'claim']
+footprint : ['rebate', 'rebateDebt', 'rebatePool']
+I_exp     : rebatePool + inFlight >= rebateDebt && rebate[caller] >= inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.68s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.14s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_accrue                   11.47s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_claim                    11.81s  (closure)  canary=refuted
+            counterexample: {'rebatePool': '0', 'rebateDebt': '0', 'inFlight': '1', 'caller': '0x5039', 'who': '0x5039', 'x': '115792089237316195423570985008687907853269984665640564039457584007913129639653'}
+  [VERIFIED] OBL_post                          7.9s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies                6.4s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_accrue                  4.32s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_claim
+  the admissible callback claim is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates rebatePool >= rebateDebt
+  witness state       : {'rebatePool': '0', 'rebateDebt': '0', 'inFlight': '1', 'caller': '0x5039', 'who': '0x5039', 'x': '115792089237316195423570985008687907853269984665640564039457584007913129639653'}
+
+repair rounds    : 0
+
+======================================================================

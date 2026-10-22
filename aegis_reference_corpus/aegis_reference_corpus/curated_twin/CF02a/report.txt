@@ -1,0 +1,66 @@
+======================================================================
+AEGIS report  --  LiquidityVault_CF02a   [CF02a]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF02
+ground-truth label: safe
+  label rationale : totalAssets is decremented before the payout call, so no surplus is visible inside the window
+mechanism        : liquidity vault: surplus assets above claims can be claimed by holders
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['enter', 'donate', 'claimSurplus', 'exitPosition']
+footprint : ['shares', 'totalAssets', 'totalClaims']
+I_exp     : totalAssets >= totalClaims   [stable]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         5.92s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          7.26s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_enter                     7.11s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_donate                    7.08s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_claimSurplus               8.0s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_exitPosition              7.97s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         7.38s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               7.18s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_enter                   5.85s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_donate                  5.34s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_claimSurplus            5.81s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for LiquidityVault_CF02a
+  target property phi : totalAssets >= totalClaims
+  exposure site       : exitPosition.call  (low-level call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During exitPosition's exposed phase, re-entrant control is confined to the
+          callback closure ['enter', 'donate', 'claimSurplus', 'exitPosition']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {totalAssets >= totalClaims} pre-phase {totalAssets >= totalClaims}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = totalAssets >= totalClaims)
+          discharged by: ['OBL_cb_enter', 'OBL_cb_donate', 'OBL_cb_claimSurplus', 'OBL_cb_exitPosition']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {totalAssets >= totalClaims /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => totalAssets >= totalClaims
+      where callbacks are confined to admissible_callbacks=['enter', 'donate', 'claimSurplus', 'exitPosition'], depth-one
+
+repair rounds    : 0
+
+======================================================================

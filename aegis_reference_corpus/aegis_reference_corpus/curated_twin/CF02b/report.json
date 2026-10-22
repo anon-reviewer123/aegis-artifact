@@ -1,0 +1,289 @@
+{
+ "contract": "LiquidityVault_CF02b",
+ "cid": "CF02b",
+ "dataset": "curated_twin",
+ "family": "cross_function",
+ "pair": "CF02",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "totalAssets is decremented only after the payout call, so claimSurplus() run inside the window treats the in-flight amount as surplus",
+ "mechanism": "liquidity vault: surplus assets above claims can be claimed by holders",
+ "target_property": "totalAssets >= totalClaims",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 80.6,
+ "static": {
+  "state_vars": [
+   {
+    "name": "shares",
+    "type": "mapping(address => uint256)",
+    "contract": "LiquidityVault_CF02b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalAssets",
+    "type": "uint256",
+    "contract": "LiquidityVault_CF02b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalClaims",
+    "type": "uint256",
+    "contract": "LiquidityVault_CF02b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "feeRecipient",
+    "type": "address",
+    "contract": "LiquidityVault_CF02b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "LiquidityVault_CF02b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "LiquidityVault_CF02b",
+    "function": "exitPosition",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 41,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "LiquidityVault_CF02b"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "enter",
+    "donate",
+    "claimSurplus",
+    "exitPosition"
+   ],
+   "footprint": [
+    "shares",
+    "totalAssets",
+    "totalClaims"
+   ],
+   "mcvp": {
+    "contract": "LiquidityVault_CF02b",
+    "closure": {
+     "site_function": "exitPosition",
+     "site_call": ".call",
+     "functions": [
+      "enter",
+      "donate",
+      "claimSurplus",
+      "exitPosition"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['shares', 'totalAssets', 'totalClaims']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "enter",
+      "donate",
+      "claimSurplus",
+      "exitPosition"
+     ],
+     "nesting_bound": {
+      "exitPosition": 1
+     }
+    },
+    "phases": {
+     "function": "exitPosition",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [
+     {
+      "name": "inFlight",
+      "sol_type": "uint256",
+      "meaning": "amount owed to the caller whose totalAssets decrement is deferred past the call",
+      "backed_by_storage": false
+     }
+    ],
+    "exposure_invariant": {
+     "formula": "totalAssets >= totalClaims + inFlight",
+     "stable_formula": "totalAssets >= totalClaims",
+     "kind": "additive"
+    },
+    "composition": {
+     "target_property": "totalAssets >= totalClaims",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for LiquidityVault_CF02b\n  target property phi : totalAssets >= totalClaims\n  exposure site       : exitPosition.call  (low-level call)\n  ghost state         : uint256 inFlight\n\n  [A_cb]  ASSUMPTION\n          During exitPosition's exposed phase, re-entrant control is confined to the\n          callback closure ['enter', 'donate', 'claimSurplus', 'exitPosition']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {totalAssets >= totalClaims} pre-phase {totalAssets >= totalClaims + inFlight}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = totalAssets >= totalClaims + inFlight)\n          discharged by: ['OBL_cb_enter', 'OBL_cb_donate', 'OBL_cb_claimSurplus', 'OBL_cb_exitPosition']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {totalAssets >= totalClaims /\\ inFlight==0}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => totalAssets >= totalClaims\n      where callbacks are confined to admissible_callbacks=['enter', 'donate', 'claimSurplus', 'exitPosition'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.35,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.21,
+     "purpose": "{I_stable} pre-phase of exitPosition {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_enter",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.92,
+     "purpose": "callback enter preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_donate",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.24,
+     "purpose": "callback donate preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_claimSurplus",
+     "module": "closure",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 11.36,
+     "purpose": "callback claimSurplus preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "totalAssets": "9726",
+      "totalClaims": "9726",
+      "inFlight": "9726",
+      "caller": "0x7e16",
+      "who": "0x7e16",
+      "p_totalAssets": "9726",
+      "p_totalClaims": "0",
+      "p_inFlight": "9726",
+      "p_shares_caller": "9727",
+      "p_shares_who": "0",
+      "surplus": "9726"
+     }
+    },
+    {
+     "obligation": "OBL_cb_exitPosition",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.22,
+     "purpose": "callback exitPosition preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.74,
+     "purpose": "{I_exp} post-phase of exitPosition {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.55,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_enter",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.2,
+     "purpose": "public transition enter preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_donate",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.93,
+     "purpose": "public transition donate preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_claimSurplus",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.85,
+     "purpose": "public transition claimSurplus preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_cb_claimSurplus"
+   ],
+   "unknown": [],
+   "outcome": "BUG_CANDIDATE",
+   "witness": {
+    "refuting_obligation": "OBL_cb_claimSurplus",
+    "kind": "source-level depth-one witness (modeled semantics)",
+    "explanation": "the admissible callback claimSurplus is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates totalAssets >= totalClaims",
+    "counterexample": {
+     "totalAssets": "9726",
+     "totalClaims": "9726",
+     "inFlight": "9726",
+     "caller": "0x7e16",
+     "who": "0x7e16",
+     "p_totalAssets": "9726",
+     "p_totalClaims": "0",
+     "p_inFlight": "9726",
+     "p_shares_caller": "9727",
+     "p_shares_who": "0",
+     "surplus": "9726"
+    }
+   }
+  }
+ ]
+}

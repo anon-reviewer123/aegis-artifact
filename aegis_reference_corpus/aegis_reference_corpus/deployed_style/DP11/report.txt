@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  RebasingPool   [DP11]
+======================================================================
+dataset          : deployed_style
+family           : Cross-function desync
+ground-truth label: unknown
+  label rationale : the intended invariant totalScaled * index / 1e18 <= principal + accrued is a product of a variable and a scaling index
+mechanism        : flattened rebasing pool whose invariant multiplies scaled balances by a growth index
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : UNKNOWN  --  the contract's accounting invariant is a product of a balance and a rebasing index, outside the additive and conservation templates the general arm instantiates; with no supplied target in that shape, the result is UNKNOWN
+AEGIS verdict    : UNKNOWN
+vs. label        : N/V (UNKNOWN)
+
+AEGIS does not return a definitive verdict on this contract.
+
+scope boundary   : template family
+  the natural target relates totalScaled * index to principal; this product-with-rebasing-index shape is not in the additive / conservation / bounded-drift template family, and no fixed user target was supplied
+
+why UNKNOWN (not VERIFIED): the contract's accounting invariant is a product of a balance and a rebasing index, outside the additive and conservation templates the general arm instantiates; with no supplied target in that shape, the result is UNKNOWN
+
+the static pass still identifies the exposure sites above; the arm
+selected them but the proof obligations cannot be soundly constructed
+or discharged within the modeled, backend-supported fragment.
+
+======================================================================

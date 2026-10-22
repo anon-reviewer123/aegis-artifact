@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  DualHookMarket   [DP07]
+======================================================================
+dataset          : deployed_style
+family           : Cross-function desync
+ground-truth label: unknown
+  label rationale : the violation needs the first callee to re-enter and the second callee to re-enter again before totalCredit is updated (depth two)
+mechanism        : flattened settlement with two sequential external calls sharing one post-phase
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : UNKNOWN  --  a target-violating schedule requires two levels of nested re-entry (both callbacks active before the post-phase); the depth-one callback model cannot witness it, so the result is UNKNOWN rather than VERIFIED
+AEGIS verdict    : UNKNOWN
+vs. label        : N/V (UNKNOWN)
+
+AEGIS does not return a definitive verdict on this contract.
+
+scope boundary   : depth-two nesting
+  settle() makes two external calls before its post-phase; a violating schedule requires nested re-entry across both, beyond the modeled depth-one adversary
+
+why UNKNOWN (not VERIFIED): a target-violating schedule requires two levels of nested re-entry (both callbacks active before the post-phase); the depth-one callback model cannot witness it, so the result is UNKNOWN rather than VERIFIED
+
+the static pass still identifies the exposure sites above; the arm
+selected them but the proof obligations cannot be soundly constructed
+or discharged within the modeled, backend-supported fragment.
+
+======================================================================

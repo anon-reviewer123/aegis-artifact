@@ -1,0 +1,23 @@
+AEGIS static analysis  --  PerpPool_CF01a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : PerpPool_CF01a
+inheritance      : PerpPool_CF01a
+frozen target    : aum >= trackedValue
+
+state variables (resolved across inheritance):
+  glp                          mapping(address => uint256)
+  aum                          uint256
+  trackedValue                 uint256
+  feeRecipient                 address
+  owner                        address
+
+callback-capable external call sites:
+  decreasePosition.call#0  line 41  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['aum', 'glp', 'trackedValue']
+conservative closure Closure(s) = ['deposit', 'addFees', 'mintGlp', 'decreasePosition']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

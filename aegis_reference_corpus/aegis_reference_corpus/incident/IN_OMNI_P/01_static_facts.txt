@@ -1,0 +1,24 @@
+AEGIS static analysis  --  OmniLendPatched
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : OmniLendPatched
+inheritance      : OmniLendPatched <- ReentrancyGuard <- Context
+frozen target    : debtOf[u] <= collateralOf[u]
+
+state variables (resolved across inheritance):
+  collateralOf                 mapping(address => uint256)
+  debtOf                       mapping(address => uint256)
+  totalCollateral              uint256
+  _NOT_ENTERED                 uint256   [constant]
+  _ENTERED                     uint256   [constant]
+  _status                      uint256
+
+callback-capable external call sites:
+  withdrawCollateral.onERC721Received#0  line 55  (receiver hook)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['_status', 'collateralOf', 'debtOf', 'totalCollateral']
+conservative closure Closure(s) = ['depositCollateral', 'borrow', 'withdrawCollateral']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

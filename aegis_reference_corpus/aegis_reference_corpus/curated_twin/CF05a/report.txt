@@ -1,0 +1,45 @@
+======================================================================
+AEGIS report  --  YieldBook_CF05a   [CF05a]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF05
+ground-truth label: unsafe
+  label rationale : holdings is decremented only after the payout call, so harvest() run inside the window treats the in-flight amount as surplus
+mechanism        : yield book: harvest converts holdings above principal into principal
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['supply', 'accrue', 'harvest', 'redeem']
+footprint : ['holdings', 'principal', 'principalTotal']
+I_exp     : holdings >= principalTotal + inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                          6.0s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                           7.8s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_supply                    7.52s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_accrue                    7.38s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_harvest                  12.38s  (closure)  canary=refuted
+            counterexample: {'holdings': '2', 'principalTotal': '2', 'inFlight': '1', 'caller': '0x7e16', 'who': '0x7e16', 'surplus': '1'}
+  [VERIFIED] OBL_cb_redeem                    8.54s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         8.37s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               7.65s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_supply                  6.26s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_accrue                   5.8s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_harvest                  5.9s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_harvest
+  the admissible callback harvest is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates holdings >= principalTotal
+  witness state       : {'holdings': '2', 'principalTotal': '2', 'inFlight': '1', 'caller': '0x7e16', 'who': '0x7e16', 'surplus': '1'}
+
+repair rounds    : 0
+
+======================================================================

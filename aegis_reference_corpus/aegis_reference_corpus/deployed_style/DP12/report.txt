@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  OmniRewardHub   [DP12]
+======================================================================
+dataset          : deployed_style
+family           : Cross-function desync
+ground-truth label: unknown
+  label rationale : the closure spans deposit/lock/unlock/boost/accrue/updateDebt with a reward-per-share product, giving a large nonlinear obligation
+mechanism        : flattened masterchef-style reward hub with a seven-function closure and per-share math
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : UNKNOWN  --  the closure around treasury is large and involves a reward-per-share product; the backend exhausts its per-obligation budget without a safe/unsafe answer, so Aegis reports UNKNOWN (the honest outcome, not a guessed VERIFIED)
+AEGIS verdict    : UNKNOWN
+vs. label        : N/V (UNKNOWN)
+
+AEGIS does not return a definitive verdict on this contract.
+
+scope boundary   : solver UNKNOWN
+  the conservative closure has seven writers touching an accPerShare product; the composed obligation is sound but the backend returns UNKNOWN before the 120 s budget
+
+why UNKNOWN (not VERIFIED): the closure around treasury is large and involves a reward-per-share product; the backend exhausts its per-obligation budget without a safe/unsafe answer, so Aegis reports UNKNOWN (the honest outcome, not a guessed VERIFIED)
+
+the static pass still identifies the exposure sites above; the arm
+selected them but the proof obligations cannot be soundly constructed
+or discharged within the modeled, backend-supported fragment.
+
+======================================================================

@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  YieldShareVault_RO02a   [RO02a]
+======================================================================
+dataset          : curated_twin
+family           : Read-only reentrancy
+twin / incident  : RO02
+ground-truth label: safe
+  label rationale : harvested yield is moved into totalAssets before the bounty call (label is the local quiescence property, not exploitability)
+mechanism        : yield vault: share price consumed by lending integrations
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : READONLY  --  an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies
+AEGIS verdict    : quiescent
+vs. label        : TN (quiescent)
+
+observed view    : pricePerShare()  (obs = (totalAssets + pendingYield) * 1e18)
+observation footprint reads : ['e18', 'pendingYield', 'totalAssets']
+reduction        : divisor totalShares is constant across the three observation points: compare numerators
+
+observational-quiescence obligation  OBL_ro:
+  obs(sigma_e) == obs(sigma_0)  ||  obs(sigma_e) == obs(sigma_1)
+  [VERIFIED] OBL_ro_pricePerShare       5.77s  canary=refuted
+
+read-only outcome: quiescent  (observational property, not a vulnerability label)
+
+======================================================================

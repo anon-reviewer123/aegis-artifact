@@ -1,0 +1,22 @@
+======================================================================
+AEGIS report  --  RoyaltySplitter   [DP03]
+======================================================================
+dataset          : deployed_style
+family           : Forced-revert / loop
+ground-truth label: safe
+  label rationale : a failed payee transfer is caught and booked to rescued[], so the loop always runs to completion
+mechanism        : flattened royalty splitter; pushes ETH to a payee list in one loop
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : LOOP  --  a callback-capable call occurs inside a loop; the inductive loop-step rule applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+loop schema      : progress
+loop-step target : no payee outcome aborts the split (finite failure isolation)
+exposure fact    : I_exp = ok in {true,false}; a failed payee is rescued, not reverted
+
+inductive one-iteration obligation (built around the extracted loop body):
+  [VERIFIED] OBL_loop_step              2.37s  canary=refuted
+
+======================================================================

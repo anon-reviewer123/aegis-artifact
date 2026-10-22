@@ -1,0 +1,21 @@
+AEGIS static analysis  --  VoucherDesk_TH03a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : VoucherDesk_TH03a
+inheritance      : VoucherDesk_TH03a
+frozen target    : credits <= liabilities
+
+state variables (resolved across inheritance):
+  vouchers                     mapping(address => uint256)
+  credits                      uint256
+  liabilities                  uint256
+
+callback-capable external call sites:
+  _notify.tokensReceived#0  line 29  (receiver hook)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['credits', 'liabilities', 'vouchers']
+conservative closure Closure(s) = ['issue', 'redeemSurplus']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

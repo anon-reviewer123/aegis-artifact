@@ -1,0 +1,87 @@
+{
+ "contract": "EscrowBatch_LP08a",
+ "cid": "LP08a",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP08",
+ "ground_truth_label": "safe",
+ "label_rationale": "refunded[d] is set before the refund call",
+ "mechanism": "escrow: all depositors are refunded in one loop",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 6.9,
+ "static": {
+  "state_vars": [
+   {
+    "name": "deposits",
+    "type": "mapping(address => uint256)",
+    "contract": "EscrowBatch_LP08a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "refunded",
+    "type": "mapping(address => bool)",
+    "contract": "EscrowBatch_LP08a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "refundedAmount",
+    "type": "mapping(address => uint256)",
+    "contract": "EscrowBatch_LP08a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalDeposited",
+    "type": "uint256",
+    "contract": "EscrowBatch_LP08a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "depositors",
+    "type": "address[]",
+    "contract": "EscrowBatch_LP08a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "EscrowBatch_LP08a",
+    "function": "refundAll",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 27,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "EscrowBatch_LP08a"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "verified",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 6.93,
+   "purpose": "conservation: cumulative refund to every depositor is bounded by its deposit",
+   "nonvacuity_canary": "refuted"
+  }
+ ],
+ "schema": "conservation"
+}

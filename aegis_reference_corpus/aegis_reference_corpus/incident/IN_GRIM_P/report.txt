@@ -1,0 +1,60 @@
+======================================================================
+AEGIS report  --  GrimVaultPatched   [IN_GRIM_P]
+======================================================================
+dataset          : incident
+family           : Documented incident
+twin / incident  : grim_finance
+ground-truth label: safe
+  label rationale : shares are credited before the token transfer and deposit/withdraw are nonReentrant
+mechanism        : Grim Finance (Dec 2021): vault deposit reentrancy via a malicious LP token transferFrom; shares minted from a post-transfer pool delta
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['deposit']
+footprint : ['_status', 'backedShares', 'pooledTokens', 'shareOf']
+I_exp     : backedShares <= pooledTokens && _status == 2   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.49s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          7.28s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_deposit                  11.11s  (closure)  canary=verified
+  [VERIFIED] OBL_post                          7.3s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               6.93s  (composition)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for GrimVaultPatched
+  target property phi : backedShares <= pooledTokens
+  exposure site       : deposit.transferFrom  (external interface call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During deposit's exposed phase, re-entrant control is confined to the
+          callback closure ['deposit']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {backedShares <= pooledTokens && _status == 1} pre-phase {backedShares <= pooledTokens && _status == 2}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = backedShares <= pooledTokens && _status == 2)
+          discharged by: ['OBL_cb_deposit']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {backedShares <= pooledTokens && _status == 1 /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => backedShares <= pooledTokens
+      where callbacks are confined to admissible_callbacks=['deposit'], depth-one
+
+repair rounds    : 0
+
+======================================================================

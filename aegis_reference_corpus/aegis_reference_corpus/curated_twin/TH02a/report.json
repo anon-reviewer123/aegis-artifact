@@ -1,0 +1,201 @@
+{
+ "contract": "GenesisDrop_TH02a",
+ "cid": "TH02a",
+ "dataset": "curated_twin",
+ "family": "token_hook",
+ "pair": "TH02",
+ "ground_truth_label": "safe",
+ "label_rationale": "mint is nonReentrant",
+ "mechanism": "ERC721 drop with a hard supply cap; safe mint calls onERC721Received",
+ "target_property": "totalSupply <= MAX_SUPPLY",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 25.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "MAX_SUPPLY",
+    "type": "uint256",
+    "contract": "GenesisDrop_TH02a",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "totalSupply",
+    "type": "uint256",
+    "contract": "GenesisDrop_TH02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "nextId",
+    "type": "uint256",
+    "contract": "GenesisDrop_TH02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "ownerOf",
+    "type": "mapping(uint256 => address)",
+    "contract": "GenesisDrop_TH02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "balanceOf",
+    "type": "mapping(address => uint256)",
+    "contract": "GenesisDrop_TH02a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "GenesisDrop_TH02a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "GenesisDrop_TH02a",
+    "function": "_checkReceiver",
+    "call": ".onERC721Received",
+    "kind": "receiver hook",
+    "line": 43,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "GenesisDrop_TH02a"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "mint"
+   ],
+   "footprint": [
+    "_status",
+    "nextId",
+    "totalSupply"
+   ],
+   "mcvp": {
+    "contract": "GenesisDrop_TH02a",
+    "closure": {
+     "site_function": "mint",
+     "site_call": ".onERC721Received",
+     "functions": [
+      "mint"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['_status', 'nextId', 'totalSupply']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "mint"
+     ],
+     "nesting_bound": {
+      "mint": 1
+     }
+    },
+    "phases": {
+     "function": "mint",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .onERC721Received"
+     },
+     "exposed": {
+      "from_marker": "before .onERC721Received",
+      "to_marker": "after .onERC721Received"
+     },
+     "post": {
+      "from_marker": "after .onERC721Received",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .onERC721Received"
+    },
+    "ghost_state": [
+     {
+      "name": "pendingSupply",
+      "sol_type": "uint256",
+      "meaning": "token minted before the hook whose supply increment is deferred",
+      "backed_by_storage": false
+     }
+    ],
+    "exposure_invariant": {
+     "formula": "totalSupply + pendingSupply <= 3 && pendingSupply >= 1 && _status == 2",
+     "stable_formula": "totalSupply <= 3 && _status == 1",
+     "kind": "additive"
+    },
+    "composition": {
+     "target_property": "totalSupply <= 3",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for GenesisDrop_TH02a\n  target property phi : totalSupply <= 3\n  exposure site       : mint.onERC721Received  (receiver hook (via _checkReceiver))\n  ghost state         : uint256 pendingSupply\n\n  [A_cb]  ASSUMPTION\n          During mint's exposed phase, re-entrant control is confined to the\n          callback closure ['mint']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {totalSupply <= 3 && _status == 1} pre-phase {totalSupply + pendingSupply <= 3 && pendingSupply >= 1 && _status == 2}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = totalSupply + pendingSupply <= 3 && pendingSupply >= 1 && _status == 2)\n          discharged by: ['OBL_cb_mint']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {totalSupply <= 3 && _status == 1 /\\ pendingSupply==0}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => totalSupply <= 3\n      where callbacks are confined to admissible_callbacks=['mint'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.17,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.03,
+     "purpose": "{I_stable} pre-phase of mint {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_mint",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 1.89,
+     "purpose": "callback mint preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.27,
+     "purpose": "{I_exp} post-phase of mint {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 2.67,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

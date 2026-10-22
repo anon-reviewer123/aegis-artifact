@@ -1,0 +1,45 @@
+======================================================================
+AEGIS report  --  TreasuryDesk_CF04b   [CF04b]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF04
+ground-truth label: unsafe
+  label rationale : treasury is decremented only after the payout call, so sweepExcess() run inside the window treats the in-flight amount as surplus
+mechanism        : treasury desk: unallocated revenue is swept to the caller's allocation
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['allocate', 'receiveRevenue', 'sweepExcess', 'release']
+footprint : ['allocated', 'allocation', 'treasury']
+I_exp     : treasury >= allocated + inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                          6.8s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.49s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_allocate                  8.27s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_receiveRevenue            8.25s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_sweepExcess               12.4s  (closure)  canary=refuted
+            counterexample: {'treasury': '2', 'allocated': '2', 'inFlight': '1', 'caller': '0x6e3f', 'who': '0x6e3f', 'surplus': '1'}
+  [VERIFIED] OBL_cb_release                   8.62s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         8.22s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               8.25s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_allocate                6.57s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_receiveRevenue          5.72s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_sweepExcess             6.06s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_sweepExcess
+  the admissible callback sweepExcess is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates treasury >= allocated
+  witness state       : {'treasury': '2', 'allocated': '2', 'inFlight': '1', 'caller': '0x6e3f', 'who': '0x6e3f', 'surplus': '1'}
+
+repair rounds    : 0
+
+======================================================================

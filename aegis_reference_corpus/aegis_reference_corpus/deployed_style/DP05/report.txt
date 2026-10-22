@@ -1,0 +1,61 @@
+======================================================================
+AEGIS report  --  SurplusVault   [DP05]
+======================================================================
+dataset          : deployed_style
+family           : Token-receiver hook
+ground-truth label: unsafe
+  label rationale : deposit() increases assets before the onERC721Received hook but credits totalShares only after it; during the hook assets > totalShares, so a re-entrant mintSurplus() mints shares against backing that the same deposit is about to claim
+mechanism        : flattened surplus vault; the deposit hook exposes a transient surplus that a different function mints against
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   PLAN_REFUTED
+----------------------------------------------------------------------
+closure   : ['mintSurplus', 'redeem']
+footprint : ['assets', 'shareOf', 'totalShares']
+I_exp     : totalShares <= assets   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         5.07s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          5.97s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_mintSurplus               5.61s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_redeem                    5.82s  (closure)  canary=refuted
+  [REFUTED ] OBL_post                         9.65s  (phases)  canary=refuted
+            counterexample: {'totalShares': '1', 'assets': '2', 'to': '0x0476', 'caller': '0x0476', 'who': '0x0476', 'value': '1'}
+  [VERIFIED] OBL_stable_implies               5.96s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_mintSurplus             5.46s  (global)  canary=verified
+  [VERIFIED] OBL_keep_redeem                  3.57s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+repair    : the refuted obligation is a phase/preservation check under a non-inductive exposure invariant; repair strengthens the plan with ghost state and re-verifies
+
+----------------------------------------------------------------------
+MCVP plan c1   (REPAIR ROUND 1)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['mintSurplus', 'redeem']
+footprint : ['assets', 'shareOf', 'totalShares']
+I_exp     : assets == totalShares + inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         4.43s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          5.84s  (phases)  canary=refuted
+  [REFUTED ] OBL_cb_mintSurplus               8.28s  (closure)  canary=refuted
+            counterexample: {'totalShares': '1', 'assets': '1', 'inFlight': '1', 'to': '0xffffffffffffffffffffffffffffffffffffd2b7', 'caller': '0x22f1', 'who': '0x22f1', 's': '1'}
+  [VERIFIED] OBL_cb_redeem                    6.41s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                          6.3s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               5.12s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_mintSurplus             4.82s  (global)  canary=verified
+  [VERIFIED] OBL_keep_redeem                  4.97s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_mintSurplus
+  the admissible callback mintSurplus is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates totalShares <= assets
+  witness state       : {'totalShares': '1', 'assets': '1', 'inFlight': '1', 'to': '0xffffffffffffffffffffffffffffffffffffd2b7', 'caller': '0x22f1', 'who': '0x22f1', 's': '1'}
+
+repair rounds    : 1
+
+======================================================================

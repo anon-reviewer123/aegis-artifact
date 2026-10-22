@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  RiskLedger_RO05a   [RO05a]
+======================================================================
+dataset          : curated_twin
+family           : Read-only reentrancy
+twin / incident  : RO05
+ground-truth label: unsafe
+  label rationale : debt drops before the keeper call and collateral after it, so equity() is inflated inside the window (label is the local quiescence property, not exploitability)
+mechanism        : risk ledger: equity() feeds an external health check
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : READONLY  --  an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies
+AEGIS verdict    : non_quiescent
+vs. label        : TP (non_quiescent)
+
+observed view    : equity()  (obs = collateral - debt)
+observation footprint reads : ['collateral', 'debt']
+
+observational-quiescence obligation  OBL_ro:
+  obs(sigma_e) == obs(sigma_0)  ||  obs(sigma_e) == obs(sigma_1)
+  [REFUTED ] OBL_ro_equity              3.57s  canary=refuted
+            witness: the observation during exposure equals neither the entry nor the settled value
+
+read-only outcome: non_quiescent  (observational property, not a vulnerability label)
+
+======================================================================

@@ -1,0 +1,21 @@
+AEGIS static analysis  --  BonusDesk_EO02a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : BonusDesk_EO02a
+inheritance      : BonusDesk_EO02a
+frozen target    : bonusTotal == bonusDebt
+
+state variables (resolved across inheritance):
+  bonus                        mapping(address => uint256)
+  bonusTotal                   uint256
+  bonusDebt                    uint256
+
+callback-capable external call sites:
+  claim.call#0  line 20  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['bonus', 'bonusDebt', 'bonusTotal']
+conservative closure Closure(s) = ['accrue', 'claim', 'sweep']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

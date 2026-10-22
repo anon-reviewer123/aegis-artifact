@@ -1,0 +1,139 @@
+{
+ "contract": "OmniRewardHub",
+ "cid": "DP12",
+ "dataset": "deployed_style",
+ "family": "cross_function",
+ "pair": null,
+ "ground_truth_label": "unknown",
+ "label_rationale": "the closure spans deposit/lock/unlock/boost/accrue/updateDebt with a reward-per-share product, giving a large nonlinear obligation",
+ "mechanism": "flattened masterchef-style reward hub with a seven-function closure and per-share math",
+ "target_property": "treasury >= 0 accounting across the reward closure",
+ "arm": "unknown",
+ "arm_reason": "the closure around treasury is large and involves a reward-per-share product; the backend exhausts its per-obligation budget without a safe/unsafe answer, so Aegis reports UNKNOWN (the honest outcome, not a guessed VERIFIED)",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "UNKNOWN",
+ "outcome_vs_label": "N/V",
+ "outcome_note": "UNKNOWN",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 0.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "balance",
+    "type": "mapping(address => uint256)",
+    "contract": "OmniRewardHub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "rewardDebt",
+    "type": "mapping(address => uint256)",
+    "contract": "OmniRewardHub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "locked",
+    "type": "mapping(address => uint256)",
+    "contract": "OmniRewardHub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "boosted",
+    "type": "mapping(address => uint256)",
+    "contract": "OmniRewardHub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalBalance",
+    "type": "uint256",
+    "contract": "OmniRewardHub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalRewardDebt",
+    "type": "uint256",
+    "contract": "OmniRewardHub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalLocked",
+    "type": "uint256",
+    "contract": "OmniRewardHub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "accPerShare",
+    "type": "uint256",
+    "contract": "OmniRewardHub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "treasury",
+    "type": "uint256",
+    "contract": "OmniRewardHub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_owner",
+    "type": "address",
+    "contract": "Ownable",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "OmniRewardHub",
+    "function": "harvest",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 88,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "OmniRewardHub",
+   "ReentrancyGuard",
+   "Ownable",
+   "Context"
+  ]
+ },
+ "scope_boundary": {
+  "model_gap": "solver UNKNOWN",
+  "detail": "the conservative closure has seven writers touching an accPerShare product; the composed obligation is sound but the backend returns UNKNOWN before the 120 s budget"
+ },
+ "why_unknown": "the closure around treasury is large and involves a reward-per-share product; the backend exhausts its per-obligation budget without a safe/unsafe answer, so Aegis reports UNKNOWN (the honest outcome, not a guessed VERIFIED)"
+}

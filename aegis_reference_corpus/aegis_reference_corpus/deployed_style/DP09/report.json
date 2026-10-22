@@ -1,0 +1,99 @@
+{
+ "contract": "CollateralVault",
+ "cid": "DP09",
+ "dataset": "deployed_style",
+ "family": "read_only",
+ "pair": null,
+ "ground_truth_label": "unknown",
+ "label_rationale": "the share price and mint math read asset.balanceOf(this), held in another contract whose value any transfer can change",
+ "mechanism": "flattened ERC4626-style vault pricing shares off an external token balance",
+ "target_property": "pricePerShare monotonicity (per the local model)",
+ "arm": "unknown",
+ "arm_reason": "the invariant and the observed view both depend on a token balance held in another contract; no sound summary of that mutable external state is available, so the result is UNKNOWN (cross-DApp exploitability is out of scope)",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "UNKNOWN",
+ "outcome_vs_label": "N/V",
+ "outcome_note": "UNKNOWN",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 0.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "asset",
+    "type": "contract IERC20",
+    "contract": "CollateralVault",
+    "constant": false,
+    "immutable": true
+   },
+   {
+    "name": "shares",
+    "type": "mapping(address => uint256)",
+    "contract": "CollateralVault",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalShares",
+    "type": "uint256",
+    "contract": "CollateralVault",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "CollateralVault",
+    "function": "deposit",
+    "call": ".transferFrom",
+    "kind": "external interface call",
+    "line": 51,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   },
+   {
+    "contract": "CollateralVault",
+    "function": "withdraw",
+    "call": ".transfer",
+    "kind": "external interface call",
+    "line": 62,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "CollateralVault",
+   "ReentrancyGuard",
+   "Context"
+  ]
+ },
+ "scope_boundary": {
+  "model_gap": "mutable external state",
+  "detail": "the accounting footprint includes asset.balanceOf(address(this)); that balance lives in the token contract and can change through transfers Aegis does not model without a cross-contract summary"
+ },
+ "why_unknown": "the invariant and the observed view both depend on a token balance held in another contract; no sound summary of that mutable external state is available, so the result is UNKNOWN (cross-DApp exploitability is out of scope)"
+}

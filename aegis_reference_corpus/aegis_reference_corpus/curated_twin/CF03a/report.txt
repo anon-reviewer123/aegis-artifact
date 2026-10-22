@@ -1,0 +1,66 @@
+======================================================================
+AEGIS report  --  CoverFund_CF03a   [CF03a]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF03
+ground-truth label: safe
+  label rationale : pendingOut records the in-flight amount and rebalance() subtracts it from the surplus
+mechanism        : insurance fund: excess reserves are re-issued as cover
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['buyCover', 'topUp', 'rebalance', 'payClaim']
+footprint : ['cover', 'coverage', 'pendingOut', 'reserves']
+I_exp     : reserves >= coverage + pendingOut   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.31s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          7.49s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_buyCover                  7.38s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_topUp                     7.54s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_rebalance                 8.01s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_payClaim                  7.97s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         5.27s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               7.48s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_buyCover                7.24s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_topUp                   7.43s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_rebalance               7.18s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for CoverFund_CF03a
+  target property phi : reserves >= coverage
+  exposure site       : payClaim.call  (low-level call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During payClaim's exposed phase, re-entrant control is confined to the
+          callback closure ['buyCover', 'topUp', 'rebalance', 'payClaim']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {reserves >= coverage && pendingOut == 0} pre-phase {reserves >= coverage + pendingOut}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = reserves >= coverage + pendingOut)
+          discharged by: ['OBL_cb_buyCover', 'OBL_cb_topUp', 'OBL_cb_rebalance', 'OBL_cb_payClaim']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {reserves >= coverage && pendingOut == 0 /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => reserves >= coverage
+      where callbacks are confined to admissible_callbacks=['buyCover', 'topUp', 'rebalance', 'payClaim'], depth-one
+
+repair rounds    : 0
+
+======================================================================

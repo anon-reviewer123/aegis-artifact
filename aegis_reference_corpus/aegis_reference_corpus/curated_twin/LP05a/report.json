@@ -1,0 +1,113 @@
+{
+ "contract": "BatchPayout_LP05a",
+ "cid": "LP05a",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP05",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "the loop writes pool back from a pre-loop snapshot, so a top-up made from inside a payee callback is erased",
+ "mechanism": "batch payout from a pooled balance",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 4.5,
+ "static": {
+  "state_vars": [
+   {
+    "name": "pool",
+    "type": "uint256",
+    "contract": "BatchPayout_LP05a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalIn",
+    "type": "uint256",
+    "contract": "BatchPayout_LP05a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalOut",
+    "type": "uint256",
+    "contract": "BatchPayout_LP05a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "payees",
+    "type": "address[]",
+    "contract": "BatchPayout_LP05a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owed",
+    "type": "mapping(address => uint256)",
+    "contract": "BatchPayout_LP05a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "BatchPayout_LP05a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "BatchPayout_LP05a",
+    "function": "distribute",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 43,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "BatchPayout_LP05a"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "refuted",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 4.54,
+   "purpose": "mutex: the post-loop write-back pool = snap - spent preserves totalIn == totalOut + pool",
+   "nonvacuity_canary": "refuted",
+   "counterexample": {
+    "pool": "0",
+    "totalIn": "1",
+    "totalOut": "2",
+    "p_pool": "1",
+    "p_totalIn": "1",
+    "p_totalOut": "0",
+    "snap": "1",
+    "spent": "1",
+    "amt": "1",
+    "ok": "true",
+    "cbSel": "2",
+    "v": "0",
+    "x": "1"
+   },
+   "witness": {
+    "refuting_obligation": "OBL_loop_step",
+    "explanation": "the inductive loop step is refuted: some admissible callee outcome breaks the post-loop write-back pool = snap - spent preserves totalIn == totalOut + pool"
+   }
+  }
+ ],
+ "schema": "mutex"
+}

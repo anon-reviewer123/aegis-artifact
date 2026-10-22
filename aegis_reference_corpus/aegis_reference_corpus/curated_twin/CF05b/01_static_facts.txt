@@ -1,0 +1,24 @@
+AEGIS static analysis  --  YieldBook_CF05b
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : YieldBook_CF05b
+inheritance      : YieldBook_CF05b
+frozen target    : holdings >= principalTotal
+
+state variables (resolved across inheritance):
+  principal                    mapping(address => uint256)
+  holdings                     uint256
+  principalTotal               uint256
+  exposed                      bool
+  feeRecipient                 address
+  owner                        address
+
+callback-capable external call sites:
+  redeem.call#0  line 45  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['exposed', 'holdings', 'principal', 'principalTotal']
+conservative closure Closure(s) = ['supply', 'accrue', 'harvest', 'redeem']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

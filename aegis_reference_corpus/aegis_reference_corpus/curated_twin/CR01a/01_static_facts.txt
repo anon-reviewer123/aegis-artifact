@@ -1,0 +1,22 @@
+AEGIS static analysis  --  SavingsVault_CR01a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : SavingsVault_CR01a
+inheritance      : SavingsVault_CR01a
+frozen target    : reserve >= liabilities
+
+state variables (resolved across inheritance):
+  balances                     mapping(address => uint256)
+  reserve                      uint256
+  liabilities                  uint256
+  owner                        address
+
+callback-capable external call sites:
+  withdrawAll.call#0  line 29  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['balances', 'liabilities', 'reserve']
+conservative closure Closure(s) = ['deposit', 'withdrawAll']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

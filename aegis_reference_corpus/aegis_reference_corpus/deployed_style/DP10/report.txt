@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  GasCappedPayout   [DP10]
+======================================================================
+dataset          : deployed_style
+family           : Forced-revert / loop
+ground-truth label: unknown
+  label rationale : the branch after the call is taken based on a 2300-gas-limited call's success, which depends on the callee's gas use
+mechanism        : flattened payout using a 2300-gas-capped call whose success drives accounting
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : UNKNOWN  --  the control flow after the call depends on a 2300-gas-capped transfer whose success is gas-sensitive; the modeled adversary does not reason about gas, so this site is reported UNKNOWN rather than VERIFIED
+AEGIS verdict    : UNKNOWN
+vs. label        : N/V (UNKNOWN)
+
+AEGIS does not return a definitive verdict on this contract.
+
+scope boundary   : gas-sensitive observation
+  the post-call branch reads the success flag of a gas{2300} call; the progress schema's callee outcome ok in {true,false} is sound, but booking settledFlag on a gas-sensitive result is not captured by the depth-one model
+
+why UNKNOWN (not VERIFIED): the control flow after the call depends on a 2300-gas-capped transfer whose success is gas-sensitive; the modeled adversary does not reason about gas, so this site is reported UNKNOWN rather than VERIFIED
+
+the static pass still identifies the exposure sites above; the arm
+selected them but the proof obligations cannot be soundly constructed
+or discharged within the modeled, backend-supported fragment.
+
+======================================================================

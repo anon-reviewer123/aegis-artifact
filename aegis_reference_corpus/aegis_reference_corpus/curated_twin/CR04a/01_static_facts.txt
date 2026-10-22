@@ -1,0 +1,23 @@
+AEGIS static analysis  --  EscrowDesk_CR04a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : EscrowDesk_CR04a
+inheritance      : EscrowDesk_CR04a
+frozen target    : held >= committed
+
+state variables (resolved across inheritance):
+  escrowed                     mapping(address => uint256)
+  held                         uint256
+  committed                    uint256
+  owner                        address
+  _status                      uint256
+
+callback-capable external call sites:
+  releaseAll.call#0  line 38  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['_status', 'committed', 'escrowed', 'held']
+conservative closure Closure(s) = ['lock', 'releaseAll']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

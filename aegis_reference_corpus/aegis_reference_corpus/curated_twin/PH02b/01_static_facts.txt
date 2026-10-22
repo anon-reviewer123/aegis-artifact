@@ -1,0 +1,23 @@
+AEGIS static analysis  --  SaleFinalizer_PH02b
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : SaleFinalizer_PH02b
+inheritance      : SaleFinalizer_PH02b
+frozen target    : !finalized || withdrawn == raised
+
+state variables (resolved across inheritance):
+  finalized                    bool
+  raised                       uint256
+  withdrawn                    uint256
+  treasury                     address
+  contributions                mapping(address => uint256)
+
+callback-capable external call sites:
+  finalize.call#0  line 25  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['finalized', 'raised', 'withdrawn']
+conservative closure Closure(s) = ['contribute', 'finalize']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

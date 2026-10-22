@@ -1,0 +1,42 @@
+======================================================================
+AEGIS report  --  SaleFinalizer_PH02b   [PH02b]
+======================================================================
+dataset          : curated_twin
+family           : Phase-ordering desync
+twin / incident  : PH02
+ground-truth label: unsafe
+  label rationale : finalized is set after the treasury call, so a contribution made inside the window is never withdrawn
+mechanism        : token sale: raised funds are sent to the treasury when the sale is finalized
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['contribute', 'finalize']
+footprint : ['finalized', 'raised', 'withdrawn']
+I_exp     : !finalized && withdrawn == raised   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.89s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.94s  (phases)  canary=refuted
+  [REFUTED ] OBL_cb_contribute                5.66s  (closure)  canary=refuted
+            counterexample: {'finalized': 'false', 'raised': '1', 'withdrawn': '0', 'value': '1'}
+  [REFUTED ] OBL_cb_finalize                   5.3s  (closure)  canary=refuted
+            counterexample: {'finalized': 'true', 'raised': '0', 'withdrawn': '0', 'amt': '0'}
+  [VERIFIED] OBL_post                         6.12s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               6.46s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_contribute              6.41s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_contribute
+  the admissible callback contribute is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates !finalized || withdrawn == raised
+  witness state       : {'finalized': 'false', 'raised': '1', 'withdrawn': '0', 'value': '1'}
+
+repair rounds    : 0
+
+======================================================================

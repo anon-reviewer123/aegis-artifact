@@ -1,0 +1,248 @@
+{
+ "contract": "NestMintClub",
+ "cid": "DP01",
+ "dataset": "deployed_style",
+ "family": "token_hook",
+ "pair": null,
+ "ground_truth_label": "safe",
+ "label_rationale": "withdraw is nonReentrant and team funds are zeroed before the transfer; no closure member can inflate teamBalance above the contract balance during the call",
+ "mechanism": "flattened NFT mint (Ownable + ReentrancyGuard + Counters); team proceeds withdrawn via low-level call",
+ "target_property": "teamBalance <= address(this).balance",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 35.6,
+ "static": {
+  "state_vars": [
+   {
+    "name": "_supply",
+    "type": "struct Counters.Counter",
+    "contract": "NestMintClub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "MAX_SUPPLY",
+    "type": "uint256",
+    "contract": "NestMintClub",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "mintPrice",
+    "type": "uint256",
+    "contract": "NestMintClub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "teamBalance",
+    "type": "uint256",
+    "contract": "NestMintClub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "teamWallet",
+    "type": "address payable",
+    "contract": "NestMintClub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "ownerOf",
+    "type": "mapping(uint256 => address)",
+    "contract": "NestMintClub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "balanceOf",
+    "type": "mapping(address => uint256)",
+    "contract": "NestMintClub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "baseURI",
+    "type": "string",
+    "contract": "NestMintClub",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_owner",
+    "type": "address",
+    "contract": "Ownable",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "NestMintClub",
+    "function": "withdraw",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 130,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "NestMintClub",
+   "ReentrancyGuard",
+   "Ownable",
+   "Context"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "mint"
+   ],
+   "footprint": [
+    "_status",
+    "ethBal",
+    "teamBalance"
+   ],
+   "mcvp": {
+    "contract": "NestMintClub",
+    "closure": {
+     "site_function": "withdraw",
+     "site_call": ".call",
+     "functions": [
+      "mint"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['_status', 'ethBal', 'teamBalance']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "mint"
+     ],
+     "nesting_bound": {
+      "withdraw": 1
+     }
+    },
+    "phases": {
+     "function": "withdraw",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "teamBalance <= ethBal && _status == 2",
+     "stable_formula": "teamBalance <= ethBal && _status == 1",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "teamBalance <= ethBal",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for NestMintClub\n  target property phi : teamBalance <= ethBal\n  exposure site       : withdraw.call  (low-level call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During withdraw's exposed phase, re-entrant control is confined to the\n          callback closure ['mint']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {teamBalance <= ethBal && _status == 1} pre-phase {teamBalance <= ethBal && _status == 2}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = teamBalance <= ethBal && _status == 2)\n          discharged by: ['OBL_cb_mint']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {teamBalance <= ethBal && _status == 1 /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => teamBalance <= ethBal\n      where callbacks are confined to admissible_callbacks=['mint'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.74,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.34,
+     "purpose": "{I_stable} pre-phase of withdraw {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_mint",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 9.86,
+     "purpose": "callback mint preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.27,
+     "purpose": "{I_exp} post-phase of withdraw {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.02,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_mint",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.42,
+     "purpose": "public transition mint preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

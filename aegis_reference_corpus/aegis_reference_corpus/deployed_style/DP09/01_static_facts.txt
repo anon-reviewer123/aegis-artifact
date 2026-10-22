@@ -1,0 +1,21 @@
+AEGIS static analysis  --  CollateralVault
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : CollateralVault
+inheritance      : CollateralVault <- ReentrancyGuard <- Context
+frozen target    : pricePerShare monotonicity (per the local model)
+
+state variables (resolved across inheritance):
+  asset                        contract IERC20   [immutable]
+  shares                       mapping(address => uint256)
+  totalShares                  uint256
+  _NOT_ENTERED                 uint256   [constant]
+  _ENTERED                     uint256   [constant]
+  _status                      uint256
+
+callback-capable external call sites:
+  deposit.transferFrom#0  line 51  (external interface call)
+  withdraw.transfer#0  line 62  (external interface call)
+
+selected arm     : UNKNOWN
+reason           : the invariant and the observed view both depend on a token balance held in another contract; no sound summary of that mutable external state is available, so the result is UNKNOWN (cross-DApp exploitability is out of scope)

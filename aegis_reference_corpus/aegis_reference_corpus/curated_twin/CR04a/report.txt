@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  EscrowDesk_CR04a   [CR04a]
+======================================================================
+dataset          : curated_twin
+family           : Classic reentrancy
+twin / incident  : CR04
+ground-truth label: safe
+  label rationale : releaseAll and lock share a nonReentrant lock held across the call
+mechanism        : escrow desk: depositors release their escrowed funds
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['lock', 'releaseAll']
+footprint : ['_status', 'committed', 'escrowed', 'held']
+I_exp     : held + inFlight >= committed && escrowed[caller] >= inFlight && _status == 2   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         3.06s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          3.66s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_lock                      3.84s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_releaseAll                3.92s  (closure)  canary=verified
+  [VERIFIED] OBL_post                          4.1s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               3.58s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_lock                    4.12s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for EscrowDesk_CR04a
+  target property phi : held >= committed
+  exposure site       : releaseAll.call  (low-level call)
+  ghost state         : uint256 inFlight
+
+  [A_cb]  ASSUMPTION
+          During releaseAll's exposed phase, re-entrant control is confined to the
+          callback closure ['lock', 'releaseAll']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {held >= committed && _status == 1} pre-phase {held + inFlight >= committed && escrowed[caller] >= inFlight && _status == 2}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = held + inFlight >= committed && escrowed[caller] >= inFlight && _status == 2)
+          discharged by: ['OBL_cb_lock', 'OBL_cb_releaseAll']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {held >= committed && _status == 1 /\ inFlight==0}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => held >= committed
+      where callbacks are confined to admissible_callbacks=['lock', 'releaseAll'], depth-one
+
+repair rounds    : 0
+
+======================================================================

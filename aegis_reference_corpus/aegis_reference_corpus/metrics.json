@@ -1,0 +1,37 @@
+{
+ "total": 100,
+ "by_dataset": {
+  "curated_twin": 80,
+  "deployed_style": 13,
+  "incident": 7
+ },
+ "curated_confusion": {
+  "TN": 39,
+  "TP": 39,
+  "FN": 1,
+  "FP": 1,
+  "N/V": 0
+ },
+ "curated_precision": 0.975,
+ "curated_recall": 0.975,
+ "deployed_verdicts": {
+  "VERIFIED": 3,
+  "BUG_FOUND": 2,
+  "UNKNOWN": 8
+ },
+ "incident_vuln_bugfound": [
+  4,
+  4
+ ],
+ "incident_patch_verified": [
+  3,
+  3
+ ],
+ "overall_confusion": {
+  "TN": 45,
+  "TP": 45,
+  "FN": 1,
+  "FP": 1,
+  "N/V": 8
+ }
+}

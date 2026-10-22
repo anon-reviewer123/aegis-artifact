@@ -1,0 +1,24 @@
+AEGIS static analysis  --  MintPass_TH01b
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : MintPass_TH01b
+inheritance      : MintPass_TH01b
+frozen target    : mintedBy[u] <= MAX_PER_WALLET for every address u
+
+state variables (resolved across inheritance):
+  MAX_PER_WALLET               uint256   [constant]
+  MAX_SUPPLY                   uint256   [constant]
+  totalMinted                  uint256
+  mintedBy                     mapping(address => uint256)
+  ownerOf                      mapping(uint256 => address)
+  balanceOf                    mapping(address => uint256)
+
+callback-capable external call sites:
+  _checkReceiver.onERC721Received#0  line 36  (receiver hook)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['mintedBy', 'totalMinted']
+conservative closure Closure(s) = ['mint']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

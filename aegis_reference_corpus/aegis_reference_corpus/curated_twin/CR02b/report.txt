@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  TipJar_CR02b   [CR02b]
+======================================================================
+dataset          : curated_twin
+family           : Classic reentrancy
+twin / incident  : CR02
+ground-truth label: safe
+  label rationale : claimTips and tip share a nonReentrant lock held across the call
+mechanism        : tip jar: creators claim accumulated tips
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['tip', 'claimTips']
+footprint : ['_status', 'cash', 'owed', 'tips']
+I_exp     : cash + inFlight >= owed && tips[caller] >= inFlight && _status == 2   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         3.26s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          3.66s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_tip                       3.34s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_claimTips                 3.41s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         4.52s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               3.71s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_tip                     3.67s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for TipJar_CR02b
+  target property phi : cash >= owed
+  exposure site       : claimTips.call  (low-level call)
+  ghost state         : uint256 inFlight
+
+  [A_cb]  ASSUMPTION
+          During claimTips's exposed phase, re-entrant control is confined to the
+          callback closure ['tip', 'claimTips']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {cash >= owed && _status == 1} pre-phase {cash + inFlight >= owed && tips[caller] >= inFlight && _status == 2}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = cash + inFlight >= owed && tips[caller] >= inFlight && _status == 2)
+          discharged by: ['OBL_cb_tip', 'OBL_cb_claimTips']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {cash >= owed && _status == 1 /\ inFlight==0}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => cash >= owed
+      where callbacks are confined to admissible_callbacks=['tip', 'claimTips'], depth-one
+
+repair rounds    : 0
+
+======================================================================

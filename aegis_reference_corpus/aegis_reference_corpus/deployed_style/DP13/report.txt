@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  AssemblyRefunder   [DP13]
+======================================================================
+dataset          : deployed_style
+family           : Classic reentrancy
+ground-truth label: unknown
+  label rationale : the reentrancy lock lives in an assembly sload/sstore slot that the harness builder cannot lift into a typed ghost
+mechanism        : flattened refunder whose reentrancy lock is kept in a raw assembly storage slot
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : UNKNOWN  --  the reentrancy guard is stored in an inline-assembly storage slot the harness builder cannot model; without a faithful phase-split harness the site cannot be discharged, so the result is UNKNOWN
+AEGIS verdict    : UNKNOWN
+vs. label        : N/V (UNKNOWN)
+
+AEGIS does not return a definitive verdict on this contract.
+
+scope boundary   : harness construction
+  the guard state is held in a keccak-addressed slot accessed via inline assembly; the slice/harness builder cannot represent it, so the phase-split harness for withdraw cannot be constructed
+
+why UNKNOWN (not VERIFIED): the reentrancy guard is stored in an inline-assembly storage slot the harness builder cannot model; without a faithful phase-split harness the site cannot be discharged, so the result is UNKNOWN
+
+the static pass still identifies the exposure sites above; the arm
+selected them but the proof obligations cannot be soundly constructed
+or discharged within the modeled, backend-supported fragment.
+
+======================================================================

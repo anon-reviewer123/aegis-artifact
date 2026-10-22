@@ -1,0 +1,237 @@
+{
+ "contract": "RevestFNFTPatched",
+ "cid": "IN_REVEST_P",
+ "dataset": "incident",
+ "family": "incident",
+ "pair": "revest_finance",
+ "ground_truth_label": "safe",
+ "label_rationale": "FNFT supply is credited before the ERC1155 receiver hook and the entry points are nonReentrant",
+ "mechanism": "Revest Finance (Mar 2022): ERC1155 onERC1155Received reentrancy during FNFT minting; supply credited after the receiver hook",
+ "target_property": "totalSupply <= lockedValue",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 57.1,
+ "static": {
+  "state_vars": [
+   {
+    "name": "FNFT_ID",
+    "type": "uint256",
+    "contract": "RevestFNFTPatched",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "supplyOf",
+    "type": "mapping(address => uint256)",
+    "contract": "RevestFNFTPatched",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalSupply",
+    "type": "uint256",
+    "contract": "RevestFNFTPatched",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "lockedValue",
+    "type": "uint256",
+    "contract": "RevestFNFTPatched",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "RevestFNFTPatched",
+    "function": "mintFNFT",
+    "call": ".onERC1155Received",
+    "kind": "receiver hook",
+    "line": 48,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   },
+   {
+    "contract": "RevestFNFTPatched",
+    "function": "withdrawFNFT",
+    "call": ".transfer",
+    "kind": "transfer (2300 gas)",
+    "line": 63,
+    "in_loop": false,
+    "gas_forwarding": false,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "RevestFNFTPatched",
+   "ReentrancyGuard",
+   "Context"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "mintUnbacked",
+    "mintFNFT"
+   ],
+   "footprint": [
+    "_status",
+    "lockedValue",
+    "supplyOf",
+    "totalSupply"
+   ],
+   "mcvp": {
+    "contract": "RevestFNFTPatched",
+    "closure": {
+     "site_function": "mintFNFT",
+     "site_call": ".onERC1155Received",
+     "functions": [
+      "mintUnbacked",
+      "mintFNFT"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['_status', 'lockedValue', 'supplyOf', 'totalSupply']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "mintUnbacked",
+      "mintFNFT"
+     ],
+     "nesting_bound": {
+      "mintFNFT": 1
+     }
+    },
+    "phases": {
+     "function": "mintFNFT",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .onERC1155Received"
+     },
+     "exposed": {
+      "from_marker": "before .onERC1155Received",
+      "to_marker": "after .onERC1155Received"
+     },
+     "post": {
+      "from_marker": "after .onERC1155Received",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .onERC1155Received"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "lockedValue == totalSupply && _status == 2",
+     "stable_formula": "lockedValue == totalSupply && _status == 1",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "totalSupply <= lockedValue",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for RevestFNFTPatched\n  target property phi : totalSupply <= lockedValue\n  exposure site       : mintFNFT.onERC1155Received  (receiver hook)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During mintFNFT's exposed phase, re-entrant control is confined to the\n          callback closure ['mintUnbacked', 'mintFNFT']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {lockedValue == totalSupply && _status == 1} pre-phase {lockedValue == totalSupply && _status == 2}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = lockedValue == totalSupply && _status == 2)\n          discharged by: ['OBL_cb_mintUnbacked', 'OBL_cb_mintFNFT']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {lockedValue == totalSupply && _status == 1 /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => totalSupply <= lockedValue\n      where callbacks are confined to admissible_callbacks=['mintUnbacked', 'mintFNFT'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.77,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 9.13,
+     "purpose": "{I_stable} pre-phase of mintFNFT {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_mintUnbacked",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 11.14,
+     "purpose": "callback mintUnbacked preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_cb_mintFNFT",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.75,
+     "purpose": "callback mintFNFT preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.15,
+     "purpose": "{I_exp} post-phase of mintFNFT {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.71,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_mintUnbacked",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.47,
+     "purpose": "public transition mintUnbacked preserves I_stable",
+     "nonvacuity_canary": "verified",
+     "excluded": "entry precondition unsatisfiable in this phase (function excluded here)"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

@@ -1,0 +1,27 @@
+AEGIS static analysis  --  StakePool
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : StakePool
+inheritance      : StakePool <- ReentrancyGuard <- Ownable <- Context
+frozen target    : staked[u] <= totalStaked for every account u
+
+state variables (resolved across inheritance):
+  stakeToken                   contract IERC20   [immutable]
+  staked                       mapping(address => uint256)
+  totalStaked                  uint256
+  rewardPool                   uint256
+  _NOT_ENTERED                 uint256   [constant]
+  _ENTERED                     uint256   [constant]
+  _status                      uint256
+  _owner                       address
+
+callback-capable external call sites:
+  stake.transferFrom#0  line 90  (external interface call)
+  unstake.transfer#0  line 99  (external interface call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['_status', 'staked', 'totalStaked']
+conservative closure Closure(s) = ['stake']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

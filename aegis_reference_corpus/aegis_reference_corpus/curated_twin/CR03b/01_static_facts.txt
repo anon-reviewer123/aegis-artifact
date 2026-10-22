@@ -1,0 +1,22 @@
+AEGIS static analysis  --  RewardPool_CR03b
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : RewardPool_CR03b
+inheritance      : RewardPool_CR03b
+frozen target    : rewardCash >= rewardDebt
+
+state variables (resolved across inheritance):
+  pendingReward                mapping(address => uint256)
+  rewardCash                   uint256
+  rewardDebt                   uint256
+  owner                        address
+
+callback-capable external call sites:
+  claimRewards.call#0  line 31  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['pendingReward', 'rewardCash', 'rewardDebt']
+conservative closure Closure(s) = ['accrue', 'claimRewards']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

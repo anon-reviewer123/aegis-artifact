@@ -1,0 +1,23 @@
+AEGIS static analysis  --  RevestFNFTVuln
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : RevestFNFTVuln
+inheritance      : RevestFNFTVuln <- Context
+frozen target    : totalSupply <= lockedValue
+
+state variables (resolved across inheritance):
+  FNFT_ID                      uint256   [constant]
+  supplyOf                     mapping(address => uint256)
+  totalSupply                  uint256
+  lockedValue                  uint256
+
+callback-capable external call sites:
+  mintFNFT.onERC1155Received#0  line 28  (receiver hook)
+  withdrawFNFT.transfer#0  line 45  (transfer (2300 gas))
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['lockedValue', 'supplyOf', 'totalSupply']
+conservative closure Closure(s) = ['mintUnbacked', 'mintFNFT']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

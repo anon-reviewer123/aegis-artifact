@@ -1,0 +1,41 @@
+======================================================================
+AEGIS report  --  RefundCenter_EO03b   [EO03b]
+======================================================================
+dataset          : curated_twin
+family           : EOA-assumption
+twin / incident  : EO03
+ground-truth label: unsafe
+  label rationale : the payout goes to msg.sender before the books are settled; nothing stops msg.sender from being a contract
+mechanism        : refund center: refunds are paid to msg.sender, assumed to be an EOA
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['accrue', 'claim']
+footprint : ['refundCash', 'refundDebt', 'refundOf']
+I_exp     : refundCash + inFlight >= refundDebt && refundOf[caller] >= inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         10.5s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                         12.97s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_accrue                   18.46s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_claim                    19.79s  (closure)  canary=refuted
+            counterexample: {'refundCash': '0', 'refundDebt': '0', 'inFlight': '1324', 'caller': '0x4819', 'who': '0x4819', 'x': '1325'}
+  [VERIFIED] OBL_post                        14.42s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies              12.39s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_accrue                 12.54s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_claim
+  the admissible callback claim is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates refundCash >= refundDebt
+  witness state       : {'refundCash': '0', 'refundDebt': '0', 'inFlight': '1324', 'caller': '0x4819', 'who': '0x4819', 'x': '1325'}
+
+repair rounds    : 0
+
+======================================================================

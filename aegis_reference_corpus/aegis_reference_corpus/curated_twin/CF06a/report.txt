@@ -1,0 +1,45 @@
+======================================================================
+AEGIS report  --  MarginDesk_CF06a   [CF06a]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF06
+ground-truth label: unsafe
+  label rationale : collateral is decremented only after the payout call, so skim() run inside the window treats the in-flight amount as surplus
+mechanism        : margin desk: idle collateral above margin can be skimmed into margin
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['postMargin', 'addInsurance', 'skim', 'closeTrade']
+footprint : ['collateral', 'margin', 'marginTotal']
+I_exp     : collateral >= marginTotal + inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.63s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.06s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_postMargin                8.12s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_addInsurance              8.03s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_skim                     11.96s  (closure)  canary=refuted
+            counterexample: {'collateral': '28101', 'marginTotal': '28101', 'inFlight': '28101', 'caller': '0x0476', 'who': '0x0476', 'surplus': '28101'}
+  [VERIFIED] OBL_cb_closeTrade                8.92s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         8.68s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               8.15s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_postMargin              6.93s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_addInsurance            6.33s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_skim                    6.24s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_skim
+  the admissible callback skim is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates collateral >= marginTotal
+  witness state       : {'collateral': '28101', 'marginTotal': '28101', 'inFlight': '28101', 'caller': '0x0476', 'who': '0x0476', 'surplus': '28101'}
+
+repair rounds    : 0
+
+======================================================================

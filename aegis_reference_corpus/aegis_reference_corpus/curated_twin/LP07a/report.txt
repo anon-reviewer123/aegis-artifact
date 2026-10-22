@@ -1,0 +1,24 @@
+======================================================================
+AEGIS report  --  VestingBatch_LP07a   [LP07a]
+======================================================================
+dataset          : curated_twin
+family           : Forced-revert / loop
+twin / incident  : LP07
+ground-truth label: safe
+  label rationale : released[b] is updated before the payment call
+mechanism        : vesting: vested tranches are pushed in a batch loop
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : LOOP  --  a callback-capable call occurs inside a loop; the inductive loop-step rule applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+loop schema      : conservation
+loop-step target : cumulative release to every beneficiary is bounded by its vested entitlement
+exposure fact    : I_exp = released[b] <= vested[b] (entitlement bound for the visited beneficiary)
+closure note     : cbSel 1 = release(b) re-entered from the payment callback
+
+inductive one-iteration obligation (built around the extracted loop body):
+  [VERIFIED] OBL_loop_step              5.73s  canary=refuted
+
+======================================================================

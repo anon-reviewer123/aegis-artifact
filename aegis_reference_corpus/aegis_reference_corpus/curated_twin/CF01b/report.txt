@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  PerpPool_CF01b   [CF01b]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF01
+ground-truth label: safe
+  label rationale : an exposure flag set across the call blocks mintGlp() and re-entry into decreasePosition()
+mechanism        : perpetual pool: liquidity tokens are minted against aum surplus
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   PLAN_REFUTED
+----------------------------------------------------------------------
+closure   : ['deposit', 'addFees', 'mintGlp', 'decreasePosition']
+footprint : ['aum', 'exposed', 'glp', 'trackedValue']
+I_exp     : aum >= trackedValue && exposed   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         3.66s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          4.11s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_deposit                   4.26s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_addFees                   3.86s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_mintGlp                    3.4s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_decreasePosition          3.45s  (closure)  canary=verified
+  [REFUTED ] OBL_post                         5.69s  (phases)  canary=refuted
+            counterexample: {'aum': '0', 'trackedValue': '1', 'exposed': 'false', 'caller': '0x0119', 'who': '0x0119', 'amount': '1'}
+  [VERIFIED] OBL_stable_implies               3.81s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_deposit                 4.51s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_addFees                 4.01s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_mintGlp                  3.2s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+repair    : the refuted obligation is a phase/preservation check under a non-inductive exposure invariant; repair strengthens the plan with ghost state and re-verifies
+
+----------------------------------------------------------------------
+MCVP plan c1   (REPAIR ROUND 1)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['deposit', 'addFees', 'mintGlp', 'decreasePosition']
+footprint : ['aum', 'exposed', 'glp', 'trackedValue']
+I_exp     : aum >= trackedValue + inFlight && exposed   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         3.79s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                           4.0s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_deposit                   4.14s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_addFees                   4.47s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_mintGlp                   3.62s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_decreasePosition          3.58s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         4.24s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               3.77s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_deposit                 4.14s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_addFees                  3.8s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_mintGlp                 2.42s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+repair rounds    : 1
+
+======================================================================

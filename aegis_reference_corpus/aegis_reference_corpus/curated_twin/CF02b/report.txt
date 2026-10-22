@@ -1,0 +1,45 @@
+======================================================================
+AEGIS report  --  LiquidityVault_CF02b   [CF02b]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF02
+ground-truth label: unsafe
+  label rationale : totalAssets is decremented only after the payout call, so claimSurplus() run inside the window treats the in-flight amount as surplus
+mechanism        : liquidity vault: surplus assets above claims can be claimed by holders
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['enter', 'donate', 'claimSurplus', 'exitPosition']
+footprint : ['shares', 'totalAssets', 'totalClaims']
+I_exp     : totalAssets >= totalClaims + inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.35s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          7.21s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_enter                     6.92s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_donate                    7.24s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_claimSurplus             11.36s  (closure)  canary=refuted
+            counterexample: {'totalAssets': '9726', 'totalClaims': '9726', 'inFlight': '9726', 'caller': '0x7e16', 'who': '0x7e16', 'surplus': '9726'}
+  [VERIFIED] OBL_cb_exitPosition              8.22s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         7.74s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               7.55s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_enter                    6.2s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_donate                  5.93s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_claimSurplus            5.85s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_claimSurplus
+  the admissible callback claimSurplus is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates totalAssets >= totalClaims
+  witness state       : {'totalAssets': '9726', 'totalClaims': '9726', 'inFlight': '9726', 'caller': '0x7e16', 'who': '0x7e16', 'surplus': '9726'}
+
+repair rounds    : 0
+
+======================================================================

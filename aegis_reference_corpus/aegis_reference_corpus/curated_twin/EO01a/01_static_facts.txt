@@ -1,0 +1,21 @@
+AEGIS static analysis  --  RebateDesk_EO01a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : RebateDesk_EO01a
+inheritance      : RebateDesk_EO01a
+frozen target    : rebatePool >= rebateDebt
+
+state variables (resolved across inheritance):
+  rebate                       mapping(address => uint256)
+  rebatePool                   uint256
+  rebateDebt                   uint256
+
+callback-capable external call sites:
+  claim.call#0  line 20  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['rebate', 'rebateDebt', 'rebatePool']
+conservative closure Closure(s) = ['accrue', 'claim']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

@@ -1,0 +1,117 @@
+{
+ "contract": "VestingBatch_LP07b",
+ "cid": "LP07b",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP07",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "released[b] is updated after the payment call, so release(b) re-entered from the callback credits the same tranche again",
+ "mechanism": "vesting: vested tranches are pushed in a batch loop",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 4.7,
+ "static": {
+  "state_vars": [
+   {
+    "name": "vested",
+    "type": "mapping(address => uint256)",
+    "contract": "VestingBatch_LP07b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "released",
+    "type": "mapping(address => uint256)",
+    "contract": "VestingBatch_LP07b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "withdrawable",
+    "type": "mapping(address => uint256)",
+    "contract": "VestingBatch_LP07b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalVested",
+    "type": "uint256",
+    "contract": "VestingBatch_LP07b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalReleased",
+    "type": "uint256",
+    "contract": "VestingBatch_LP07b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "beneficiaries",
+    "type": "address[]",
+    "contract": "VestingBatch_LP07b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "VestingBatch_LP07b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "VestingBatch_LP07b",
+    "function": "releaseAll",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 45,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "VestingBatch_LP07b"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "refuted",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 4.72,
+   "purpose": "conservation: cumulative release to every beneficiary is bounded by its vested entitlement",
+   "nonvacuity_canary": "refuted",
+   "counterexample": {
+    "totalVested": "1",
+    "totalReleased": "2",
+    "b": "0x0",
+    "p_totalVested": "1",
+    "p_totalReleased": "0",
+    "p_vested_b": "1",
+    "p_released_b": "0",
+    "ok": "true",
+    "cbSel": "1",
+    "amt": "1"
+   },
+   "witness": {
+    "refuting_obligation": "OBL_loop_step",
+    "explanation": "the inductive loop step is refuted: some admissible callee outcome breaks cumulative release to every beneficiary is bounded by its vested entitlement"
+   }
+  }
+ ],
+ "schema": "conservation"
+}

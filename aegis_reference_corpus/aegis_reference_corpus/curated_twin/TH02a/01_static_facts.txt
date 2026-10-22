@@ -1,0 +1,24 @@
+AEGIS static analysis  --  GenesisDrop_TH02a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : GenesisDrop_TH02a
+inheritance      : GenesisDrop_TH02a
+frozen target    : totalSupply <= MAX_SUPPLY
+
+state variables (resolved across inheritance):
+  MAX_SUPPLY                   uint256   [constant]
+  totalSupply                  uint256
+  nextId                       uint256
+  ownerOf                      mapping(uint256 => address)
+  balanceOf                    mapping(address => uint256)
+  _status                      uint256
+
+callback-capable external call sites:
+  _checkReceiver.onERC721Received#0  line 43  (receiver hook)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['_status', 'nextId', 'totalSupply']
+conservative closure Closure(s) = ['mint']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

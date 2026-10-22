@@ -1,0 +1,64 @@
+======================================================================
+AEGIS report  --  FlashVault_FL02b   [FL02b]
+======================================================================
+dataset          : curated_twin
+family           : Flash-loan callback
+twin / incident  : FL02
+ground-truth label: safe
+  label rationale : repayment is checked through a counter that only repay() increments
+mechanism        : flash vault: repayment checked through cash (unsafe) or a dedicated repaid counter (safe)
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['deposit', 'repay', 'flashLoan']
+footprint : ['cash', 'inLoan', 'totalShares']
+I_exp     : cash + loaned + snapRepaid >= totalShares + repaid && repaid >= snapRepaid && inLoan   [multi-variable conservation]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         8.05s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          9.32s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_deposit                   9.52s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_repay                     9.26s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_flashLoan                12.21s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         9.55s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               8.79s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_deposit                 8.99s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_repay                   3.97s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for FlashVault_FL02b
+  target property phi : cash >= totalShares
+  exposure site       : flashLoan.onFlashLoan  (flash-loan callback)
+  ghost state         : uint256 loaned, uint256 snapRepaid
+
+  [A_cb]  ASSUMPTION
+          During flashLoan's exposed phase, re-entrant control is confined to the
+          callback closure ['deposit', 'repay', 'flashLoan']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {cash >= totalShares && !inLoan} pre-phase {cash + loaned + snapRepaid >= totalShares + repaid && repaid >= snapRepaid && inLoan}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = cash + loaned + snapRepaid >= totalShares + repaid && repaid >= snapRepaid && inLoan)
+          discharged by: ['OBL_cb_deposit', 'OBL_cb_repay', 'OBL_cb_flashLoan']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {cash >= totalShares && !inLoan /\ loaned==0 /\ snapRepaid==0}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => cash >= totalShares
+      where callbacks are confined to admissible_callbacks=['deposit', 'repay', 'flashLoan'], depth-one
+
+repair rounds    : 0
+
+======================================================================

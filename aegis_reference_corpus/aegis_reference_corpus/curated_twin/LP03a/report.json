@@ -1,0 +1,92 @@
+{
+ "contract": "DividendDistributor_LP03a",
+ "cid": "LP03a",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP03",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "one reverting recipient aborts the whole loop, so roundDone is never set",
+ "mechanism": "dividend distributor: each holder's dividend is pushed in one loop",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 4.2,
+ "static": {
+  "state_vars": [
+   {
+    "name": "holders",
+    "type": "address[]",
+    "contract": "DividendDistributor_LP03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "dividendOf",
+    "type": "mapping(address => uint256)",
+    "contract": "DividendDistributor_LP03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "roundDone",
+    "type": "bool",
+    "contract": "DividendDistributor_LP03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "DividendDistributor_LP03a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "DividendDistributor_LP03a",
+    "function": "distribute",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 30,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "DividendDistributor_LP03a"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "refuted",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 4.2,
+   "purpose": "progress: no callee outcome halts the batch (finite failure isolation)",
+   "nonvacuity_canary": "refuted",
+   "counterexample": {
+    "halted": "true",
+    "who": "0x0",
+    "p_halted": "false",
+    "p_dividendOf_who": "0",
+    "ok": "false",
+    "amt": "0"
+   },
+   "witness": {
+    "refuting_obligation": "OBL_loop_step",
+    "explanation": "the inductive loop step is refuted: some admissible callee outcome breaks no callee outcome halts the batch (finite failure isolation)"
+   }
+  }
+ ],
+ "schema": "progress"
+}

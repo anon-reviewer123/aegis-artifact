@@ -1,0 +1,21 @@
+AEGIS static analysis  --  DualHookMarket
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : DualHookMarket
+inheritance      : DualHookMarket <- ReentrancyGuard <- Context
+frozen target    : totalCredit <= backing
+
+state variables (resolved across inheritance):
+  credit                       mapping(address => uint256)
+  totalCredit                  uint256
+  backing                      uint256
+  _NOT_ENTERED                 uint256   [constant]
+  _ENTERED                     uint256   [constant]
+  _status                      uint256
+
+callback-capable external call sites:
+  settle.call#0  line 46  (low-level call)
+  settle.call#1  line 48  (low-level call)
+
+selected arm     : UNKNOWN
+reason           : a target-violating schedule requires two levels of nested re-entry (both callbacks active before the post-phase); the depth-one callback model cannot witness it, so the result is UNKNOWN rather than VERIFIED

@@ -1,0 +1,257 @@
+{
+ "contract": "CoverFund_CF03a",
+ "cid": "CF03a",
+ "dataset": "curated_twin",
+ "family": "cross_function",
+ "pair": "CF03",
+ "ground_truth_label": "safe",
+ "label_rationale": "pendingOut records the in-flight amount and rebalance() subtracts it from the surplus",
+ "mechanism": "insurance fund: excess reserves are re-issued as cover",
+ "target_property": "reserves >= coverage",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 79.3,
+ "static": {
+  "state_vars": [
+   {
+    "name": "cover",
+    "type": "mapping(address => uint256)",
+    "contract": "CoverFund_CF03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "reserves",
+    "type": "uint256",
+    "contract": "CoverFund_CF03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "coverage",
+    "type": "uint256",
+    "contract": "CoverFund_CF03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "pendingOut",
+    "type": "uint256",
+    "contract": "CoverFund_CF03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "feeRecipient",
+    "type": "address",
+    "contract": "CoverFund_CF03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "CoverFund_CF03a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "CoverFund_CF03a",
+    "function": "payClaim",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 43,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "CoverFund_CF03a"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "buyCover",
+    "topUp",
+    "rebalance",
+    "payClaim"
+   ],
+   "footprint": [
+    "cover",
+    "coverage",
+    "pendingOut",
+    "reserves"
+   ],
+   "mcvp": {
+    "contract": "CoverFund_CF03a",
+    "closure": {
+     "site_function": "payClaim",
+     "site_call": ".call",
+     "functions": [
+      "buyCover",
+      "topUp",
+      "rebalance",
+      "payClaim"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['cover', 'coverage', 'pendingOut', 'reserves']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "buyCover",
+      "topUp",
+      "rebalance",
+      "payClaim"
+     ],
+     "nesting_bound": {
+      "payClaim": 1
+     }
+    },
+    "phases": {
+     "function": "payClaim",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .call"
+     },
+     "exposed": {
+      "from_marker": "before .call",
+      "to_marker": "after .call"
+     },
+     "post": {
+      "from_marker": "after .call",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .call"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "reserves >= coverage + pendingOut",
+     "stable_formula": "reserves >= coverage && pendingOut == 0",
+     "kind": "additive"
+    },
+    "composition": {
+     "target_property": "reserves >= coverage",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for CoverFund_CF03a\n  target property phi : reserves >= coverage\n  exposure site       : payClaim.call  (low-level call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During payClaim's exposed phase, re-entrant control is confined to the\n          callback closure ['buyCover', 'topUp', 'rebalance', 'payClaim']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {reserves >= coverage && pendingOut == 0} pre-phase {reserves >= coverage + pendingOut}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = reserves >= coverage + pendingOut)\n          discharged by: ['OBL_cb_buyCover', 'OBL_cb_topUp', 'OBL_cb_rebalance', 'OBL_cb_payClaim']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {reserves >= coverage && pendingOut == 0 /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => reserves >= coverage\n      where callbacks are confined to admissible_callbacks=['buyCover', 'topUp', 'rebalance', 'payClaim'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.31,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.49,
+     "purpose": "{I_stable} pre-phase of payClaim {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_buyCover",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.38,
+     "purpose": "callback buyCover preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_topUp",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.54,
+     "purpose": "callback topUp preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_rebalance",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.01,
+     "purpose": "callback rebalance preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_payClaim",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.97,
+     "purpose": "callback payClaim preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.27,
+     "purpose": "{I_exp} post-phase of payClaim {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.48,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_buyCover",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.24,
+     "purpose": "public transition buyCover preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_topUp",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.43,
+     "purpose": "public transition topUp preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_rebalance",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.18,
+     "purpose": "public transition rebalance preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+======================================================================
+AEGIS report  --  BatchPayout_LP05b   [LP05b]
+======================================================================
+dataset          : curated_twin
+family           : Forced-revert / loop
+twin / incident  : LP05
+ground-truth label: safe
+  label rationale : topUp() and distribute() are blocked while the distributing flag is set
+mechanism        : batch payout from a pooled balance
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : LOOP  --  a callback-capable call occurs inside a loop; the inductive loop-step rule applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+loop schema      : mutex
+loop-step target : the post-loop write-back pool = snap - spent preserves totalIn == totalOut + pool
+exposure fact    : I_exp = pool == snap (pre-loop snapshot preserved while the loop is active) && distributing
+closure note     : cbSel 1 = topUp(), cbSel 2 = depth-one re-entry of distribute() (net effect on pool)
+
+inductive one-iteration obligation (built around the extracted loop body):
+  [VERIFIED] OBL_loop_step              4.77s  canary=refuted
+
+======================================================================

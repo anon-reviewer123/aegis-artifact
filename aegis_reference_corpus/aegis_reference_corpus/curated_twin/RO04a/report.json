@@ -1,0 +1,87 @@
+{
+ "contract": "TicketPool_RO04a",
+ "cid": "RO04a",
+ "dataset": "curated_twin",
+ "family": "read_only",
+ "pair": "RO04",
+ "ground_truth_label": "safe",
+ "label_rationale": "the pot is reduced before the refund call (label is the local quiescence property, not exploitability)",
+ "mechanism": "ticket pool: unbacked pot (sponsor money) shown to front-ends and prize contracts",
+ "target_property": null,
+ "arm": "readonly",
+ "arm_reason": "an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "quiescent",
+ "outcome_vs_label": "TN",
+ "outcome_note": "quiescent",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 2.6,
+ "static": {
+  "state_vars": [
+   {
+    "name": "PRICE",
+    "type": "uint256",
+    "contract": "TicketPool_RO04a",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "ticketsOf",
+    "type": "mapping(address => uint256)",
+    "contract": "TicketPool_RO04a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "soldTickets",
+    "type": "uint256",
+    "contract": "TicketPool_RO04a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "pot",
+    "type": "uint256",
+    "contract": "TicketPool_RO04a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "inCall",
+    "type": "bool",
+    "contract": "TicketPool_RO04a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "TicketPool_RO04a",
+    "function": "cancel",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 31,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "TicketPool_RO04a"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_ro_unbackedPot",
+   "module": "readonly",
+   "status": "verified",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 2.65,
+   "purpose": "obs during exposure equals entry or settled observation",
+   "nonvacuity_canary": "refuted"
+  }
+ ],
+ "schema": "read-only quiescence"
+}

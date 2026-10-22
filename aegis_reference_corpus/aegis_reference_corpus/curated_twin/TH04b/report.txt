@@ -1,0 +1,41 @@
+======================================================================
+AEGIS report  --  ReceiptVault_TH04b   [TH04b]
+======================================================================
+dataset          : curated_twin
+family           : Token-receiver hook
+twin / incident  : TH04
+ground-truth label: unsafe
+  label rationale : receiptSupply is credited after the onERC1155Received hook, so reclaimDust() inside the hook treats the incoming value as unclaimed
+mechanism        : ERC1155 receipt vault: receipts are minted through onERC1155Received
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['deposit', 'reclaimDust']
+footprint : ['receiptSupply', 'receipts', 'totalDeposited']
+I_exp     : receiptSupply + inFlight <= totalDeposited   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.66s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.16s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_deposit                    8.5s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_reclaimDust              11.52s  (closure)  canary=refuted
+            counterexample: {'receiptSupply': '115792089237316195423570985008687907853269984665640564039457584007913129611834', 'totalDeposited': '115792089237316195423570985008687907853269984665640564039457584007913129611834', 'inFlight': '1', 'caller': '0x0119', 'who': '0x0119', 's': '115792089237316195423570985008687907853269984665640564039457584007913129611834'}
+  [VERIFIED] OBL_post                         8.84s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               7.49s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_reclaimDust             7.15s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_reclaimDust
+  the admissible callback reclaimDust is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates receiptSupply <= totalDeposited
+  witness state       : {'receiptSupply': '115792089237316195423570985008687907853269984665640564039457584007913129611834', 'totalDeposited': '115792089237316195423570985008687907853269984665640564039457584007913129611834', 'inFlight': '1', 'caller': '0x0119', 'who': '0x0119', 's': '115792089237316195423570985008687907853269984665640564039457584007913129611834'}
+
+repair rounds    : 0
+
+======================================================================

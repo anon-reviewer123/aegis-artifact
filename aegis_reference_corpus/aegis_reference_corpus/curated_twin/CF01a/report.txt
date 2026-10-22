@@ -1,0 +1,45 @@
+======================================================================
+AEGIS report  --  PerpPool_CF01a   [CF01a]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF01
+ground-truth label: unsafe
+  label rationale : aum is decremented only after the payout call, so mintGlp() run inside the window treats the in-flight amount as surplus
+mechanism        : perpetual pool: liquidity tokens are minted against aum surplus
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['deposit', 'addFees', 'mintGlp', 'decreasePosition']
+footprint : ['aum', 'glp', 'trackedValue']
+I_exp     : aum >= trackedValue + inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         3.21s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          3.85s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_deposit                   3.94s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_addFees                   3.34s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_mintGlp                   5.36s  (closure)  canary=refuted
+            counterexample: {'aum': '28101', 'trackedValue': '28101', 'inFlight': '1', 'caller': '0x0476', 'who': '0x0476', 'surplus': '28101'}
+  [VERIFIED] OBL_cb_decreasePosition          2.16s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         3.84s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               3.59s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_deposit                 3.88s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_addFees                 3.65s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_mintGlp                 2.15s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_mintGlp
+  the admissible callback mintGlp is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates aum >= trackedValue
+  witness state       : {'aum': '28101', 'trackedValue': '28101', 'inFlight': '1', 'caller': '0x0476', 'who': '0x0476', 'surplus': '28101'}
+
+repair rounds    : 0
+
+======================================================================

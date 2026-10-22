@@ -1,0 +1,66 @@
+======================================================================
+AEGIS report  --  TreasuryDesk_CF04a   [CF04a]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF04
+ground-truth label: safe
+  label rationale : a shared nonReentrant lock covers release(), sweepExcess() and allocate()
+mechanism        : treasury desk: unallocated revenue is swept to the caller's allocation
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['allocate', 'receiveRevenue', 'sweepExcess', 'release']
+footprint : ['_status', 'allocated', 'allocation', 'treasury']
+I_exp     : treasury >= allocated + inFlight && _status == 2   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.65s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.58s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_allocate                 10.73s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_receiveRevenue            7.86s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_sweepExcess              11.04s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_release                  10.78s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         7.14s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               7.13s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_allocate                7.16s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_receiveRevenue          6.88s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_sweepExcess             6.81s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for TreasuryDesk_CF04a
+  target property phi : treasury >= allocated
+  exposure site       : release.call  (low-level call)
+  ghost state         : uint256 inFlight
+
+  [A_cb]  ASSUMPTION
+          During release's exposed phase, re-entrant control is confined to the
+          callback closure ['allocate', 'receiveRevenue', 'sweepExcess', 'release']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {treasury >= allocated && _status == 1} pre-phase {treasury >= allocated + inFlight && _status == 2}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = treasury >= allocated + inFlight && _status == 2)
+          discharged by: ['OBL_cb_allocate', 'OBL_cb_receiveRevenue', 'OBL_cb_sweepExcess', 'OBL_cb_release']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {treasury >= allocated && _status == 1 /\ inFlight==0}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => treasury >= allocated
+      where callbacks are confined to admissible_callbacks=['allocate', 'receiveRevenue', 'sweepExcess', 'release'], depth-one
+
+repair rounds    : 0
+
+======================================================================

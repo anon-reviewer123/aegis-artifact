@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  ShareRedeemer_CR05b   [CR05b]
+======================================================================
+dataset          : curated_twin
+family           : Classic reentrancy
+twin / incident  : CR05
+ground-truth label: safe
+  label rationale : shares and outstanding are cleared before the payout call (checks-effects-interactions), even for a partial withdrawal
+mechanism        : share redeemer: holders redeem all shares for the backing asset
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['mint', 'redeemAll']
+footprint : ['backing', 'outstanding', 'shares']
+I_exp     : backing >= outstanding   [stable]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         3.03s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          3.45s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_mint                      3.86s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_redeemAll                 3.61s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                          3.8s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               3.62s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_mint                     2.2s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for ShareRedeemer_CR05b
+  target property phi : backing >= outstanding
+  exposure site       : redeemAll.call  (low-level call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During redeemAll's exposed phase, re-entrant control is confined to the
+          callback closure ['mint', 'redeemAll']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {backing >= outstanding} pre-phase {backing >= outstanding}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = backing >= outstanding)
+          discharged by: ['OBL_cb_mint', 'OBL_cb_redeemAll']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {backing >= outstanding /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => backing >= outstanding
+      where callbacks are confined to admissible_callbacks=['mint', 'redeemAll'], depth-one
+
+repair rounds    : 0
+
+======================================================================

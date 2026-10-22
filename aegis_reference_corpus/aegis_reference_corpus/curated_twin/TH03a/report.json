@@ -1,0 +1,237 @@
+{
+ "contract": "VoucherDesk_TH03a",
+ "cid": "TH03a",
+ "dataset": "curated_twin",
+ "family": "token_hook",
+ "pair": "TH03",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "credits is credited after the tokensReceived hook, so redeemSurplus() inside the hook treats the incoming value as unclaimed",
+ "mechanism": "voucher desk: vouchers are issued through an ERC777-style tokensReceived hook",
+ "target_property": "credits <= liabilities",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 58.2,
+ "static": {
+  "state_vars": [
+   {
+    "name": "vouchers",
+    "type": "mapping(address => uint256)",
+    "contract": "VoucherDesk_TH03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "credits",
+    "type": "uint256",
+    "contract": "VoucherDesk_TH03a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "liabilities",
+    "type": "uint256",
+    "contract": "VoucherDesk_TH03a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "VoucherDesk_TH03a",
+    "function": "_notify",
+    "call": ".tokensReceived",
+    "kind": "receiver hook",
+    "line": 29,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "VoucherDesk_TH03a"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "issue",
+    "redeemSurplus"
+   ],
+   "footprint": [
+    "credits",
+    "liabilities",
+    "vouchers"
+   ],
+   "mcvp": {
+    "contract": "VoucherDesk_TH03a",
+    "closure": {
+     "site_function": "issue",
+     "site_call": ".tokensReceived",
+     "functions": [
+      "issue",
+      "redeemSurplus"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['credits', 'liabilities', 'vouchers']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "issue",
+      "redeemSurplus"
+     ],
+     "nesting_bound": {
+      "issue": 1
+     }
+    },
+    "phases": {
+     "function": "issue",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .tokensReceived"
+     },
+     "exposed": {
+      "from_marker": "before .tokensReceived",
+      "to_marker": "after .tokensReceived"
+     },
+     "post": {
+      "from_marker": "after .tokensReceived",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .tokensReceived"
+    },
+    "ghost_state": [
+     {
+      "name": "inFlight",
+      "sol_type": "uint256",
+      "meaning": "value received whose credits credit is deferred past the hook",
+      "backed_by_storage": false
+     }
+    ],
+    "exposure_invariant": {
+     "formula": "credits + inFlight <= liabilities",
+     "stable_formula": "credits <= liabilities",
+     "kind": "additive"
+    },
+    "composition": {
+     "target_property": "credits <= liabilities",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for VoucherDesk_TH03a\n  target property phi : credits <= liabilities\n  exposure site       : issue.tokensReceived  (receiver hook)\n  ghost state         : uint256 inFlight\n\n  [A_cb]  ASSUMPTION\n          During issue's exposed phase, re-entrant control is confined to the\n          callback closure ['issue', 'redeemSurplus']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {credits <= liabilities} pre-phase {credits + inFlight <= liabilities}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = credits + inFlight <= liabilities)\n          discharged by: ['OBL_cb_issue', 'OBL_cb_redeemSurplus']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {credits <= liabilities /\\ inFlight==0}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => credits <= liabilities\n      where callbacks are confined to admissible_callbacks=['issue', 'redeemSurplus'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.1,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.33,
+     "purpose": "{I_stable} pre-phase of issue {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_issue",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.73,
+     "purpose": "callback issue preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_redeemSurplus",
+     "module": "closure",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 12.46,
+     "purpose": "callback redeemSurplus preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "credits": "1",
+      "liabilities": "1",
+      "inFlight": "1",
+      "caller": "0x011a",
+      "who": "0x0119",
+      "to": "0x0119",
+      "p_credits": "0",
+      "p_liabilities": "1",
+      "p_inFlight": "1",
+      "p_vouchers_caller": "1142",
+      "p_vouchers_who": "1",
+      "p_vouchers_to": "115792089237316195423570985008687907853269984665640564039457584007913129620670",
+      "s": "1"
+     }
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.42,
+     "purpose": "{I_exp} post-phase of issue {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.19,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_redeemSurplus",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.94,
+     "purpose": "public transition redeemSurplus preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_cb_redeemSurplus"
+   ],
+   "unknown": [],
+   "outcome": "BUG_CANDIDATE",
+   "witness": {
+    "refuting_obligation": "OBL_cb_redeemSurplus",
+    "kind": "source-level depth-one witness (modeled semantics)",
+    "explanation": "the admissible callback redeemSurplus is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates credits <= liabilities",
+    "counterexample": {
+     "credits": "1",
+     "liabilities": "1",
+     "inFlight": "1",
+     "caller": "0x011a",
+     "who": "0x0119",
+     "to": "0x0119",
+     "p_credits": "0",
+     "p_liabilities": "1",
+     "p_inFlight": "1",
+     "p_vouchers_caller": "1142",
+     "p_vouchers_who": "1",
+     "p_vouchers_to": "115792089237316195423570985008687907853269984665640564039457584007913129620670",
+     "s": "1"
+    }
+   }
+  }
+ ]
+}

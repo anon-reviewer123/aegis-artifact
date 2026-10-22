@@ -1,0 +1,41 @@
+======================================================================
+AEGIS report  --  SavingsVault_CR01a   [CR01a]
+======================================================================
+dataset          : curated_twin
+family           : Classic reentrancy
+twin / incident  : CR01
+ground-truth label: unsafe
+  label rationale : the caller's balances entry and liabilities are cleared only after the payout call, so a re-entrant withdrawAll pays the same balance twice
+mechanism        : savings vault: depositors withdraw their full balance
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['deposit', 'withdrawAll']
+footprint : ['balances', 'liabilities', 'reserve']
+I_exp     : reserve + inFlight >= liabilities && balances[caller] >= inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         3.52s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          3.96s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_deposit                   6.13s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_withdrawAll               5.97s  (closure)  canary=refuted
+            counterexample: {'reserve': '0', 'liabilities': '0', 'inFlight': '1', 'caller': '0x4819', 'who': '0x4819', 'amt': '115792089237316195423570985008687907853269984665640564039457584007913129638611'}
+  [VERIFIED] OBL_post                         4.42s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies                4.0s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_deposit                 3.93s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_withdrawAll
+  the admissible callback withdrawAll is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates reserve >= liabilities
+  witness state       : {'reserve': '0', 'liabilities': '0', 'inFlight': '1', 'caller': '0x4819', 'who': '0x4819', 'amt': '115792089237316195423570985008687907853269984665640564039457584007913129638611'}
+
+repair rounds    : 0
+
+======================================================================

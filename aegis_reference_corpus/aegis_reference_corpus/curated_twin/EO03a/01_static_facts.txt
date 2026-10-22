@@ -1,0 +1,21 @@
+AEGIS static analysis  --  RefundCenter_EO03a
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : RefundCenter_EO03a
+inheritance      : RefundCenter_EO03a
+frozen target    : refundCash >= refundDebt
+
+state variables (resolved across inheritance):
+  refundOf                     mapping(address => uint256)
+  refundCash                   uint256
+  refundDebt                   uint256
+
+callback-capable external call sites:
+  claim.call#0  line 21  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['refundCash', 'refundDebt', 'refundOf']
+conservative closure Closure(s) = ['accrue', 'claim']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

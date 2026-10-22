@@ -1,0 +1,24 @@
+AEGIS static analysis  --  AuctionHouse_PH01b
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : AuctionHouse_PH01b
+inheritance      : AuctionHouse_PH01b
+frozen target    : phase != CLOSED || escrow == 0
+
+state variables (resolved across inheritance):
+  OPEN                         uint8   [constant]
+  CLOSED                       uint8   [constant]
+  phase                        uint8
+  seller                       address
+  escrow                       uint256
+  bids                         mapping(address => uint256)
+
+callback-capable external call sites:
+  close.call#0  line 28  (low-level call)
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['escrow', 'phase']
+conservative closure Closure(s) = ['bid', 'close']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  VestingStart_PH03a   [PH03a]
+======================================================================
+dataset          : curated_twin
+family           : Phase-ordering desync
+twin / incident  : PH03
+ground-truth label: safe
+  label rationale : started is set before the keeper hook, so register() reverts inside the window
+mechanism        : vesting schedule: the committed total is frozen when the keeper starts vesting
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['register', 'start']
+footprint : ['committed', 'started', 'totalAllocated']
+I_exp     : started && committed == totalAllocated   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.08s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          6.05s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_register                   9.9s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_start                     9.86s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         4.99s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies                5.8s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_register                5.37s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for VestingStart_PH03a
+  target property phi : !started || committed == totalAllocated
+  exposure site       : start.onStart  (external interface call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During start's exposed phase, re-entrant control is confined to the
+          callback closure ['register', 'start']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {!started || committed == totalAllocated} pre-phase {started && committed == totalAllocated}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = started && committed == totalAllocated)
+          discharged by: ['OBL_cb_register', 'OBL_cb_start']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {!started || committed == totalAllocated /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => !started || committed == totalAllocated
+      where callbacks are confined to admissible_callbacks=['register', 'start'], depth-one
+
+repair rounds    : 0
+
+======================================================================

@@ -1,0 +1,113 @@
+{
+ "contract": "RoyaltySplitter",
+ "cid": "DP03",
+ "dataset": "deployed_style",
+ "family": "forced_revert_loop",
+ "pair": null,
+ "ground_truth_label": "safe",
+ "label_rationale": "a failed payee transfer is caught and booked to rescued[], so the loop always runs to completion",
+ "mechanism": "flattened royalty splitter; pushes ETH to a payee list in one loop",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 2.4,
+ "static": {
+  "state_vars": [
+   {
+    "name": "payees",
+    "type": "address payable[]",
+    "contract": "RoyaltySplitter",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "shareBps",
+    "type": "mapping(address => uint256)",
+    "contract": "RoyaltySplitter",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalReleased",
+    "type": "uint256",
+    "contract": "RoyaltySplitter",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "releasedTo",
+    "type": "mapping(address => uint256)",
+    "contract": "RoyaltySplitter",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "rescued",
+    "type": "mapping(address => uint256)",
+    "contract": "RoyaltySplitter",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "distributing",
+    "type": "bool",
+    "contract": "RoyaltySplitter",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_owner",
+    "type": "address",
+    "contract": "Ownable",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "RoyaltySplitter",
+    "function": "release",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 84,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   },
+   {
+    "contract": "RoyaltySplitter",
+    "function": "withdrawRescued",
+    "call": ".transfer",
+    "kind": "transfer (2300 gas)",
+    "line": 98,
+    "in_loop": false,
+    "gas_forwarding": false,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "RoyaltySplitter",
+   "Ownable",
+   "Context"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "verified",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 2.37,
+   "purpose": "progress: no payee outcome aborts the split (finite failure isolation)",
+   "nonvacuity_canary": "refuted"
+  }
+ ],
+ "schema": "progress"
+}

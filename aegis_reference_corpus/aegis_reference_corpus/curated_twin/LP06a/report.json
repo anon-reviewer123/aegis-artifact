@@ -1,0 +1,94 @@
+{
+ "contract": "RewardsBatch_LP06a",
+ "cid": "LP06a",
+ "dataset": "curated_twin",
+ "family": "forced_revert_loop",
+ "pair": "LP06",
+ "ground_truth_label": "safe",
+ "label_rationale": "distribute() holds a distributing flag, so a recipient cannot re-enter it",
+ "mechanism": "rewards pushed to recipients in one loop",
+ "target_property": null,
+ "arm": "loop",
+ "arm_reason": "a callback-capable call occurs inside a loop; the inductive loop-step rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 5.0,
+ "static": {
+  "state_vars": [
+   {
+    "name": "claimable",
+    "type": "mapping(address => uint256)",
+    "contract": "RewardsBatch_LP06a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "funded",
+    "type": "mapping(address => uint256)",
+    "contract": "RewardsBatch_LP06a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "paidTo",
+    "type": "mapping(address => uint256)",
+    "contract": "RewardsBatch_LP06a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "recipients",
+    "type": "address[]",
+    "contract": "RewardsBatch_LP06a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "distributing",
+    "type": "bool",
+    "contract": "RewardsBatch_LP06a",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "owner",
+    "type": "address",
+    "contract": "RewardsBatch_LP06a",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "RewardsBatch_LP06a",
+    "function": "distribute",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 38,
+    "in_loop": true,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "RewardsBatch_LP06a"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_loop_step",
+   "module": "loop",
+   "status": "verified",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 5.01,
+   "purpose": "mutex: cumulative payment to every recipient is bounded by the amount funded for it",
+   "nonvacuity_canary": "refuted"
+  }
+ ],
+ "schema": "mutex"
+}

@@ -1,0 +1,66 @@
+======================================================================
+AEGIS report  --  MarginDesk_CF06b   [CF06b]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF06
+ground-truth label: safe
+  label rationale : collateral is decremented before the payout call, so no surplus is visible inside the window
+mechanism        : margin desk: idle collateral above margin can be skimmed into margin
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['postMargin', 'addInsurance', 'skim', 'closeTrade']
+footprint : ['collateral', 'margin', 'marginTotal']
+I_exp     : collateral >= marginTotal   [stable]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         6.04s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          7.57s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_postMargin                7.01s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_addInsurance              7.44s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_skim                      7.54s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_closeTrade                8.07s  (closure)  canary=refuted
+  [VERIFIED] OBL_post                         7.84s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               7.37s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_postMargin              6.83s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_addInsurance            5.87s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_skim                    5.84s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for MarginDesk_CF06b
+  target property phi : collateral >= marginTotal
+  exposure site       : closeTrade.call  (low-level call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During closeTrade's exposed phase, re-entrant control is confined to the
+          callback closure ['postMargin', 'addInsurance', 'skim', 'closeTrade']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {collateral >= marginTotal} pre-phase {collateral >= marginTotal}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = collateral >= marginTotal)
+          discharged by: ['OBL_cb_postMargin', 'OBL_cb_addInsurance', 'OBL_cb_skim', 'OBL_cb_closeTrade']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {collateral >= marginTotal /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => collateral >= marginTotal
+      where callbacks are confined to admissible_callbacks=['postMargin', 'addInsurance', 'skim', 'closeTrade'], depth-one
+
+repair rounds    : 0
+
+======================================================================

@@ -1,0 +1,25 @@
+AEGIS static analysis  --  SurplusVault
+================================================================
+analyzer         : solc 0.8.26 AST (compiler front end)
+main contract    : SurplusVault
+inheritance      : SurplusVault <- ReentrancyGuard <- Context
+frozen target    : totalShares <= assets
+
+state variables (resolved across inheritance):
+  shareOf                      mapping(address => uint256)
+  totalShares                  uint256
+  assets                       uint256
+  _NOT_ENTERED                 uint256   [constant]
+  _ENTERED                     uint256   [constant]
+  _status                      uint256
+
+callback-capable external call sites:
+  deposit.onERC721Received#0  line 44  (receiver hook)
+  redeem.transfer#0  line 62  (transfer (2300 gas))
+
+selected arm     : GENERAL
+reason           : a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+proof footprint  : Foot(s) = ['assets', 'shareOf', 'totalShares']
+conservative closure Closure(s) = ['mintSurplus', 'redeem']
+  (functions whose read/write effects intersect the footprint; the
+   closure soundness gate requires the plan's closure to be a superset)

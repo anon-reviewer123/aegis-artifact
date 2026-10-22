@@ -1,0 +1,41 @@
+======================================================================
+AEGIS report  --  EscrowDesk_CR04b   [CR04b]
+======================================================================
+dataset          : curated_twin
+family           : Classic reentrancy
+twin / incident  : CR04
+ground-truth label: unsafe
+  label rationale : the caller's escrowed entry and committed are cleared only after the payout call, so a re-entrant releaseAll pays the same balance twice
+mechanism        : escrow desk: depositors release their escrowed funds
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['lock', 'releaseAll']
+footprint : ['committed', 'escrowed', 'held']
+I_exp     : held + inFlight >= committed && escrowed[caller] >= inFlight   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         2.95s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          3.43s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_lock                      5.59s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_releaseAll                6.21s  (closure)  canary=refuted
+            counterexample: {'held': '0', 'committed': '0', 'inFlight': '1', 'caller': '0x4819', 'who': '0x4819', 'amt': '21656'}
+  [VERIFIED] OBL_post                          4.1s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               3.62s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_lock                    3.71s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_releaseAll
+  the admissible callback releaseAll is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates held >= committed
+  witness state       : {'held': '0', 'committed': '0', 'inFlight': '1', 'caller': '0x4819', 'who': '0x4819', 'amt': '21656'}
+
+repair rounds    : 0
+
+======================================================================

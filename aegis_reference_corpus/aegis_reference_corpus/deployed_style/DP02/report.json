@@ -1,0 +1,230 @@
+{
+ "contract": "StakePool",
+ "cid": "DP02",
+ "dataset": "deployed_style",
+ "family": "classic_reentrancy",
+ "pair": null,
+ "ground_truth_label": "safe",
+ "label_rationale": "stake and unstake share the nonReentrant lock; a token-transfer callback cannot re-enter to desynchronise staked from totalStaked",
+ "mechanism": "flattened staking pool (Ownable + ReentrancyGuard); stake token transfer can call back",
+ "target_property": "staked[u] <= totalStaked for every account u",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 42.8,
+ "static": {
+  "state_vars": [
+   {
+    "name": "stakeToken",
+    "type": "contract IERC20",
+    "contract": "StakePool",
+    "constant": false,
+    "immutable": true
+   },
+   {
+    "name": "staked",
+    "type": "mapping(address => uint256)",
+    "contract": "StakePool",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalStaked",
+    "type": "uint256",
+    "contract": "StakePool",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "rewardPool",
+    "type": "uint256",
+    "contract": "StakePool",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_owner",
+    "type": "address",
+    "contract": "Ownable",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "StakePool",
+    "function": "stake",
+    "call": ".transferFrom",
+    "kind": "external interface call",
+    "line": 90,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   },
+   {
+    "contract": "StakePool",
+    "function": "unstake",
+    "call": ".transfer",
+    "kind": "external interface call",
+    "line": 99,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "StakePool",
+   "ReentrancyGuard",
+   "Ownable",
+   "Context"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "stake"
+   ],
+   "footprint": [
+    "_status",
+    "staked",
+    "totalStaked"
+   ],
+   "mcvp": {
+    "contract": "StakePool",
+    "closure": {
+     "site_function": "unstake",
+     "site_call": ".transfer",
+     "functions": [
+      "stake"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['_status', 'staked', 'totalStaked']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "stake"
+     ],
+     "nesting_bound": {
+      "unstake": 1
+     }
+    },
+    "phases": {
+     "function": "unstake",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .transfer"
+     },
+     "exposed": {
+      "from_marker": "before .transfer",
+      "to_marker": "after .transfer"
+     },
+     "post": {
+      "from_marker": "after .transfer",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .transfer"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "staked[caller] <= totalStaked && _status == 2",
+     "stable_formula": "staked[caller] <= totalStaked && _status == 1",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "staked[caller] <= totalStaked",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for StakePool\n  target property phi : staked[caller] <= totalStaked\n  exposure site       : unstake.transfer  (external interface call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During unstake's exposed phase, re-entrant control is confined to the\n          callback closure ['stake']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {staked[caller] <= totalStaked && _status == 1} pre-phase {staked[caller] <= totalStaked && _status == 2}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = staked[caller] <= totalStaked && _status == 2)\n          discharged by: ['OBL_cb_stake']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {staked[caller] <= totalStaked && _status == 1 /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => staked[caller] <= totalStaked\n      where callbacks are confined to admissible_callbacks=['stake'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.43,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.01,
+     "purpose": "{I_stable} pre-phase of unstake {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_stake",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.92,
+     "purpose": "callback stake preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.76,
+     "purpose": "{I_exp} post-phase of unstake {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.26,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_stake",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.42,
+     "purpose": "public transition stake preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

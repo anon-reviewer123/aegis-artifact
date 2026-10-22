@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  SaleFinalizer_PH02a   [PH02a]
+======================================================================
+dataset          : curated_twin
+family           : Phase-ordering desync
+twin / incident  : PH02
+ground-truth label: safe
+  label rationale : finalized is set before the treasury call, so contribute() reverts inside the window
+mechanism        : token sale: raised funds are sent to the treasury when the sale is finalized
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['contribute', 'finalize']
+footprint : ['finalized', 'raised', 'withdrawn']
+I_exp     : finalized && withdrawn == raised   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         5.84s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          7.79s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_contribute               10.43s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_finalize                 10.38s  (closure)  canary=verified
+  [VERIFIED] OBL_post                          5.2s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               5.29s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_contribute              5.16s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for SaleFinalizer_PH02a
+  target property phi : !finalized || withdrawn == raised
+  exposure site       : finalize.call  (low-level call)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During finalize's exposed phase, re-entrant control is confined to the
+          callback closure ['contribute', 'finalize']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {withdrawn <= raised && (!finalized || withdrawn == raised)} pre-phase {finalized && withdrawn == raised}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = finalized && withdrawn == raised)
+          discharged by: ['OBL_cb_contribute', 'OBL_cb_finalize']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {withdrawn <= raised && (!finalized || withdrawn == raised) /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => !finalized || withdrawn == raised
+      where callbacks are confined to admissible_callbacks=['contribute', 'finalize'], depth-one
+
+repair rounds    : 0
+
+======================================================================

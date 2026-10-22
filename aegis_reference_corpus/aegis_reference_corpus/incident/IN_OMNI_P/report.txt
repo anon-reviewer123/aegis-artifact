@@ -1,0 +1,64 @@
+======================================================================
+AEGIS report  --  OmniLendPatched   [IN_OMNI_P]
+======================================================================
+dataset          : incident
+family           : Documented incident
+twin / incident  : omni_protocol
+ground-truth label: safe
+  label rationale : collateral is settled before the ERC721 notification and the function is nonReentrant
+mechanism        : Omni Protocol (Jul 2022): ERC721 onERC721Received reentrancy; collateral withdrawal notifies the owner before settling, enabling borrow against in-flight collateral
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['depositCollateral', 'borrow', 'withdrawCollateral']
+footprint : ['_status', 'collateralOf', 'debtOf', 'totalCollateral']
+I_exp     : debtOf[caller] <= collateralOf[caller] && _status == 2   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                        10.34s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          10.5s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_depositCollateral        11.46s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_borrow                   11.33s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_withdrawCollateral       11.48s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         8.35s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               8.07s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_depositCollateral       7.67s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_borrow                  7.21s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+Assume-Guarantee specification for OmniLendPatched
+  target property phi : debtOf[caller] <= collateralOf[caller]
+  exposure site       : withdrawCollateral.onERC721Received  (receiver hook)
+  ghost state         : (none)
+
+  [A_cb]  ASSUMPTION
+          During withdrawCollateral's exposed phase, re-entrant control is confined to the
+          callback closure ['depositCollateral', 'borrow', 'withdrawCollateral']; every such callback is admitted by the
+          protocol, with bounded depth-one nesting.
+          discharged by: conservative-closure soundness gate (static, not the LLM)
+
+  [G_pre] GUARANTEE
+          {debtOf[caller] <= collateralOf[caller] && _status == 1} pre-phase {debtOf[caller] <= collateralOf[caller] && _status == 2}
+          discharged by: OBL_pre
+
+  [G_exp] GUARANTEE
+          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = debtOf[caller] <= collateralOf[caller] && _status == 2)
+          discharged by: ['OBL_cb_depositCollateral', 'OBL_cb_borrow', 'OBL_cb_withdrawCollateral']
+
+  [G_post] GUARANTEE
+          {I_exp} post-phase {debtOf[caller] <= collateralOf[caller] && _status == 1 /\ true}
+          discharged by: OBL_post
+
+  COMPOSITION THEOREM (instance):
+    A_cb => (G_pre /\ G_exp /\ G_post) => debtOf[caller] <= collateralOf[caller]
+      where callbacks are confined to admissible_callbacks=['depositCollateral', 'borrow', 'withdrawCollateral'], depth-one
+
+repair rounds    : 0
+
+======================================================================

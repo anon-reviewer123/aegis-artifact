@@ -1,0 +1,436 @@
+{
+ "contract": "SurplusVault",
+ "cid": "DP05",
+ "dataset": "deployed_style",
+ "family": "token_hook",
+ "pair": null,
+ "ground_truth_label": "unsafe",
+ "label_rationale": "deposit() increases assets before the onERC721Received hook but credits totalShares only after it; during the hook assets > totalShares, so a re-entrant mintSurplus() mints shares against backing that the same deposit is about to claim",
+ "mechanism": "flattened surplus vault; the deposit hook exposes a transient surplus that a different function mints against",
+ "target_property": "totalShares <= assets",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "BUG_FOUND",
+ "outcome_vs_label": "TP",
+ "outcome_note": "correct",
+ "repair_rounds": 1,
+ "approx_solver_seconds": 93.3,
+ "static": {
+  "state_vars": [
+   {
+    "name": "shareOf",
+    "type": "mapping(address => uint256)",
+    "contract": "SurplusVault",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalShares",
+    "type": "uint256",
+    "contract": "SurplusVault",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "assets",
+    "type": "uint256",
+    "contract": "SurplusVault",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "SurplusVault",
+    "function": "deposit",
+    "call": ".onERC721Received",
+    "kind": "receiver hook",
+    "line": 44,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   },
+   {
+    "contract": "SurplusVault",
+    "function": "redeem",
+    "call": ".transfer",
+    "kind": "transfer (2300 gas)",
+    "line": 62,
+    "in_loop": false,
+    "gas_forwarding": false,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "SurplusVault",
+   "ReentrancyGuard",
+   "Context"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "mintSurplus",
+    "redeem"
+   ],
+   "footprint": [
+    "assets",
+    "shareOf",
+    "totalShares"
+   ],
+   "mcvp": {
+    "contract": "SurplusVault",
+    "closure": {
+     "site_function": "deposit",
+     "site_call": ".onERC721Received",
+     "functions": [
+      "mintSurplus",
+      "redeem"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['assets', 'shareOf', 'totalShares']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "mintSurplus",
+      "redeem"
+     ],
+     "nesting_bound": {
+      "deposit": 1
+     }
+    },
+    "phases": {
+     "function": "deposit",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .onERC721Received"
+     },
+     "exposed": {
+      "from_marker": "before .onERC721Received",
+      "to_marker": "after .onERC721Received"
+     },
+     "post": {
+      "from_marker": "after .onERC721Received",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .onERC721Received"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "totalShares <= assets",
+     "stable_formula": "assets == totalShares",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "totalShares <= assets",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for SurplusVault\n  target property phi : totalShares <= assets\n  exposure site       : deposit.onERC721Received  (receiver hook)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During deposit's exposed phase, re-entrant control is confined to the\n          callback closure ['mintSurplus', 'redeem']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {assets == totalShares} pre-phase {totalShares <= assets}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = totalShares <= assets)\n          discharged by: ['OBL_cb_mintSurplus', 'OBL_cb_redeem']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {assets == totalShares /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => totalShares <= assets\n      where callbacks are confined to admissible_callbacks=['mintSurplus', 'redeem'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.07,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.97,
+     "purpose": "{I_stable} pre-phase of deposit {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_mintSurplus",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.61,
+     "purpose": "callback mintSurplus preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_redeem",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.82,
+     "purpose": "callback redeem preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 9.65,
+     "purpose": "{I_exp} post-phase of deposit {I_stable}",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "totalShares": "1",
+      "assets": "2",
+      "to": "0x0476",
+      "caller": "0x0476",
+      "who": "0x0476",
+      "p_totalShares": "0",
+      "p_assets": "2",
+      "p_shareOf_to": "20537",
+      "p_shareOf_caller": "5854",
+      "p_shareOf_who": "5853",
+      "value": "1"
+     }
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.96,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_mintSurplus",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.46,
+     "purpose": "public transition mintSurplus preserves I_stable",
+     "nonvacuity_canary": "verified",
+     "excluded": "entry precondition unsatisfiable in this phase (function excluded here)"
+    },
+    {
+     "obligation": "OBL_keep_redeem",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 3.57,
+     "purpose": "public transition redeem preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_post"
+   ],
+   "unknown": [],
+   "outcome": "PLAN_REFUTED",
+   "repair": "the refuted obligation is a phase/preservation check under a non-inductive exposure invariant; repair strengthens the plan with ghost state and re-verifies"
+  },
+  {
+   "plan": "c1",
+   "closure": [
+    "mintSurplus",
+    "redeem"
+   ],
+   "footprint": [
+    "assets",
+    "shareOf",
+    "totalShares"
+   ],
+   "mcvp": {
+    "contract": "SurplusVault",
+    "closure": {
+     "site_function": "deposit",
+     "site_call": ".onERC721Received",
+     "functions": [
+      "mintSurplus",
+      "redeem"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['assets', 'shareOf', 'totalShares']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "mintSurplus",
+      "redeem"
+     ],
+     "nesting_bound": {
+      "deposit": 1
+     }
+    },
+    "phases": {
+     "function": "deposit",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .onERC721Received"
+     },
+     "exposed": {
+      "from_marker": "before .onERC721Received",
+      "to_marker": "after .onERC721Received"
+     },
+     "post": {
+      "from_marker": "after .onERC721Received",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .onERC721Received"
+    },
+    "ghost_state": [
+     {
+      "name": "inFlight",
+      "sol_type": "uint256",
+      "meaning": "deposited value added to assets before the hook, whose share credit is deferred to the post-phase",
+      "backed_by_storage": false
+     }
+    ],
+    "exposure_invariant": {
+     "formula": "assets == totalShares + inFlight",
+     "stable_formula": "assets == totalShares",
+     "kind": "additive"
+    },
+    "composition": {
+     "target_property": "totalShares <= assets",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for SurplusVault\n  target property phi : totalShares <= assets\n  exposure site       : deposit.onERC721Received  (receiver hook)\n  ghost state         : uint256 inFlight\n\n  [A_cb]  ASSUMPTION\n          During deposit's exposed phase, re-entrant control is confined to the\n          callback closure ['mintSurplus', 'redeem']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {assets == totalShares} pre-phase {assets == totalShares + inFlight}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = assets == totalShares + inFlight)\n          discharged by: ['OBL_cb_mintSurplus', 'OBL_cb_redeem']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {assets == totalShares /\\ inFlight==0}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => totalShares <= assets\n      where callbacks are confined to admissible_callbacks=['mintSurplus', 'redeem'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.43,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.84,
+     "purpose": "{I_stable} pre-phase of deposit {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_mintSurplus",
+     "module": "closure",
+     "status": "refuted",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.28,
+     "purpose": "callback mintSurplus preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted",
+     "counterexample": {
+      "totalShares": "1",
+      "assets": "1",
+      "inFlight": "1",
+      "to": "0xffffffffffffffffffffffffffffffffffffd2b7",
+      "caller": "0x22f1",
+      "who": "0x22f1",
+      "p_totalShares": "0",
+      "p_assets": "1",
+      "p_inFlight": "1",
+      "p_shareOf_to": "26285",
+      "p_shareOf_caller": "6879",
+      "p_shareOf_who": "1142",
+      "s": "1"
+     }
+    },
+    {
+     "obligation": "OBL_cb_redeem",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.41,
+     "purpose": "callback redeem preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.3,
+     "purpose": "{I_exp} post-phase of deposit {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 5.12,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_mintSurplus",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.82,
+     "purpose": "public transition mintSurplus preserves I_stable",
+     "nonvacuity_canary": "verified",
+     "excluded": "entry precondition unsatisfiable in this phase (function excluded here)"
+    },
+    {
+     "obligation": "OBL_keep_redeem",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 4.97,
+     "purpose": "public transition redeem preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [
+    "OBL_cb_mintSurplus"
+   ],
+   "unknown": [],
+   "outcome": "BUG_CANDIDATE",
+   "witness": {
+    "refuting_obligation": "OBL_cb_mintSurplus",
+    "kind": "source-level depth-one witness (modeled semantics)",
+    "explanation": "the admissible callback mintSurplus is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates totalShares <= assets",
+    "counterexample": {
+     "totalShares": "1",
+     "assets": "1",
+     "inFlight": "1",
+     "to": "0xffffffffffffffffffffffffffffffffffffd2b7",
+     "caller": "0x22f1",
+     "who": "0x22f1",
+     "p_totalShares": "0",
+     "p_assets": "1",
+     "p_inFlight": "1",
+     "p_shareOf_to": "26285",
+     "p_shareOf_caller": "6879",
+     "p_shareOf_who": "1142",
+     "s": "1"
+    }
+   }
+  }
+ ]
+}

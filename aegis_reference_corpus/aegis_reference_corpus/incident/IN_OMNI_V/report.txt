@@ -1,0 +1,65 @@
+======================================================================
+AEGIS report  --  OmniLendVuln   [IN_OMNI_V]
+======================================================================
+dataset          : incident
+family           : Documented incident
+twin / incident  : omni_protocol
+ground-truth label: unsafe
+  label rationale : withdrawCollateral debits collateral and calls the owner's onERC721Received before clearing totalCollateral, so the owner re-enters borrow against collateral being removed, leaving debt above collateral
+mechanism        : Omni Protocol (Jul 2022): ERC721 onERC721Received reentrancy; collateral withdrawal notifies the owner before settling, enabling borrow against in-flight collateral
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : BUG_FOUND
+vs. label        : TP (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   PLAN_REFUTED
+----------------------------------------------------------------------
+closure   : ['depositCollateral', 'borrow', 'withdrawCollateral']
+footprint : ['collateralOf', 'debtOf', 'totalCollateral']
+I_exp     : debtOf[caller] <= collateralOf[caller]   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                        10.03s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          3.67s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_depositCollateral        10.99s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_borrow                   10.93s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_withdrawCollateral       10.83s  (closure)  canary=refuted
+  [REFUTED ] OBL_post                          4.9s  (phases)  canary=refuted
+            counterexample: {'totalCollateral': '0', 'caller': '0x4819', 'who': '0x4819', 'amount': '115792089237316195423570985008687907853269984665640564039457584007913129639095'}
+  [VERIFIED] OBL_stable_implies               7.34s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_depositCollateral       9.66s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_borrow                  5.08s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+repair    : the refuted obligation is a phase/preservation check under a non-inductive exposure invariant; repair strengthens the plan with ghost state and re-verifies
+
+----------------------------------------------------------------------
+MCVP plan c1   (REPAIR ROUND 1)   ->   BUG_CANDIDATE
+----------------------------------------------------------------------
+closure   : ['depositCollateral', 'borrow', 'withdrawCollateral']
+footprint : ['collateralOf', 'debtOf', 'totalCollateral']
+I_exp     : debtOf[caller] + pulled <= collateralOf[caller]   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                        10.52s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.35s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_depositCollateral         12.1s  (closure)  canary=refuted
+  [REFUTED ] OBL_cb_borrow                   12.76s  (closure)  canary=refuted
+            counterexample: {'totalCollateral': '0', 'pulled': '22117', 'caller': '0x5664', 'who': '0x5664', 'amount': '22115'}
+  [REFUTED ] OBL_cb_withdrawCollateral       12.73s  (closure)  canary=refuted
+            counterexample: {'totalCollateral': '0', 'pulled': '115792089237316195423570985008687907853269984665640564039457584007913129594436', 'caller': '0x52f5', 'who': '0x52f5', 'amount': '13214'}
+  [VERIFIED] OBL_post                         6.09s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               7.68s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_depositCollateral       9.75s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_borrow                  5.48s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+source-level witness gate:
+  refuting obligation : OBL_cb_borrow
+  the admissible callback borrow is admitted by A_cb and drives I_exp to false during the exposed phase; replayed on the source model it violates debtOf[caller] <= collateralOf[caller]
+  witness state       : {'totalCollateral': '0', 'pulled': '22117', 'caller': '0x5664', 'who': '0x5664', 'amount': '22115'}
+
+repair rounds    : 1
+
+======================================================================

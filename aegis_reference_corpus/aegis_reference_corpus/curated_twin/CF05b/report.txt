@@ -1,0 +1,62 @@
+======================================================================
+AEGIS report  --  YieldBook_CF05b   [CF05b]
+======================================================================
+dataset          : curated_twin
+family           : Cross-function desync
+twin / incident  : CF05
+ground-truth label: safe
+  label rationale : an exposure flag set across the call blocks harvest() and re-entry into redeem()
+mechanism        : yield book: harvest converts holdings above principal into principal
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : GENERAL  --  a state-changing callback with a user/frozen target; the general assume-guarantee arm applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+----------------------------------------------------------------------
+MCVP plan c0   (PROPOSAL)   ->   PLAN_REFUTED
+----------------------------------------------------------------------
+closure   : ['supply', 'accrue', 'harvest', 'redeem']
+footprint : ['exposed', 'holdings', 'principal', 'principalTotal']
+I_exp     : holdings >= principalTotal && exposed   [phase-consistency]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         8.28s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.95s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_supply                    8.94s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_accrue                    8.31s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_harvest                   3.44s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_redeem                    3.47s  (closure)  canary=verified
+  [REFUTED ] OBL_post                        12.01s  (phases)  canary=refuted
+            counterexample: {'holdings': '0', 'principalTotal': '1', 'exposed': 'false', 'caller': '0x0476', 'who': '0x0476', 'amount': '1'}
+  [VERIFIED] OBL_stable_implies               8.21s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_supply                  7.53s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_accrue                  7.61s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_harvest                 7.22s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+repair    : the refuted obligation is a phase/preservation check under a non-inductive exposure invariant; repair strengthens the plan with ghost state and re-verifies
+
+----------------------------------------------------------------------
+MCVP plan c1   (REPAIR ROUND 1)   ->   VERIFIED
+----------------------------------------------------------------------
+closure   : ['supply', 'accrue', 'harvest', 'redeem']
+footprint : ['exposed', 'holdings', 'principal', 'principalTotal']
+I_exp     : holdings >= principalTotal + inFlight && exposed   [additive]
+
+obligations discharged by SMTChecker CHC (Eldarica 2.2.1):
+  [VERIFIED] OBL_init                         7.41s  (global)  canary=refuted
+  [VERIFIED] OBL_pre                          8.65s  (phases)  canary=refuted
+  [VERIFIED] OBL_cb_supply                    8.69s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_accrue                    8.69s  (closure)  canary=refuted
+  [VERIFIED] OBL_cb_harvest                   3.49s  (closure)  canary=verified
+  [VERIFIED] OBL_cb_redeem                    3.51s  (closure)  canary=verified
+  [VERIFIED] OBL_post                         9.07s  (phases)  canary=refuted
+  [VERIFIED] OBL_stable_implies               8.69s  (composition)  canary=refuted
+  [VERIFIED] OBL_keep_supply                  7.14s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_accrue                  6.55s  (global)  canary=refuted
+  [VERIFIED] OBL_keep_harvest                 6.49s  (global)  canary=refuted
+non-vacuity: passed (all canaries refuted)
+
+repair rounds    : 1
+
+======================================================================

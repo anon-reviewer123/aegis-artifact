@@ -1,0 +1,25 @@
+======================================================================
+AEGIS report  --  LPVault_RO01b   [RO01b]
+======================================================================
+dataset          : curated_twin
+family           : Read-only reentrancy
+twin / incident  : RO01
+ground-truth label: safe
+  label rationale : reserve is reduced before the call, so the view sees the settled value during the window (label is the local quiescence property, not exploitability)
+mechanism        : LP vault: excess backing view consumed by external integrators
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : READONLY  --  an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies
+AEGIS verdict    : quiescent
+vs. label        : TN (quiescent)
+
+observed view    : excessBacking()  (obs = reserve - supply)
+observation footprint reads : ['reserve', 'supply']
+
+observational-quiescence obligation  OBL_ro:
+  obs(sigma_e) == obs(sigma_0)  ||  obs(sigma_e) == obs(sigma_1)
+  [VERIFIED] OBL_ro_excessBacking       4.12s  canary=refuted
+
+read-only outcome: quiescent  (observational property, not a vulnerability label)
+
+======================================================================

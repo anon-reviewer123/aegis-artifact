@@ -1,0 +1,214 @@
+{
+ "contract": "GrimVaultPatched",
+ "cid": "IN_GRIM_P",
+ "dataset": "incident",
+ "family": "incident",
+ "pair": "grim_finance",
+ "ground_truth_label": "safe",
+ "label_rationale": "shares are credited before the token transfer and deposit/withdraw are nonReentrant",
+ "mechanism": "Grim Finance (Dec 2021): vault deposit reentrancy via a malicious LP token transferFrom; shares minted from a post-transfer pool delta",
+ "target_property": "backedShares <= pooledTokens",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 39.1,
+ "static": {
+  "state_vars": [
+   {
+    "name": "underlying",
+    "type": "contract IERC20",
+    "contract": "GrimVaultPatched",
+    "constant": false,
+    "immutable": true
+   },
+   {
+    "name": "shareOf",
+    "type": "mapping(address => uint256)",
+    "contract": "GrimVaultPatched",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "backedShares",
+    "type": "uint256",
+    "contract": "GrimVaultPatched",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "pooledTokens",
+    "type": "uint256",
+    "contract": "GrimVaultPatched",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "GrimVaultPatched",
+    "function": "deposit",
+    "call": ".transferFrom",
+    "kind": "external interface call",
+    "line": 57,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   },
+   {
+    "contract": "GrimVaultPatched",
+    "function": "withdraw",
+    "call": ".transfer",
+    "kind": "external interface call",
+    "line": 65,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "GrimVaultPatched",
+   "ReentrancyGuard",
+   "Context"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "deposit"
+   ],
+   "footprint": [
+    "_status",
+    "backedShares",
+    "pooledTokens",
+    "shareOf"
+   ],
+   "mcvp": {
+    "contract": "GrimVaultPatched",
+    "closure": {
+     "site_function": "deposit",
+     "site_call": ".transferFrom",
+     "functions": [
+      "deposit"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['_status', 'backedShares', 'pooledTokens', 'shareOf']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "deposit"
+     ],
+     "nesting_bound": {
+      "deposit": 1
+     }
+    },
+    "phases": {
+     "function": "deposit",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .transferFrom"
+     },
+     "exposed": {
+      "from_marker": "before .transferFrom",
+      "to_marker": "after .transferFrom"
+     },
+     "post": {
+      "from_marker": "after .transferFrom",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .transferFrom"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "backedShares <= pooledTokens && _status == 2",
+     "stable_formula": "backedShares <= pooledTokens && _status == 1",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "backedShares <= pooledTokens",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for GrimVaultPatched\n  target property phi : backedShares <= pooledTokens\n  exposure site       : deposit.transferFrom  (external interface call)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During deposit's exposed phase, re-entrant control is confined to the\n          callback closure ['deposit']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {backedShares <= pooledTokens && _status == 1} pre-phase {backedShares <= pooledTokens && _status == 2}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = backedShares <= pooledTokens && _status == 2)\n          discharged by: ['OBL_cb_deposit']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {backedShares <= pooledTokens && _status == 1 /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => backedShares <= pooledTokens\n      where callbacks are confined to admissible_callbacks=['deposit'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.49,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.28,
+     "purpose": "{I_stable} pre-phase of deposit {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_deposit",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 11.11,
+     "purpose": "callback deposit preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.3,
+     "purpose": "{I_exp} post-phase of deposit {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 6.93,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

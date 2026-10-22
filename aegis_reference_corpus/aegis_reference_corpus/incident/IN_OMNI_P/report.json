@@ -1,0 +1,240 @@
+{
+ "contract": "OmniLendPatched",
+ "cid": "IN_OMNI_P",
+ "dataset": "incident",
+ "family": "incident",
+ "pair": "omni_protocol",
+ "ground_truth_label": "safe",
+ "label_rationale": "collateral is settled before the ERC721 notification and the function is nonReentrant",
+ "mechanism": "Omni Protocol (Jul 2022): ERC721 onERC721Received reentrancy; collateral withdrawal notifies the owner before settling, enabling borrow against in-flight collateral",
+ "target_property": "debtOf[u] <= collateralOf[u]",
+ "arm": "general",
+ "arm_reason": "a state-changing callback with a user/frozen target; the general assume-guarantee arm applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "VERIFIED",
+ "outcome_vs_label": "TN",
+ "outcome_note": "correct",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 86.4,
+ "static": {
+  "state_vars": [
+   {
+    "name": "collateralOf",
+    "type": "mapping(address => uint256)",
+    "contract": "OmniLendPatched",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "debtOf",
+    "type": "mapping(address => uint256)",
+    "contract": "OmniLendPatched",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "totalCollateral",
+    "type": "uint256",
+    "contract": "OmniLendPatched",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "_NOT_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_ENTERED",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "_status",
+    "type": "uint256",
+    "contract": "ReentrancyGuard",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "OmniLendPatched",
+    "function": "withdrawCollateral",
+    "call": ".onERC721Received",
+    "kind": "receiver hook",
+    "line": 55,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "OmniLendPatched",
+   "ReentrancyGuard",
+   "Context"
+  ]
+ },
+ "mcvp_rounds": [
+  {
+   "plan": "c0",
+   "closure": [
+    "depositCollateral",
+    "borrow",
+    "withdrawCollateral"
+   ],
+   "footprint": [
+    "_status",
+    "collateralOf",
+    "debtOf",
+    "totalCollateral"
+   ],
+   "mcvp": {
+    "contract": "OmniLendPatched",
+    "closure": {
+     "site_function": "withdrawCollateral",
+     "site_call": ".onERC721Received",
+     "functions": [
+      "depositCollateral",
+      "borrow",
+      "withdrawCollateral"
+     ],
+     "justification": "functions whose read/write effects intersect the proof footprint ['_status', 'collateralOf', 'debtOf', 'totalCollateral']"
+    },
+    "protocol": {
+     "during_phase": "exposed",
+     "allowed_callbacks": [
+      "depositCollateral",
+      "borrow",
+      "withdrawCollateral"
+     ],
+     "nesting_bound": {
+      "withdrawCollateral": 1
+     }
+    },
+    "phases": {
+     "function": "withdrawCollateral",
+     "pre": {
+      "from_marker": "entry",
+      "to_marker": "before .onERC721Received"
+     },
+     "exposed": {
+      "from_marker": "before .onERC721Received",
+      "to_marker": "after .onERC721Received"
+     },
+     "post": {
+      "from_marker": "after .onERC721Received",
+      "to_marker": "exit"
+     },
+     "linearization_point": "after .onERC721Received"
+    },
+    "ghost_state": [],
+    "exposure_invariant": {
+     "formula": "debtOf[caller] <= collateralOf[caller] && _status == 2",
+     "stable_formula": "debtOf[caller] <= collateralOf[caller] && _status == 1",
+     "kind": "phase-consistency"
+    },
+    "composition": {
+     "target_property": "debtOf[caller] <= collateralOf[caller]",
+     "rule": "admissible callbacks preserve I_exp; the post-phase restores I_stable, which implies phi"
+    }
+   },
+   "ag_spec_rendered": "Assume-Guarantee specification for OmniLendPatched\n  target property phi : debtOf[caller] <= collateralOf[caller]\n  exposure site       : withdrawCollateral.onERC721Received  (receiver hook)\n  ghost state         : (none)\n\n  [A_cb]  ASSUMPTION\n          During withdrawCollateral's exposed phase, re-entrant control is confined to the\n          callback closure ['depositCollateral', 'borrow', 'withdrawCollateral']; every such callback is admitted by the\n          protocol, with bounded depth-one nesting.\n          discharged by: conservative-closure soundness gate (static, not the LLM)\n\n  [G_pre] GUARANTEE\n          {debtOf[caller] <= collateralOf[caller] && _status == 1} pre-phase {debtOf[caller] <= collateralOf[caller] && _status == 2}\n          discharged by: OBL_pre\n\n  [G_exp] GUARANTEE\n          forall f in A_cb. {I_exp} f {I_exp}   (I_exp = debtOf[caller] <= collateralOf[caller] && _status == 2)\n          discharged by: ['OBL_cb_depositCollateral', 'OBL_cb_borrow', 'OBL_cb_withdrawCollateral']\n\n  [G_post] GUARANTEE\n          {I_exp} post-phase {debtOf[caller] <= collateralOf[caller] && _status == 1 /\\ true}\n          discharged by: OBL_post\n\n  COMPOSITION THEOREM (instance):\n    A_cb => (G_pre /\\ G_exp /\\ G_post) => debtOf[caller] <= collateralOf[caller]\n      where callbacks are confined to admissible_callbacks=['depositCollateral', 'borrow', 'withdrawCollateral'], depth-one",
+   "obligations": [
+    {
+     "obligation": "OBL_init",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.34,
+     "purpose": "constructor establishes I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_pre",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 10.5,
+     "purpose": "{I_stable} pre-phase of withdrawCollateral {I_exp}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_depositCollateral",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 11.46,
+     "purpose": "callback depositCollateral preserves I_exp (depth-one)",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_cb_borrow",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 11.33,
+     "purpose": "callback borrow preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_cb_withdrawCollateral",
+     "module": "closure",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 11.48,
+     "purpose": "callback withdrawCollateral preserves I_exp (depth-one) or is excluded by its guard during exposure",
+     "nonvacuity_canary": "verified",
+     "excluded": "guard unsatisfiable during exposure (callback excluded from the admissible set)"
+    },
+    {
+     "obligation": "OBL_post",
+     "module": "phases",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.35,
+     "purpose": "{I_exp} post-phase of withdrawCollateral {I_stable}",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_stable_implies",
+     "module": "composition",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 8.07,
+     "purpose": "I_stable implies the frozen target",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_depositCollateral",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.67,
+     "purpose": "public transition depositCollateral preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    },
+    {
+     "obligation": "OBL_keep_borrow",
+     "module": "global",
+     "status": "verified",
+     "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+     "seconds": 7.21,
+     "purpose": "public transition borrow preserves I_stable",
+     "nonvacuity_canary": "refuted"
+    }
+   ],
+   "non_vacuity": "passed (all canaries refuted)",
+   "refuted": [],
+   "unknown": [],
+   "outcome": "VERIFIED"
+  }
+ ]
+}

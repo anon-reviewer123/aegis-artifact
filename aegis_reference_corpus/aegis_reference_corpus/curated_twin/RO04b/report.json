@@ -1,0 +1,106 @@
+{
+ "contract": "TicketPool_RO04b",
+ "cid": "RO04b",
+ "dataset": "curated_twin",
+ "family": "read_only",
+ "pair": "RO04",
+ "ground_truth_label": "unsafe",
+ "label_rationale": "soldTickets drops before the refund call and pot after it, so unbackedPot() is inflated inside the window (label is the local quiescence property, not exploitability)",
+ "mechanism": "ticket pool: unbacked pot (sponsor money) shown to front-ends and prize contracts",
+ "target_property": null,
+ "arm": "readonly",
+ "arm_reason": "an exposed public view observes state across the window and every closure member preserves its footprint; the read-only quiescence rule applies",
+ "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+ "solc": "0.8.26",
+ "compiles": true,
+ "verdict": "non_quiescent",
+ "outcome_vs_label": "TP",
+ "outcome_note": "non_quiescent",
+ "repair_rounds": 0,
+ "approx_solver_seconds": 6.4,
+ "static": {
+  "state_vars": [
+   {
+    "name": "PRICE",
+    "type": "uint256",
+    "contract": "TicketPool_RO04b",
+    "constant": true,
+    "immutable": false
+   },
+   {
+    "name": "ticketsOf",
+    "type": "mapping(address => uint256)",
+    "contract": "TicketPool_RO04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "soldTickets",
+    "type": "uint256",
+    "contract": "TicketPool_RO04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "pot",
+    "type": "uint256",
+    "contract": "TicketPool_RO04b",
+    "constant": false,
+    "immutable": false
+   },
+   {
+    "name": "inCall",
+    "type": "bool",
+    "contract": "TicketPool_RO04b",
+    "constant": false,
+    "immutable": false
+   }
+  ],
+  "sites": [
+   {
+    "contract": "TicketPool_RO04b",
+    "function": "cancel",
+    "call": ".call",
+    "kind": "low-level call",
+    "line": 30,
+    "in_loop": false,
+    "gas_forwarding": true,
+    "index": 0
+   }
+  ],
+  "inheritance": [
+   "TicketPool_RO04b"
+  ]
+ },
+ "obligations": [
+  {
+   "obligation": "OBL_ro_unbackedPot",
+   "module": "readonly",
+   "status": "refuted",
+   "backend": "SMTChecker CHC (Eldarica 2.2.1)",
+   "seconds": 6.36,
+   "purpose": "obs during exposure equals entry or settled observation",
+   "nonvacuity_canary": "refuted",
+   "counterexample": {
+    "PRICE": "100000000000000000",
+    "soldTickets": "0",
+    "pot": "0",
+    "inCall": "false",
+    "caller": "0x7794",
+    "p_soldTickets": "1",
+    "p_pot": "100000000000000000",
+    "p_inCall": "false",
+    "p_ticketsOf_caller": "115792089237316195423570985008687907853269984665640564039457584007913129607650",
+    "n": "1",
+    "obs0": "0",
+    "obsE": "100000000000000000",
+    "obs1": "0"
+   },
+   "witness": {
+    "refuting_obligation": "OBL_ro_unbackedPot",
+    "explanation": "the observation during exposure equals neither the entry nor the settled value"
+   }
+  }
+ ],
+ "schema": "read-only quiescence"
+}

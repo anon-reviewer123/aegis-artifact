@@ -1,0 +1,24 @@
+======================================================================
+AEGIS report  --  EscrowBatch_LP08a   [LP08a]
+======================================================================
+dataset          : curated_twin
+family           : Forced-revert / loop
+twin / incident  : LP08
+ground-truth label: safe
+  label rationale : refunded[d] is set before the refund call
+mechanism        : escrow: all depositors are refunded in one loop
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : LOOP  --  a callback-capable call occurs inside a loop; the inductive loop-step rule applies
+AEGIS verdict    : VERIFIED
+vs. label        : TN (correct)
+
+loop schema      : conservation
+loop-step target : cumulative refund to every depositor is bounded by its deposit
+exposure fact    : I_exp = refunded[d] ? refundedAmount[d] <= deposits[d] : refundedAmount[d] == 0
+closure note     : cbSel 1 = depth-one re-entry of refundAll() visiting the same depositor
+
+inductive one-iteration obligation (built around the extracted loop body):
+  [VERIFIED] OBL_loop_step              6.93s  canary=refuted
+
+======================================================================

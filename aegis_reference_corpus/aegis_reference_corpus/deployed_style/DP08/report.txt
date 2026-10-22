@@ -1,0 +1,26 @@
+======================================================================
+AEGIS report  --  ConstantProductPool   [DP08]
+======================================================================
+dataset          : deployed_style
+family           : Read-only reentrancy
+ground-truth label: unknown
+  label rationale : spotPrice reads reserve0/reserve1 during the window; the divisor reserve1 is non-constant so quiescence is a nonlinear constraint
+mechanism        : flattened constant-product AMM; spotPrice() is read by external integrations
+backend          : SMTChecker CHC (Eldarica 2.2.1), solc 0.8.26
+
+selected arm     : UNKNOWN  --  the observation divides two variables that both change across the window; the resulting nonlinear quiescence constraint is outside the backend's reliable fragment, so the read-only arm reports UNKNOWN
+AEGIS verdict    : UNKNOWN
+vs. label        : N/V (UNKNOWN)
+
+AEGIS does not return a definitive verdict on this contract.
+
+scope boundary   : nonlinear observation
+  the read-only obligation for spotPrice divides two exposed reserves; neither operand is constant across the three observation points, so the quiescence check is nonlinear
+
+why UNKNOWN (not VERIFIED): the observation divides two variables that both change across the window; the resulting nonlinear quiescence constraint is outside the backend's reliable fragment, so the read-only arm reports UNKNOWN
+
+the static pass still identifies the exposure sites above; the arm
+selected them but the proof obligations cannot be soundly constructed
+or discharged within the modeled, backend-supported fragment.
+
+======================================================================
